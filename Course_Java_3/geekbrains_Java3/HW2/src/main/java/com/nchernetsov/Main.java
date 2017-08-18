@@ -24,7 +24,11 @@ public class Main {
             String command = strings[0];
 
             // Получить стоимость товара по его имени
-            if (command.equals(Commands.COST.getCommand())) {
+            if (command.equals("/cost")) {
+                if (strings.length > 2) {
+                    System.out.println("Введена неправильная команда. Повторите ввод");
+                    continue;
+                }
                 String name = strings[1];
                 if (checkProductExistance(name)) {
                     System.out.println(getCostByName(name));
@@ -32,21 +36,41 @@ public class Main {
                     System.out.println("Такого товара нет в базе данных");
                 }
             // Изменить стоимость товара с заданным именем
-            } else if (command.equals(Commands.CHANGE_COST.getCommand())) {
+            } else if (command.equals("/change_cost")) {
+                if (strings.length > 3) {
+                    System.out.println("Введена неправильная команда. Повторите ввод");
+                    continue;
+                }
                 String productName = strings[1];
-                int newCost = Integer.parseInt(strings[2]);
-                if (checkProductExistance(productName)) {
-                    changeCostProductByName(productName, newCost);
-                    System.out.println("Стоимость продукта изменена");
-                } else {
-                    System.out.println("Такого товара нет в базе данных");
+                try {
+                    int newCost = Integer.parseInt(strings[2]);
+                    if (checkProductExistance(productName)) {
+                        changeCostProductByName(productName, newCost);
+                        System.out.println("Стоимость продукта изменена");
+                    } else {
+                        System.out.println("Такого товара нет в базе данных");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Введите в качестве новой стоимости целое число");
                 }
             // Вывести список продуктов со стоимостью в заданном диапазоне
-            } else if (command.equals(Commands.GET_BY_COST.getCommand())) {
-                int cost1 = Integer.parseInt(strings[1]);
-                int cost2 = Integer.parseInt(strings[2]);
-                getProductsByCost(cost1, cost2);
-            } else if (command.equals(Commands.EXIT.getCommand())) {
+            } else if (command.equals("/getProductsByCost")) {
+                if (strings.length > 3) {
+                    System.out.println("Введена неправильная команда. Повторите ввод");
+                    continue;
+                }
+                try {
+                    int cost1 = Integer.parseInt(strings[1]);
+                    int cost2 = Integer.parseInt(strings[2]);
+                    if (cost1 > cost2) {
+                        System.out.println("Введите два целых числа cost1 <= cost2");
+                        continue;
+                    }
+                    getProductsByCost(cost1, cost2);
+                } catch (NumberFormatException e) {
+                    System.out.println("Введите два целых числа cost1 <= cost2");
+                }
+            } else if (command.equals("/exit")) {
                 break;
             } else {
                 System.out.println("Введена неправильная команда. Повторите ввод");
@@ -56,6 +80,20 @@ public class Main {
         closeDatabaseConnection();
     }
 
+    // Проверяем, что продукт с заданным именем есть в базе
+    private static boolean checkProductExistance(String productName) {
+        String changeCost = "SELECT * FROM products WHERE title = ?";
+        try (PreparedStatement statement = connection.prepareStatement(changeCost)) {
+            statement.setString(1, productName);
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Вернуть стоимость продукта по его имени
     private static int getCostByName(String name) {
         String selectCost = "SELECT cost FROM products WHERE title = ?";
         try (PreparedStatement statement = connection.prepareStatement(selectCost)) {
@@ -72,18 +110,7 @@ public class Main {
         return -1;
     }
 
-    private static boolean checkProductExistance(String productName) {
-        String changeCost = "SELECT * FROM products WHERE title = ?";
-        try (PreparedStatement statement = connection.prepareStatement(changeCost)) {
-            statement.setString(1, productName);
-            ResultSet resultSet = statement.executeQuery();
-            return resultSet.next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
+    // Изменить стоимость продукта с заданным именем
     private static void changeCostProductByName(String productName, int newCost) {
         String changeCost = "UPDATE products SET cost = ? WHERE title = ?";
         try (PreparedStatement statement = connection.prepareStatement(changeCost)) {
@@ -95,6 +122,7 @@ public class Main {
         }
     }
 
+    // Найти продукты, стоимость которых находится в пределах диапазона
     private static void getProductsByCost(int cost1, int cost2) {
         String productsByCost = "SELECT * FROM products WHERE cost >= ? AND cost <= ?";
         try (PreparedStatement statement = connection.prepareStatement(productsByCost)) {
@@ -132,7 +160,6 @@ public class Main {
                 "title TEXT NOT NULL, " +
                 "cost INTEGER NOT NULL" +
                 ");");
-
             statement.execute("DELETE FROM products");
             statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='products';");
         } catch (SQLException e) {
@@ -140,7 +167,7 @@ public class Main {
         }
     }
 
-    // Заполняем таблицу тестовыми значениями
+    // Заполнить таблицу тестовыми значениями
     private static void fillTable() {
         String insertRecordQuery = "INSERT INTO products (prodid, title, cost) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(insertRecordQuery)) {
@@ -162,23 +189,6 @@ public class Main {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    public enum Commands {
-        COST("/cost"),
-        CHANGE_COST("/change_cost"),
-        GET_BY_COST("/getProductsByCost"),
-        EXIT("/exit");
-
-        private final String command;
-
-        Commands(String command) {
-            this.command = command;
-        }
-
-        public String getCommand() {
-            return command;
         }
     }
 }
