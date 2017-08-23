@@ -136,6 +136,7 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+            raf.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
