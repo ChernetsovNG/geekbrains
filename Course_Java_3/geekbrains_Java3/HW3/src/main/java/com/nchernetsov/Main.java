@@ -111,7 +111,8 @@ public class Main {
                     int page = Integer.parseInt(userInput);
 
                     if (page < 1) {
-                        throw new IOException("Введён номер страницы меньше 1");
+                        System.out.println("Введён номер страницы меньше 1. Повторите ввод");
+                        continue;
                     }
 
                     int position = (page - 1)*pageSize;  // позиция курсора в тексте
