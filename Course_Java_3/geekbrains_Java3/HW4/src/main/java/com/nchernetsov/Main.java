@@ -54,6 +54,16 @@ public class Main {
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
+
+        // 3.МФУ с одновременной печатью и сканированием
+        MultifunctionDevice mfu = new MultifunctionDevice();
+
+        Thread mfu1 = new Thread(mfu::printing);
+        Thread mfu2 = new Thread(mfu::scanning);
+
+        System.out.println("");
+        mfu1.start();
+        mfu2.start();
     }
 
     public void printLetter(char letterToPrint, char nextLetter) {
