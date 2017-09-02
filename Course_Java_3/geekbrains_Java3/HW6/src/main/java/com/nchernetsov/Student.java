@@ -26,4 +26,24 @@ public class Student {
     public void setScore(int score) {
         this.score = score;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Student student = (Student) o;
+
+        if (id != student.id) return false;
+        if (score != student.score) return false;
+        return surname.equals(student.surname);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + surname.hashCode();
+        result = 31 * result + score;
+        return result;
+    }
 }
