@@ -25,8 +25,8 @@ public class MainMethod2Test {
         });
     }
 
-    private int[] array;
-    private boolean testResult;
+    private final int[] array;
+    private final boolean testResult;
 
     public MainMethod2Test(int[] array, boolean testResult) {
         this.array = array;

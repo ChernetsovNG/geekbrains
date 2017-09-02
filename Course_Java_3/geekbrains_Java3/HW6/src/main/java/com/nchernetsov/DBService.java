@@ -5,9 +5,9 @@ import java.sql.*;
 public class DBService {
     public static Connection connection;
 
-    public static Student student1 = new Student(1, "Student1", 10);
-    public static Student student2 = new Student(2, "Student2", 20);
-    public static Student student3 = new Student(3, "Student3", 30);
+    public static final Student student1 = new Student(1, "Student1", 10);
+    public static final Student student2 = new Student(2, "Student2", 20);
+    public static final Student student3 = new Student(3, "Student3", 30);
 
     public static void openDBConnection() {
         try {
