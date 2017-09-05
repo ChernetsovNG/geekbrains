@@ -5,7 +5,6 @@ import com.nchernetsov.annotation.BeforeSuite;
 import com.nchernetsov.annotation.Test;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
@@ -30,8 +29,8 @@ public class Tester {
         Object object = instantiate(clazz);
 
         // Проверяем, что методов @BeforeSuite и @AfterSuite не больше одного
-        checkMethodsCount(clazz, BeforeSuite.class);
-        checkMethodsCount(clazz, AfterSuite.class);
+        checkThatMethodsCountNoMoreThanOne(clazz, BeforeSuite.class);
+        checkThatMethodsCountNoMoreThanOne(clazz, AfterSuite.class);
 
         // Метод @BeforeSuite
         executeOnlyOneTestMethod(clazz, object, BeforeSuite.class);
@@ -41,7 +40,7 @@ public class Tester {
         executeOnlyOneTestMethod(clazz, object, AfterSuite.class);
     }
 
-    private static void checkMethodsCount(Class<?> clazz, Class<? extends Annotation> annotation) {
+    private static void checkThatMethodsCountNoMoreThanOne(Class<?> clazz, Class<? extends Annotation> annotation) {
         List<Method> methods = getMethodsAnnotatedWith(clazz, annotation);
         if (methods.size() > 1) {
             throw new RuntimeException("There can be only one method, annotated with " + annotation.getSimpleName());
