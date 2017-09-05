@@ -1,4 +1,4 @@
-package com.nchernetsov;
+package com.nchernetsov.testing;
 
 import com.nchernetsov.annotation.AfterSuite;
 import com.nchernetsov.annotation.BeforeSuite;
@@ -13,7 +13,7 @@ import static com.nchernetsov.assertion.Assert.assertNotNull;
 import static com.nchernetsov.assertion.Assert.assertTrue;
 
 // Тестируемый класс
-public class TestingClass {
+public class TestingClass1 {
     List<Integer> list = new ArrayList<>();
 
     @BeforeSuite

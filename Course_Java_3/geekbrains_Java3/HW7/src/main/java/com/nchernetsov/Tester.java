@@ -29,6 +29,10 @@ public class Tester {
     public static void start(Class<?> clazz) {
         Object object = instantiate(clazz);
 
+        // Проверяем, что методов @BeforeSuite и @AfterSuite не больше одного
+        checkMethodsCount(clazz, BeforeSuite.class);
+        checkMethodsCount(clazz, AfterSuite.class);
+
         // Метод @BeforeSuite
         executeOnlyOneTestMethod(clazz, object, BeforeSuite.class);
         // Методы @Test
@@ -37,13 +41,16 @@ public class Tester {
         executeOnlyOneTestMethod(clazz, object, AfterSuite.class);
     }
 
+    private static void checkMethodsCount(Class<?> clazz, Class<? extends Annotation> annotation) {
+        List<Method> methods = getMethodsAnnotatedWith(clazz, annotation);
+        if (methods.size() > 1) {
+            throw new RuntimeException("There can be only one method, annotated with " + annotation.getSimpleName());
+        }
+    }
+
     // Выполнить метод, который должен быть только один (@BeforeSuite или @AfterSuite)
     private static void executeOnlyOneTestMethod(Class<?> clazz, Object object, Class<? extends Annotation> annotation) {
         List<Method> methods = getMethodsAnnotatedWith(clazz, annotation);
-        if (methods.size() > 1) {
-            throw new RuntimeException("There can be only one method, annotated with " + annotation.getClass().getName());
-        }
-        // Если есть один метод, то выполняем его
         if (methods.size() == 1) {
             Method method = methods.get(0);
             callMethod(object, method.getName());
