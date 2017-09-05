@@ -60,10 +60,10 @@ public class Tester {
     private static void executeTestMethods(Class<?> clazz, Object object) {
         List<Method> methods = getMethodsAnnotatedWith(clazz, Test.class);
 
-        // Фильтруем методы, оставляя методы с приоритетом от 1 до 10, и сортируем отфильтрованные методы по возрастанию приоритета
+        // Фильтруем методы, оставляя методы с приоритетом от 1 до 10, и сортируем отфильтрованные методы по убыванию приоритета
         List<Method> methodsToInvoke = methods.stream()
             .filter(m -> m.getAnnotation(Test.class).priority() >= 1 && m.getAnnotation(Test.class).priority() <= 10)
-            .sorted(Comparator.comparingInt(m -> m.getAnnotation(Test.class).priority()))
+            .sorted((o1, o2) -> o2.getAnnotation(Test.class).priority() - o1.getAnnotation(Test.class).priority())
             .collect(Collectors.toList());
 
         for (Method method : methodsToInvoke) {
