@@ -1,11 +1,9 @@
-package com.geek.spaceshooter.game.objects;
+package com.geek.spaceshooter.game.emitter;
+
+import com.geek.spaceshooter.game.objects.Poolable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by FlameXander on 23.09.2017.
- */
 
 public abstract class ObjectPool<T extends Poolable> {
     protected List<T> activeList;
@@ -21,7 +19,7 @@ public abstract class ObjectPool<T extends Poolable> {
 
     protected abstract T newObject();
 
-    public void free(int index) {
+    private void free(int index) {
         freeList.add(activeList.remove(index));
     }
 
@@ -38,7 +36,7 @@ public abstract class ObjectPool<T extends Poolable> {
         }
     }
 
-    public T getActiveElement() {
+    protected T getActiveElement() {
         if (freeList.size() == 0) {
             freeList.add(newObject());
         }

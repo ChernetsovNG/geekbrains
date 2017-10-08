@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.geek.spaceshooter.game.objects.Asteroid;
 import com.geek.spaceshooter.game.objects.LevelInfo;
-import com.geek.spaceshooter.game.objects.ObjectPool;
 
 /**
  * Created by FlameXander on 27.09.2017.

@@ -3,11 +3,18 @@ package com.geek.spaceshooter.game.objects;
 import com.badlogic.gdx.math.Vector2;
 import com.geek.spaceshooter.game.SpaceGame;
 
-/**
- * Created by FlameXander on 20.09.2017.
- */
-
 public class Bullet implements Poolable {
+    public enum BulletType {
+        FIREBALL(0), GREENRAY(1);
+        private int index;
+        public int getIndex() {
+            return index;
+        }
+        BulletType(int index) {
+            this.index = index;
+        }
+    }
+
     private boolean isPlayersBullet;
     private Vector2 position;
     private Vector2 velocity;

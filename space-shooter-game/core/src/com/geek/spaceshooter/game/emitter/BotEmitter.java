@@ -4,15 +4,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.geek.spaceshooter.game.objects.Bot;
-import com.geek.spaceshooter.game.objects.ObjectPool;
 import com.geek.spaceshooter.game.objects.Route;
 
 import java.util.ArrayList;
 import java.util.List;
-
-/**
- * Created by FlameXander on 30.09.2017.
- */
 
 public class BotEmitter extends ObjectPool<Bot> {
     private com.geek.spaceshooter.game.screen.GameScreen game;
@@ -73,7 +68,7 @@ public class BotEmitter extends ObjectPool<Bot> {
         }
     }
 
-    public void setup() {
+    private void setup() {
         Bot b = getActiveElement();
         b.activate(routes.get((int)(Math.random() * routes.size())));
     }

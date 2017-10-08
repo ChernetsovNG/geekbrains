@@ -2,9 +2,6 @@ package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.math.Vector2;
 
-/**
- * Created by FlameXander on 02.07.2017.
- */
 public class Particle implements Poolable {
     private Vector2 position;
     private Vector2 velocity;
@@ -105,7 +102,7 @@ public class Particle implements Poolable {
         this.active = true;
     }
 
-    public void deactivate() {
+    private void deactivate() {
         active = false;
     }
 

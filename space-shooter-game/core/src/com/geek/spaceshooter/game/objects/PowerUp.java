@@ -3,10 +3,6 @@ package com.geek.spaceshooter.game.objects;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
-/**
- * Created by FlameXander on 27.09.2017.
- */
-
 public class PowerUp {
     public enum Type {
         MONEY10(0), MONEY25(1), MONEY50(2), MEDKIT(3);

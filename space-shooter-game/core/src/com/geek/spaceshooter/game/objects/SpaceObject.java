@@ -6,24 +6,20 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.geek.spaceshooter.game.screen.GameScreen;
 
-/**
- * Created by FlameXander on 30.09.2017.
- */
-
 public abstract class SpaceObject {
     protected GameScreen game;
 
-    protected TextureRegion texture;
+    TextureRegion texture;
     protected Vector2 position;
-    protected Vector2 velocity;
+    Vector2 velocity;
 
-    protected int hp;
-    protected int hpMax;
-    protected float damageReaction;
+    int hp;
+    int hpMax;
+    float damageReaction;
 
-    protected Circle hitArea;
+    Circle hitArea;
 
-    protected boolean active;
+    boolean active;
 
     public Circle getHitArea() {
         return hitArea;
@@ -62,7 +58,7 @@ public abstract class SpaceObject {
         return false;
     }
 
-    public void deactivate() {
+    void deactivate() {
         this.active = false;
     }
 }

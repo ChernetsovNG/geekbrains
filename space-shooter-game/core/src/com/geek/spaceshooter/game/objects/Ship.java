@@ -20,8 +20,8 @@ public abstract class Ship extends SpaceObject {
     }
 
     public void fire() {
-        BulletType bt = BulletType.FIREBALL;
-        if (!isPlayer) bt = BulletType.GREENRAY;
+        Bullet.BulletType bt = Bullet.BulletType.FIREBALL;
+        if (!isPlayer) bt = Bullet.BulletType.GREENRAY;
         game.getBulletEmitter().setup(bt, isPlayer, position.x + 24.0f, position.y + 0.0f, weaponDirection.x * 640, weaponDirection.y * 640);
     }
 }

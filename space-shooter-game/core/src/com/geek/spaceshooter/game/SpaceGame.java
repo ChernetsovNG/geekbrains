@@ -7,7 +7,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.geek.spaceshooter.game.control.MyInputProcessor;
 import com.geek.spaceshooter.game.screen.GameScreen;
+import com.geek.spaceshooter.game.screen.MenuScreen;
 
 // Таблица результатов во внешнем файле
 // + AssetManager
@@ -24,8 +26,8 @@ public class SpaceGame extends Game {
     public static final int SCREEN_HEIGHT = 720;
 
     private SpriteBatch batch;
-    private com.geek.spaceshooter.game.screen.GameScreen gameScreen;
-    private com.geek.spaceshooter.game.screen.MenuScreen menuScreen;
+    private GameScreen gameScreen;
+    private MenuScreen menuScreen;
 
     private Viewport viewport;
     private Camera camera;
@@ -38,11 +40,11 @@ public class SpaceGame extends Game {
         return viewport;
     }
 
-    public com.geek.spaceshooter.game.screen.GameScreen getGameScreen() {
+    public GameScreen getGameScreen() {
         return gameScreen;
     }
 
-    public com.geek.spaceshooter.game.screen.MenuScreen getMenuScreen() {
+    public MenuScreen getMenuScreen() {
         return menuScreen;
     }
 
@@ -53,10 +55,10 @@ public class SpaceGame extends Game {
         viewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, camera);
         viewport.update(SCREEN_WIDTH, SCREEN_HEIGHT, true);
         viewport.apply();
-        com.geek.spaceshooter.game.control.MyInputProcessor mip = new com.geek.spaceshooter.game.control.MyInputProcessor(this);
+        MyInputProcessor mip = new MyInputProcessor(this);
         Gdx.input.setInputProcessor(mip);
         gameScreen = new GameScreen(this, batch);
-        menuScreen = new com.geek.spaceshooter.game.screen.MenuScreen(this, batch);
+        menuScreen = new MenuScreen(this, batch);
         setScreen(menuScreen);
     }
 

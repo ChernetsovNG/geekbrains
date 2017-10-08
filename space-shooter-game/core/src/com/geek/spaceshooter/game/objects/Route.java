@@ -5,16 +5,12 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by FlameXander on 07.10.2017.
- */
-
 public class Route {
     private List<Vector2> velocityList;
     private List<Integer> points;
     private Vector2 initialPosition;
 
-    public Vector2 getInitialPosition() {
+    Vector2 getInitialPosition() {
         return initialPosition;
     }
 
@@ -24,7 +20,7 @@ public class Route {
         this.points = new ArrayList<Integer>();
     }
 
-    public Vector2 getMyVelocity(int coordX) {
+    Vector2 getMyVelocity(int coordX) {
         for (int i = points.size() - 1; i >= 0; i--) {
             if (coordX < points.get(i)) {
                 return velocityList.get(i);

@@ -3,7 +3,6 @@ package com.geek.spaceshooter.game.emitter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.geek.spaceshooter.game.objects.ObjectPool;
 import com.geek.spaceshooter.game.objects.Particle;
 
 /**

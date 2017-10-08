@@ -3,12 +3,6 @@ package com.geek.spaceshooter.game.emitter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.geek.spaceshooter.game.objects.Bullet;
-import com.geek.spaceshooter.game.objects.BulletType;
-import com.geek.spaceshooter.game.objects.ObjectPool;
-
-/**
- * Created by FlameXander on 20.09.2017.
- */
 
 public class BulletEmitter extends ObjectPool<Bullet> {
     private TextureRegion[] bulletsTexture;
@@ -38,7 +32,7 @@ public class BulletEmitter extends ObjectPool<Bullet> {
         }
     }
 
-    public void setup(BulletType type, boolean isPlayersBullet, float x, float y, float vx, float vy) {
+    public void setup(Bullet.BulletType type, boolean isPlayersBullet, float x, float y, float vx, float vy) {
         Bullet b = getActiveElement();
         b.activate(type, isPlayersBullet, x, y, vx, vy);
     }

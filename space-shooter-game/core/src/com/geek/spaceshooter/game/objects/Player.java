@@ -13,10 +13,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.StringBuilder;
 import com.geek.spaceshooter.game.SpaceGame;
 
-/**
- * Created by FlameXander on 20.09.2017.
- */
-
 public class Player extends Ship {
     private TextureRegion redHpRegion;
     private TextureRegion greenHpRegion;
@@ -41,7 +37,7 @@ public class Player extends Ship {
         score += amount;
     }
 
-    public void addMoney(int amount) {
+    void addMoney(int amount) {
         money += amount;
     }
 
