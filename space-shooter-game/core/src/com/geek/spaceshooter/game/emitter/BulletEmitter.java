@@ -1,11 +1,10 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.emitter;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.geek.spaceshooter.game.objects.Bullet;
+import com.geek.spaceshooter.game.objects.BulletType;
+import com.geek.spaceshooter.game.objects.ObjectPool;
 
 /**
  * Created by FlameXander on 20.09.2017.

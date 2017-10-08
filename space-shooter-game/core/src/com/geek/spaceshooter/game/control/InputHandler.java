@@ -1,4 +1,4 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.control;
 
 import com.badlogic.gdx.Gdx;
 

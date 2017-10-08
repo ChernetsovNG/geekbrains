@@ -1,13 +1,10 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.StringBuilder;
 
 /**
  * Created by FlameXander on 30.09.2017.
@@ -20,7 +17,7 @@ public class Bot extends Ship implements Poolable {
     private float timePerFrame;
     private Route route;
 
-    public Bot(GameScreen game, TextureRegion texture) {
+    public Bot(com.geek.spaceshooter.game.screen.GameScreen game, TextureRegion texture) {
         this.game = game;
         this.texture = texture;
         this.position = new Vector2(0, 0);

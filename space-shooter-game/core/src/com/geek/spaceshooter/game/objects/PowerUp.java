@@ -1,4 +1,4 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
  */
 
 public class PowerUp {
-    enum Type {
+    public enum Type {
         MONEY10(0), MONEY25(1), MONEY50(2), MEDKIT(3);
 
         private int number;

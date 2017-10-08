@@ -1,9 +1,10 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.emitter;
 
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.geek.spaceshooter.game.objects.Boom;
 
 /**
  * Created by FlameXander on 04.10.2017.

@@ -1,7 +1,6 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pool;
 
 /**
  * Created by FlameXander on 02.07.2017.

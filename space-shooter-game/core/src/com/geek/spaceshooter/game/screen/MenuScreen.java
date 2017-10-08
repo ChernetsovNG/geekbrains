@@ -1,6 +1,5 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.screen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,6 +8,10 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.geek.spaceshooter.game.control.Assets;
+import com.geek.spaceshooter.game.objects.Background;
+import com.geek.spaceshooter.game.control.MyInputProcessor;
+import com.geek.spaceshooter.game.SpaceGame;
 
 /**
  * Created by FlameXander on 04.10.2017.
@@ -36,7 +39,7 @@ public class MenuScreen implements Screen {
     public void show() {
         System.out.println("MENU");
         Assets.getInstance().loadAssets(ScreenType.MENU);
-        TextureAtlas atlas = Assets.getInstance().mainAtlas;
+        TextureAtlas atlas = Assets.getInstance().getMainAtlas();
         background = new Background(atlas.findRegion("star16"));
         texExit = atlas.findRegion("btExit");
         texStart = atlas.findRegion("btPlay");

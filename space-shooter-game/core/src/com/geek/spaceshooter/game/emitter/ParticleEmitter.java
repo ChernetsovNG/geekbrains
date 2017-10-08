@@ -1,10 +1,10 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.emitter;
 
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Pool;
+import com.geek.spaceshooter.game.objects.ObjectPool;
+import com.geek.spaceshooter.game.objects.Particle;
 
 /**
  * Created by FlameXander on 02.07.2017.

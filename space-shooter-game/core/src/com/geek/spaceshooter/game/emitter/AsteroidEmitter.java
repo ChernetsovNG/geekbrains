@@ -1,15 +1,18 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.emitter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.geek.spaceshooter.game.objects.Asteroid;
+import com.geek.spaceshooter.game.objects.LevelInfo;
+import com.geek.spaceshooter.game.objects.ObjectPool;
 
 /**
  * Created by FlameXander on 27.09.2017.
  */
 
 public class AsteroidEmitter extends ObjectPool<Asteroid> {
-    private GameScreen gameScreen;
+    private com.geek.spaceshooter.game.screen.GameScreen gameScreen;
     private TextureRegion asteroidTexture;
     private float generationTime;
     private float innerTimer;
@@ -23,7 +26,7 @@ public class AsteroidEmitter extends ObjectPool<Asteroid> {
         return new Asteroid(asteroidTexture);
     }
 
-    public AsteroidEmitter(GameScreen gameScreen, TextureRegion asteroidTexture, int size, float generationTime) {
+    public AsteroidEmitter(com.geek.spaceshooter.game.screen.GameScreen gameScreen, TextureRegion asteroidTexture, int size, float generationTime) {
         super();
         this.gameScreen = gameScreen;
         this.asteroidTexture = asteroidTexture;

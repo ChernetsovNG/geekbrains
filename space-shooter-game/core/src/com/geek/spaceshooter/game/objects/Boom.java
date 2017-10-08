@@ -1,4 +1,4 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;

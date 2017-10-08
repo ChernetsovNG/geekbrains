@@ -1,9 +1,11 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.emitter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.geek.spaceshooter.game.objects.Bot;
+import com.geek.spaceshooter.game.objects.ObjectPool;
+import com.geek.spaceshooter.game.objects.Route;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.List;
  */
 
 public class BotEmitter extends ObjectPool<Bot> {
-    private GameScreen game;
+    private com.geek.spaceshooter.game.screen.GameScreen game;
     private TextureRegion botTexture;
     private float generationTime;
     private float innerTimer;
@@ -24,7 +26,7 @@ public class BotEmitter extends ObjectPool<Bot> {
         return new Bot(game, botTexture);
     }
 
-    public BotEmitter(GameScreen game, TextureRegion botTexture, int size, float generationTime) {
+    public BotEmitter(com.geek.spaceshooter.game.screen.GameScreen game, TextureRegion botTexture, int size, float generationTime) {
         super();
         this.game = game;
         this.botTexture = botTexture;

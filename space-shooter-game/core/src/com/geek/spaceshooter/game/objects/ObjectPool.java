@@ -1,6 +1,4 @@
-package com.geek.spaceshooter.game;
-
-import com.badlogic.gdx.utils.Pool;
+package com.geek.spaceshooter.game.objects;
 
 import java.util.ArrayList;
 import java.util.List;

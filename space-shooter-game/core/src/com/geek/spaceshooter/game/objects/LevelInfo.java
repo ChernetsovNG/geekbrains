@@ -1,4 +1,4 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
 /**
  * Created by FlameXander on 04.10.2017.

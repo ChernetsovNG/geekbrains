@@ -1,4 +1,4 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.math.Vector2;
 

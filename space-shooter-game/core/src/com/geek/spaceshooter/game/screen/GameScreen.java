@@ -1,6 +1,5 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.screen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -10,14 +9,24 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Path;
 import com.badlogic.gdx.math.Vector2;
+import com.geek.spaceshooter.game.control.Assets;
+import com.geek.spaceshooter.game.objects.Asteroid;
+import com.geek.spaceshooter.game.emitter.AsteroidEmitter;
+import com.geek.spaceshooter.game.objects.Background;
+import com.geek.spaceshooter.game.emitter.BoomEmitter;
+import com.geek.spaceshooter.game.objects.Bot;
+import com.geek.spaceshooter.game.emitter.BotEmitter;
+import com.geek.spaceshooter.game.objects.Bullet;
+import com.geek.spaceshooter.game.emitter.BulletEmitter;
+import com.geek.spaceshooter.game.objects.LevelInfo;
+import com.geek.spaceshooter.game.emitter.ParticleEmitter;
+import com.geek.spaceshooter.game.objects.Player;
+import com.geek.spaceshooter.game.objects.PowerUp;
+import com.geek.spaceshooter.game.emitter.PowerUpsEmitter;
+import com.geek.spaceshooter.game.SpaceGame;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOError;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,23 +101,23 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         Assets.getInstance().loadAssets(ScreenType.GAME);
-        atlas = Assets.getInstance().mainAtlas;
+        atlas = Assets.getInstance().getMainAtlas();
         background = new Background(atlas.findRegion("star16"));
-        fnt = Assets.getInstance().assetManager.get("font2.fnt", BitmapFont.class);
-        player = new Player(this, atlas.findRegion("ship64"), atlas.findRegion("hpBar"), atlas.findRegion("joystick"), Assets.getInstance().assetManager.get("laser.wav", Sound.class), new Vector2(100, 328), new Vector2(0.0f, 0.0f), 800.0f);
+        fnt = Assets.getInstance().getAssetManager().get("font2.fnt", BitmapFont.class);
+        player = new Player(this, atlas.findRegion("ship64"), atlas.findRegion("hpBar"), atlas.findRegion("joystick"), Assets.getInstance().getAssetManager().get("laser.wav", Sound.class), new Vector2(100, 328), new Vector2(0.0f, 0.0f), 800.0f);
         asteroidEmitter = new AsteroidEmitter(this, atlas.findRegion("asteroid64"), 20, 0.4f);
         bulletEmitter = new BulletEmitter(atlas.findRegion("bullets36"), 100);
         powerUpsEmitter = new PowerUpsEmitter(atlas.findRegion("powerUps"));
         particleEmitter = new ParticleEmitter(atlas.findRegion("star16"));
-        boomEmitter = new BoomEmitter(atlas.findRegion("explosion64"), Assets.getInstance().assetManager.get("CollapseNorm.wav", Sound.class));
+        boomEmitter = new BoomEmitter(atlas.findRegion("explosion64"), Assets.getInstance().getAssetManager().get("CollapseNorm.wav", Sound.class));
         botEmitter = new BotEmitter(this, atlas.findRegion("ufo"), 10, 1.0f);
-        music = Assets.getInstance().assetManager.get("music.mp3", Music.class);
+        music = Assets.getInstance().getAssetManager().get("music.mp3", Music.class);
         music.setLooping(true);
         loadFullGameInfo();
         level = 1;
         currentLevelTime = 0.0f;
         timePerLevel = 60.0f;
-        // music.play();
+        music.play();
     }
 
     @Override

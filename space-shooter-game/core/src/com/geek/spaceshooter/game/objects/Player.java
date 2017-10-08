@@ -1,10 +1,9 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.StringBuilder;
+import com.geek.spaceshooter.game.SpaceGame;
 
 /**
  * Created by FlameXander on 20.09.2017.
@@ -22,7 +22,7 @@ public class Player extends Ship {
     private TextureRegion greenHpRegion;
     private int lives;
 
-    private Joystick joystick;
+    private com.geek.spaceshooter.game.control.Joystick joystick;
 
     private int score;
     private int money;
@@ -45,7 +45,7 @@ public class Player extends Ship {
         money += amount;
     }
 
-    public Player(GameScreen game, TextureRegion texture, TextureRegion textureHP, TextureRegion textureJoystick, Sound fireSound, Vector2 position, Vector2 velocity, float engine) {
+    public Player(com.geek.spaceshooter.game.screen.GameScreen game, TextureRegion texture, TextureRegion textureHP, TextureRegion textureJoystick, Sound fireSound, Vector2 position, Vector2 velocity, float engine) {
         this.game = game;
         this.texture = texture;
         this.position = position;
@@ -64,7 +64,7 @@ public class Player extends Ship {
         this.money = 0;
         this.weaponDirection = new Vector2(1.0f, 0.0f);
         this.isPlayer = true;
-        this.joystick = new Joystick(this, textureJoystick);
+        this.joystick = new com.geek.spaceshooter.game.control.Joystick(this, textureJoystick);
         this.fireSound = fireSound;
         // this.time = 0.0f;
     }

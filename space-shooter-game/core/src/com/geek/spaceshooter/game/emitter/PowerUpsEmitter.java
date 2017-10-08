@@ -1,7 +1,8 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.emitter;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.geek.spaceshooter.game.objects.PowerUp;
 
 /**
  * Created by FlameXander on 27.09.2017.

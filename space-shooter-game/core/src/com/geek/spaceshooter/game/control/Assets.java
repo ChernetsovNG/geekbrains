@@ -1,4 +1,4 @@
-package com.geek.spaceshooter.game;
+package com.geek.spaceshooter.game.control;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
@@ -18,15 +18,14 @@ public class Assets {
         return ourInstance;
     }
 
-    AssetManager assetManager;
-
-    TextureAtlas mainAtlas;
+    private AssetManager assetManager;
+    private TextureAtlas mainAtlas;
 
     private Assets() {
         assetManager = new AssetManager();
     }
 
-    public void loadAssets(ScreenType type) {
+    public void loadAssets(com.geek.spaceshooter.game.screen.ScreenType type) {
         switch (type) {
             case MENU:
                 assetManager.load("my.pack", TextureAtlas.class);
@@ -49,5 +48,13 @@ public class Assets {
 
     public void clear() {
         assetManager.clear();
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+
+    public TextureAtlas getMainAtlas() {
+        return mainAtlas;
     }
 }
