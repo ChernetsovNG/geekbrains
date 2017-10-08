@@ -73,6 +73,10 @@ public class GameScreen implements Screen {
         return level;
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     public void loadFullGameInfo() {
         levels = new ArrayList<LevelInfo>();
         BufferedReader br = null;

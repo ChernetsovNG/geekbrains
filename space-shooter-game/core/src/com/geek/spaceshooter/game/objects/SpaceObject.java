@@ -4,13 +4,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.geek.spaceshooter.game.screen.GameScreen;
 
 /**
  * Created by FlameXander on 30.09.2017.
  */
 
 public abstract class SpaceObject {
-    protected com.geek.spaceshooter.game.screen.GameScreen game;
+    protected GameScreen game;
 
     protected TextureRegion texture;
     protected Vector2 position;

@@ -2,18 +2,14 @@ package com.geek.spaceshooter.game.objects;
 
 import com.badlogic.gdx.math.Vector2;
 
-/**
- * Created by FlameXander on 30.09.2017.
- */
-
 public abstract class Ship extends SpaceObject {
-    protected float enginePower;
+    float enginePower;
 
-    protected float currentFire;
-    protected float fireRate;
+    float currentFire;
+    float fireRate;
 
-    protected Vector2 weaponDirection;
-    protected boolean isPlayer;
+    Vector2 weaponDirection;
+    boolean isPlayer;
 
     public void pressFire(float dt) {
         currentFire += dt;

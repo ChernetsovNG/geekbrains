@@ -5,19 +5,22 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-
-/**
- * Created by FlameXander on 30.09.2017.
- */
+import com.geek.spaceshooter.game.screen.GameScreen;
 
 public class Bot extends Ship implements Poolable {
+    public enum FireStrategy {
+        SIMPLE,
+        AIMING_FIRE
+    }
+
     private TextureRegion[] frames;
     private int maxFrames;
     private float time;
     private float timePerFrame;
     private Route route;
+    private FireStrategy fireStrategy;
 
-    public Bot(com.geek.spaceshooter.game.screen.GameScreen game, TextureRegion texture) {
+    public Bot(GameScreen game, TextureRegion texture, FireStrategy fireStrategy) {
         this.game = game;
         this.texture = texture;
         this.position = new Vector2(0, 0);
@@ -37,6 +40,7 @@ public class Bot extends Ship implements Poolable {
         for (int i = 0; i < maxFrames; i++) {
             frames[i] = new TextureRegion(texture, i * 64, 0, 64, 64);
         }
+        this.fireStrategy = fireStrategy;
     }
 
     @Override
@@ -84,5 +88,19 @@ public class Bot extends Ship implements Poolable {
         active = true;
         hp = hpMax;
         this.route = route;
+    }
+
+    @Override
+    public void fire() {
+        switch (fireStrategy) {
+            case SIMPLE:
+                super.fire();
+                break;
+            case AIMING_FIRE:
+                weaponDirection = game.getPlayer().getPosition().cpy().sub(this.position).nor();
+                super.fire();
+                break;
+        }
+
     }
 }

@@ -23,7 +23,12 @@ public class BotEmitter extends ObjectPool<Bot> {
 
     @Override
     protected Bot newObject() {
-        return new Bot(game, botTexture);
+        if (Math.random() < 0.1) {  // с небольшой вероятностью создаём бота, который целиться в игрока
+            return new Bot(game, botTexture, Bot.FireStrategy.AIMING_FIRE);
+        } else {
+            return new Bot(game, botTexture, Bot.FireStrategy.SIMPLE);
+        }
+
     }
 
     public BotEmitter(com.geek.spaceshooter.game.screen.GameScreen game, TextureRegion botTexture, int size, float generationTime) {
