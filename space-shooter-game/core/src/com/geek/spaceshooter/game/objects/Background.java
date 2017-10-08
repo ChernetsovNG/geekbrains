@@ -7,10 +7,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.geek.spaceshooter.game.SpaceGame;
 
-/**
- * Created by FlameXander on 20.09.2017.
- */
-
 public class Background {
     private class Star {
         private Vector2 position;
@@ -67,7 +63,4 @@ public class Background {
         }
     }
 
-    // public void dispose() {
-        // texture.dispose();
-    // }
 }
