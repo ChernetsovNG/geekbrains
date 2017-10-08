@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ObjectPool<T extends Poolable> {
-    protected List<T> activeList;
-    protected List<T> freeList;
+    List<T> activeList;
+    List<T> freeList;
 
     public List<T> getActiveList() {
         return activeList;
@@ -23,12 +23,12 @@ public abstract class ObjectPool<T extends Poolable> {
         freeList.add(activeList.remove(index));
     }
 
-    public ObjectPool() {
+    ObjectPool() {
         this.activeList = new ArrayList<T>();
         this.freeList = new ArrayList<T>();
     }
 
-    public ObjectPool(int size) {
+    ObjectPool(int size) {
         this.activeList = new ArrayList<T>();
         this.freeList = new ArrayList<T>();
         for (int i = 0; i < size; i++) {
@@ -36,7 +36,7 @@ public abstract class ObjectPool<T extends Poolable> {
         }
     }
 
-    protected T getActiveElement() {
+    T getActiveElement() {
         if (freeList.size() == 0) {
             freeList.add(newObject());
         }

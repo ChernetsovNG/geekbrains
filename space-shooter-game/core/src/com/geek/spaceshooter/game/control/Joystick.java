@@ -6,13 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.geek.spaceshooter.game.control.MyInputProcessor;
-
-/**
- * Created by FlameXander on 30.09.2017.
- */
+import com.geek.spaceshooter.game.objects.Player;
 
 public class Joystick {
-    private com.geek.spaceshooter.game.objects.Player player;
+    private Player player;
     private TextureRegion back;
     private TextureRegion stick;
     private TextureRegion fire;
@@ -31,7 +28,7 @@ public class Joystick {
         return normal;
     }
 
-    public Joystick(com.geek.spaceshooter.game.objects.Player player, TextureRegion texture) {
+    public Joystick(Player player, TextureRegion texture) {
         this.player = player;
         this.back = new TextureRegion(texture, 0, 0, 200, 200);
         this.stick = new TextureRegion(texture, 0, 200, 50, 50);

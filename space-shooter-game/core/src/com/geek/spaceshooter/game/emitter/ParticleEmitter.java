@@ -5,9 +5,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.geek.spaceshooter.game.objects.Particle;
 
-/**
- * Created by FlameXander on 02.07.2017.
- */
 public class ParticleEmitter extends ObjectPool<Particle> {
     private TextureRegion oneParticle;
 
@@ -59,7 +56,7 @@ public class ParticleEmitter extends ObjectPool<Particle> {
         }
     }
 
-    public float lerp(float value1, float value2, float point) {
+    private float lerp(float value1, float value2, float point) {
         return value1 + (value2 - value1) * point;
     }
 }

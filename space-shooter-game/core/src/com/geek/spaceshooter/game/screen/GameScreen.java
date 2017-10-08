@@ -31,10 +31,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by FlameXander on 30.09.2017.
- */
-
 public class GameScreen implements Screen {
     private SpaceGame game;
 
@@ -48,14 +44,12 @@ public class GameScreen implements Screen {
     private ParticleEmitter particleEmitter;
     private BoomEmitter boomEmitter;
     private BotEmitter botEmitter;
-    private TextureAtlas atlas;
-    private Music music;
     private int level;
     private int maxLevels;
     private float timePerLevel;
     private float currentLevelTime;
 
-    List<LevelInfo> levels;
+    private List<LevelInfo> levels;
 
     public LevelInfo getCurrentLevelInfo() {
         return levels.get(level - 1);
@@ -77,7 +71,7 @@ public class GameScreen implements Screen {
         return player;
     }
 
-    public void loadFullGameInfo() {
+    private void loadFullGameInfo() {
         levels = new ArrayList<LevelInfo>();
         BufferedReader br = null;
         try {
@@ -105,7 +99,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         Assets.getInstance().loadAssets(ScreenType.GAME);
-        atlas = Assets.getInstance().getMainAtlas();
+        TextureAtlas atlas = Assets.getInstance().getMainAtlas();
         background = new Background(atlas.findRegion("star16"));
         fnt = Assets.getInstance().getAssetManager().get("font2.fnt", BitmapFont.class);
         player = new Player(this, atlas.findRegion("ship64"), atlas.findRegion("hpBar"), atlas.findRegion("joystick"), Assets.getInstance().getAssetManager().get("laser.wav", Sound.class), new Vector2(100, 328), new Vector2(0.0f, 0.0f), 800.0f);
@@ -115,7 +109,7 @@ public class GameScreen implements Screen {
         particleEmitter = new ParticleEmitter(atlas.findRegion("star16"));
         boomEmitter = new BoomEmitter(atlas.findRegion("explosion64"), Assets.getInstance().getAssetManager().get("CollapseNorm.wav", Sound.class));
         botEmitter = new BotEmitter(this, atlas.findRegion("ufo"), 10, 1.0f);
-        music = Assets.getInstance().getAssetManager().get("music.mp3", Music.class);
+        Music music = Assets.getInstance().getAssetManager().get("music.mp3", Music.class);
         music.setLooping(true);
         loadFullGameInfo();
         level = 1;
@@ -179,7 +173,7 @@ public class GameScreen implements Screen {
 
     private final Vector2 collisionHelper = new Vector2(0, 0);
 
-    public void checkCollision() {
+    private void checkCollision() {
         for (int i = 0; i < bulletEmitter.getActiveList().size(); i++) {
             Bullet b = bulletEmitter.getActiveList().get(i);
             if (b.isPlayersBullet()) {

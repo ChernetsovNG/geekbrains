@@ -4,10 +4,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.geek.spaceshooter.game.objects.PowerUp;
 
-/**
- * Created by FlameXander on 27.09.2017.
- */
-
 public class PowerUpsEmitter {
     private PowerUp[] powerUps;
     private TextureRegion[][] textureRegion;
@@ -25,27 +21,27 @@ public class PowerUpsEmitter {
     }
 
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < powerUps.length; i++) {
-            if (powerUps[i].isActive()) {
-                batch.draw(textureRegion[0][powerUps[i].getType().getNumber()], powerUps[i].getPosition().x - 16, powerUps[i].getPosition().y - 16);
+        for (PowerUp powerUp : powerUps) {
+            if (powerUp.isActive()) {
+                batch.draw(textureRegion[0][powerUp.getType().getNumber()], powerUp.getPosition().x - 16, powerUp.getPosition().y - 16);
             }
         }
     }
 
     public void update(float dt) {
-        for (int i = 0; i < powerUps.length; i++) {
-            if (powerUps[i].isActive()) {
-                powerUps[i].update(dt);
+        for (PowerUp powerUp : powerUps) {
+            if (powerUp.isActive()) {
+                powerUp.update(dt);
             }
         }
     }
 
     public void makePower(float x, float y) {
         if (Math.random() < 0.2) {
-            for (int i = 0; i < powerUps.length; i++) {
-                if (!powerUps[i].isActive()) {
+            for (PowerUp powerUp : powerUps) {
+                if (!powerUp.isActive()) {
                     PowerUp.Type t = PowerUp.Type.values()[(int) (Math.random() * 4)];
-                    powerUps[i].activate(x, y, t);
+                    powerUp.activate(x, y, t);
                     break;
                 }
             }

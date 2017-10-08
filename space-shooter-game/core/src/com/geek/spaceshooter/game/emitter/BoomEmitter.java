@@ -6,10 +6,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.geek.spaceshooter.game.objects.Boom;
 
-/**
- * Created by FlameXander on 04.10.2017.
- */
-
 public class BoomEmitter {
     private Boom[] booms;
     private Sound boomSound;
@@ -30,25 +26,25 @@ public class BoomEmitter {
     }
 
     public void update(float dt) {
-        for (int i = 0; i < booms.length; i++) {
-            if (booms[i].isActive()) {
-                booms[i].update(dt);
+        for (Boom boom : booms) {
+            if (boom.isActive()) {
+                boom.update(dt);
             }
         }
     }
 
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < booms.length; i++) {
-            if (booms[i].isActive()) {
-                booms[i].render(batch);
+        for (Boom boom : booms) {
+            if (boom.isActive()) {
+                boom.render(batch);
             }
         }
     }
 
     public void setup(Vector2 position) {
-        for (int i = 0; i < booms.length; i++) {
-            if (!booms[i].isActive()) {
-                booms[i].activate(position);
+        for (Boom boom : booms) {
+            if (!boom.isActive()) {
+                boom.activate(position);
                 boomSound.play();
                 break;
             }

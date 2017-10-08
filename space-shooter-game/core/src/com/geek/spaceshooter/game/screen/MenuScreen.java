@@ -13,10 +13,6 @@ import com.geek.spaceshooter.game.objects.Background;
 import com.geek.spaceshooter.game.control.MyInputProcessor;
 import com.geek.spaceshooter.game.SpaceGame;
 
-/**
- * Created by FlameXander on 04.10.2017.
- */
-
 public class MenuScreen implements Screen {
     private SpaceGame game;
 

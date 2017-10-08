@@ -10,12 +10,8 @@ import com.geek.spaceshooter.game.SpaceGame;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by FlameXander on 30.09.2017.
- */
-
 public class MyInputProcessor implements InputProcessor {
-    class TouchInfo {
+    private class TouchInfo {
         int x;
         int y;
         boolean touched;
@@ -81,15 +77,15 @@ public class MyInputProcessor implements InputProcessor {
         return false;
     }
 
-    public boolean isTouched(int pointer) {
+    boolean isTouched(int pointer) {
         return map.get(pointer).touched;
     }
 
-    public int getX(int pointer) {
+    int getX(int pointer) {
         return map.get(pointer).x;
     }
 
-    public int getY(int pointer) {
+    int getY(int pointer) {
         return map.get(pointer).y;
     }
 
@@ -97,7 +93,7 @@ public class MyInputProcessor implements InputProcessor {
         return isTouchedInArea((int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height);
     }
 
-    public int isTouchedInArea(int x, int y, int w, int h) {
+    private int isTouchedInArea(int x, int y, int w, int h) {
         for (Map.Entry<Integer, TouchInfo> o : map.entrySet()) {
             if (o.getValue().touched) {
                 int id = o.getKey();
