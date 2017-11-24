@@ -1,0 +1,4 @@
+rootProject.name = 'web-saver'
+include 'server'
+include 'client'
+
