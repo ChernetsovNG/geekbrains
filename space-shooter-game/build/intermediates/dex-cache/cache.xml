@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="C:\Users\FlameXander\Desktop\geek-space-shooter\core\build\libs\core-1.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.1"
+        sha1="58000d5e7a26d34e6914cb3f014e23351b0a232c">
+        <dex dex="C:\Users\FlameXander\Desktop\geek-space-shooter\android\build\intermediates\pre-dexed\debug\core-1.0_90cab24108be8795dbca5c90d73d661aa33b85ec.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\FlameXander\.gradle\caches\modules-2\files-2.1\com.badlogicgames.gdx\gdx\1.9.6\47d1e9b890e364ec28f128e9bb3b9a12a94c164\gdx-1.9.6.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.1"
+        sha1="047d1e9b890e364ec28f128e9bb3b9a12a94c164">
+        <dex dex="C:\Users\FlameXander\Desktop\geek-space-shooter\android\build\intermediates\pre-dexed\debug\gdx-1.9.6_709ee94b229249f54e1e6da6104dae6e31a3e557.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="C:\Users\FlameXander\.gradle\caches\modules-2\files-2.1\com.badlogicgames.gdx\gdx-backend-android\1.9.6\57c2831c870743712b808384187ea856e541878f\gdx-backend-android-1.9.6.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.1"
+        sha1="57c2831c870743712b808384187ea856e541878f">
+        <dex dex="C:\Users\FlameXander\Desktop\geek-space-shooter\android\build\intermediates\pre-dexed\debug\gdx-backend-android-1.9.6_85f13709b9d8b923a8eff6abb7eb4657d17ad29c.jar" />
+    </item>
+
+</items>
