@@ -1,4 +1,4 @@
-package ru.geekbrains;
+package ru.geekbrains.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,7 +8,8 @@ import ru.geekbrains.channel.SocketClientManagedChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static ru.geekbrains.Server.PORT;
+
+import static ru.geekbrains.server.Server.PORT;
 
 public class Client {
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
