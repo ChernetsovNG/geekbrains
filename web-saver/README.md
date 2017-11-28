@@ -15,7 +15,7 @@ https://habrahabr.ru/company/yandex/blog/253171/
 
 Приближённая высокоуровневая схема показана на рисунке:
 
-![Alt text](docs/Architecture.jpg?raw=true)
+![Alt text](docs/Architecture.jpg)
 
 Контролируемая папка на клиенте находится под "надзором" WatchService API 
 (https://docs.oracle.com/javase/tutorial/essential/io/notification.html). При изменениях в
