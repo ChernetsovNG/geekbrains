@@ -1,4 +1,4 @@
 dependencies {
-    compile project(':net-lib')
+    compile project(':common')
     compile project(':server')
 }

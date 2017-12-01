@@ -1,5 +1,5 @@
 rootProject.name = 'web-saver'
 include 'server'
 include 'client'
-include 'net-lib'
+include 'common'
 
