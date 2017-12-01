@@ -2,14 +2,13 @@ package ru.geekbrains.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.channel.SocketClientChannel;
-import ru.geekbrains.channel.SocketClientManagedChannel;
+import ru.geekbrains.common.channel.SocketClientChannel;
+import ru.geekbrains.common.channel.SocketClientManagedChannel;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
-import static ru.geekbrains.server.Server.PORT;
+import static ru.geekbrains.common.CommonData.SERVER_PORT;
 
 public class Client {
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
@@ -30,7 +29,7 @@ public class Client {
     private void start() throws Exception {
         LOG.info("Client process started");
 
-        client = new SocketClientManagedChannel(HOST, PORT);
+        client = new SocketClientManagedChannel(HOST, SERVER_PORT);
         client.init();
 
         ExecutorService executor = Executors.newFixedThreadPool(THREADS_NUMBER);

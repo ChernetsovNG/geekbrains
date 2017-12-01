@@ -1,4 +1,4 @@
-package ru.geekbrains.channel;
+package ru.geekbrains.common.channel;
 
 import java.io.IOException;
 import java.net.Socket;

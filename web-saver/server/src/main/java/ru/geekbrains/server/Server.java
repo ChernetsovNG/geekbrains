@@ -2,15 +2,15 @@ package ru.geekbrains.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.channel.SocketClientChannel;
+import ru.geekbrains.common.channel.SocketClientChannel;
 
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import static ru.geekbrains.common.CommonData.SERVER_PORT;
+
 public class Server {
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
-
-    public static final int PORT = 5050;
 
     public Server() {
     }
@@ -25,7 +25,7 @@ public class Server {
 
     public void start() throws Exception {
         // Ждём подключения клиентов к серверу
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
             LOG.info("Server started on port: " + serverSocket.getLocalPort());
 
             while (true) {

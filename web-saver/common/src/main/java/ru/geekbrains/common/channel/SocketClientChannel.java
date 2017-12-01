@@ -1,4 +1,4 @@
-package ru.geekbrains.channel;
+package ru.geekbrains.common.channel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
