@@ -69,13 +69,13 @@ public class Server implements Addressee {
                 MessageChannel clientChannel = client.getKey();
                 Address clientAddress = client.getValue();
                 if (clientAddress == null) {
-                    Message message = clientChannel.poll();
+                    AbstractMessage message = clientChannel.poll();
                     if (message != null) {
                         if (message.getClassName().equals(HandshakeDemandMessage.class.getName())) {
                             clientAddress = message.getFrom();
                             LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + message);
                             connectionMap.put(clientChannel, clientAddress);
-                            Message handshakeAnswerMessage = new HandshakeAnswerMessage(this.address, clientAddress);
+                            AbstractMessage handshakeAnswerMessage = new HandshakeAnswerMessage(this.address, clientAddress);
                             clientChannel.send(handshakeAnswerMessage);
                             LOG.info("Направлен ответ об успешном установлении соединения клиенту: " + clientAddress + ", " + handshakeAnswerMessage);
                         }
