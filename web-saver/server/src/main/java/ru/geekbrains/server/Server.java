@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.common.CommonData.SERVER_PORT;
 
 public class Server implements Addressee {
@@ -30,7 +31,7 @@ public class Server implements Addressee {
     public Server() {
         executor = Executors.newFixedThreadPool(THREADS_COUNT);
         connectionMap = new HashMap<>();
-        address = new Address("Server");
+        address = SERVER_ADDRESS;
     }
 
     public static void main(String[] args) {
@@ -69,13 +70,13 @@ public class Server implements Addressee {
                 MessageChannel clientChannel = client.getKey();
                 Address clientAddress = client.getValue();
                 if (clientAddress == null) {
-                    AbstractMessage message = clientChannel.poll();
+                    Message message = clientChannel.poll();
                     if (message != null) {
                         if (message.getClassName().equals(HandshakeDemandMessage.class.getName())) {
                             clientAddress = message.getFrom();
                             LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + message);
                             connectionMap.put(clientChannel, clientAddress);
-                            AbstractMessage handshakeAnswerMessage = new HandshakeAnswerMessage(this.address, clientAddress);
+                            Message handshakeAnswerMessage = new HandshakeAnswerMessage(this.address, clientAddress);
                             clientChannel.send(handshakeAnswerMessage);
                             LOG.info("Направлен ответ об успешном установлении соединения клиенту: " + clientAddress + ", " + handshakeAnswerMessage);
                         }
