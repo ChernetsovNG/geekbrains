@@ -55,29 +55,20 @@ public class Client implements Addressee {
         client = new SocketClientManagedChannel(HOST, SERVER_PORT);
         client.init();
 
-        handshakeOnServer();
+        // Отправляем на сервер HandshakeDemand сообщение
+        client.send(new HandshakeDemandMessage(this.address, SERVER_ADDRESS));
+        executor.submit(this::handshake);
         handshakeLatch.await();  // ждём handshake-ответа от сервера
 
         String username = "User1";
         String password = "password1";
 
-        authorizationOnServer(username, password);
+        client.send(new AuthDemandMessage(this.address, SERVER_ADDRESS, AuthDemandMessage.serializeUsernamePassword(username, password)));
+        executor.submit(this::authentification);
         authentificationLatch.await();  // ждём успешной аутентификации
 
         client.close();
         executor.shutdown();
-    }
-
-    private void handshakeOnServer() throws InterruptedException {
-        // Отправляем на сервер HandshakeDemand сообщение
-        client.send(new HandshakeDemandMessage(this.address, SERVER_ADDRESS));
-        executor.submit(this::handshake);
-    }
-
-    private void authorizationOnServer(String username, String password) throws InterruptedException {
-        client.send(new AuthDemandMessage(
-            this.address, SERVER_ADDRESS, AuthDemandMessage.getPayload(username, password)));
-        executor.submit(this::authentification);
     }
 
     // Ожидаем от сервера ответа об успешном установлении соединения
@@ -105,16 +96,17 @@ public class Client implements Addressee {
                 Message authAnswer = client.take();
                 if (authAnswer.isClass(AuthAnswerMessage.class)) {
                     LOG.info("Получен ответ об аутентификации от сервера");
-                    AuthStatus authStatus = AuthAnswerMessage.getAuthAnswer(authAnswer.getPayload()).getAuthStatus();
+                    AuthStatus authStatus = AuthAnswerMessage.deserializeAuthAnswer(authAnswer.getPayload()).getAuthStatus();
                     if (authStatus != null) {
                         if (authStatus.equals(AUTH_OK)) {
+                            System.out.println("Успешная аутентификация на сервере. AuthStatus: " + authStatus);
                             authentificationLatch.countDown();  // Отпускаем блокировку
                             break;
                         } else if (authStatus.equals(INCORRECT_USERNAME)) {
-                            System.out.println("Неправильное имя пользователя");
+                            System.out.println("Неправильное имя пользователя. AuthStatus: " + authStatus);
                             break;
                         } else if (authStatus.equals(INCORRECT_PASSWORD)) {
-                            System.out.println("Неправильный пароль");
+                            System.out.println("Неправильный пароль. AuthStatus: " + authStatus);
                             break;
                         }
                     }

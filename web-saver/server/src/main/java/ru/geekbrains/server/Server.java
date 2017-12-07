@@ -4,7 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.MessageChannel;
 import ru.geekbrains.common.channel.SocketClientChannel;
+import ru.geekbrains.common.dto.AuthAnswer;
+import ru.geekbrains.common.dto.AuthStatus;
+import ru.geekbrains.common.dto.UsernamePassword;
 import ru.geekbrains.common.message.*;
+import ru.geekbrains.server.db.Database;
+import ru.geekbrains.server.db.dto.User;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -44,6 +49,7 @@ public class Server implements Addressee {
 
     public void start() throws Exception {
         executor.submit(this::handshake);
+        executor.submit(this::authentification);
 
         // Ждём подключения клиентов к серверу. Для подключённых клиентов создаём каналы для связи
         try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
@@ -72,7 +78,7 @@ public class Server implements Addressee {
                 if (clientAddress == null) {
                     Message message = clientChannel.poll();
                     if (message != null) {
-                        if (message.getClassName().equals(HandshakeDemandMessage.class.getName())) {
+                        if (message.isClass(HandshakeDemandMessage.class)) {
                             clientAddress = message.getFrom();
                             LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + message);
                             connectionMap.put(clientChannel, clientAddress);
@@ -88,6 +94,49 @@ public class Server implements Addressee {
             } catch (InterruptedException e) {
                 LOG.error(e.getMessage());
             }
+        }
+    }
+
+    private void authentification() {
+        try {
+            LOG.info("Цикл аутентификации клиентов на сервере");
+            while (true) {
+                for (Map.Entry<MessageChannel, Address> entry : connectionMap.entrySet()) {
+                    MessageChannel clientChannel = entry.getKey();
+                    Address clientAddress = entry.getValue();
+                    // если соединение с этим клиентом уже было ранее установлено
+                    if (clientAddress != null) {
+                        Message message = clientChannel.poll();
+                        if (message != null) {
+                            if (message.isClass(AuthDemandMessage.class)) {
+                                UsernamePassword usernamePassword = AuthDemandMessage.deserializeUsernamePassword(message.getPayload());
+                                String username = usernamePassword.getUsername();
+                                String password = usernamePassword.getPassword();
+                                User user = new User(username, password);
+                                boolean isUserExists = Database.checkUserExistence(user);
+                                AuthAnswer authAnswer;
+                                if (!isUserExists) {
+                                    authAnswer = new AuthAnswer(AuthStatus.INCORRECT_USERNAME, usernamePassword, "");
+                                } else {
+                                    boolean isAuthentificate = Database.checkUserAuthentification(user);
+                                    if (!isAuthentificate) {
+                                        authAnswer = new AuthAnswer(AuthStatus.INCORRECT_PASSWORD, usernamePassword, "");
+                                    } else {
+                                        authAnswer = new AuthAnswer(AuthStatus.AUTH_OK, usernamePassword, "");
+                                    }
+                                }
+                                AuthAnswerMessage authAnswerMessage = new AuthAnswerMessage(
+                                    SERVER_ADDRESS, clientAddress, AuthAnswerMessage.serializeAuthAnswer(authAnswer));
+                                clientChannel.send(authAnswerMessage);
+                                LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
+                            }
+                        }
+                    }
+                }
+                TimeUnit.MILLISECONDS.sleep(MESSAGE_DELAY_MS);
+            }
+        } catch (InterruptedException e) {
+            LOG.error(e.getMessage());
         }
     }
 

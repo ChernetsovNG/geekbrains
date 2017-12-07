@@ -42,8 +42,21 @@ public class Database {
         return -1;
     }
 
+    // Проверяем, что пользователь с заданным именем есть в базе
+    public static boolean checkUserExistence(User user) {
+        String selectUser = "SELECT * FROM users WHERE name = ?;";
+        try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
+            statement.setString(1, user.getName());
+            ResultSet resultSet = statement.executeQuery();
+            return resultSet.next();
+        } catch (SQLException e) {
+            LOG.error(e.getMessage());
+        }
+        return false;
+    }
+
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
-    public static boolean checkUserAuthorization(User user) {
+    public static boolean checkUserAuthentification(User user) {
         String selectUser = "SELECT password FROM users WHERE name = ?;";
         try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
             statement.setString(1, user.getName());
