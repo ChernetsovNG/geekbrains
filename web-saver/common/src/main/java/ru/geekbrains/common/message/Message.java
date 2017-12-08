@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-// Сообщение - содержит адресацию (откуда -> куда) и содержимое
+// Сообщение - содержит адресацию (откуда -> куда) и класс
 @Getter
 @ToString
 public abstract class Message implements Serializable {
@@ -16,14 +16,12 @@ public abstract class Message implements Serializable {
     private final Address from;
     private final Address to;
     private final String className;
-    private final byte[] payload;
 
     public static final String CLASS_NAME_VARIABLE = "className";
 
-    protected Message(Address from, Address to, byte[] payload, Class<?> clazz) {
+    protected Message(Address from, Address to, Class<?> clazz) {
         this.from = from;
         this.to = to;
-        this.payload = payload;
         this.className = clazz.getName();
     }
 

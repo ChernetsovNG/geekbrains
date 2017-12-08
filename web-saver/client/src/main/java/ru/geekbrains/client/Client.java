@@ -63,7 +63,7 @@ public class Client implements Addressee {
         String username = "User1";
         String password = "password1";
 
-        client.send(new AuthDemandMessage(this.address, SERVER_ADDRESS, AuthDemandMessage.serializeUsernamePassword(username, password)));
+        client.send(new AuthDemandMessage(this.address, SERVER_ADDRESS, username, password));
         executor.submit(this::authentification);
         authentificationLatch.await();  // ждём успешной аутентификации
 
@@ -96,7 +96,7 @@ public class Client implements Addressee {
                 Message authAnswer = client.take();
                 if (authAnswer.isClass(AuthAnswerMessage.class)) {
                     LOG.info("Получен ответ об аутентификации от сервера");
-                    AuthStatus authStatus = AuthAnswerMessage.deserializeAuthAnswer(authAnswer.getPayload()).getAuthStatus();
+                    AuthStatus authStatus = ((AuthAnswerMessage) authAnswer).getAuthStatus();
                     if (authStatus != null) {
                         if (authStatus.equals(AUTH_OK)) {
                             System.out.println("Успешная аутентификация на сервере. AuthStatus: " + authStatus);

@@ -1,20 +1,16 @@
 package ru.geekbrains.common.message;
 
-import ru.geekbrains.common.dto.AuthAnswer;
+import lombok.Getter;
+import ru.geekbrains.common.dto.AuthStatus;
 
-import static ru.geekbrains.common.SerializeUtils.deserializeObject;
-import static ru.geekbrains.common.SerializeUtils.serializeObject;
-
+@Getter
 public class AuthAnswerMessage extends Message {
-    public AuthAnswerMessage(Address from, Address to, byte[] payload) {
-        super(from, to, payload, AuthAnswerMessage.class);
-    }
+    private final AuthStatus authStatus;
+    private final String message;  // дополнительное сообщение
 
-    public static byte[] serializeAuthAnswer(AuthAnswer authAnswer) {
-        return serializeObject(authAnswer);
-    }
-
-    public static AuthAnswer deserializeAuthAnswer(byte[] payload) {
-        return deserializeObject(payload, AuthAnswer.class);
+    public AuthAnswerMessage(Address from, Address to, AuthStatus authStatus, String message) {
+        super(from, to, AuthAnswerMessage.class);
+        this.authStatus = authStatus;
+        this.message = message;
     }
 }

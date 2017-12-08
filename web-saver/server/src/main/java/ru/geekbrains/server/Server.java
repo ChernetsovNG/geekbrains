@@ -4,9 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.MessageChannel;
 import ru.geekbrains.common.channel.SocketClientChannel;
-import ru.geekbrains.common.dto.AuthAnswer;
 import ru.geekbrains.common.dto.AuthStatus;
-import ru.geekbrains.common.dto.UsernamePassword;
 import ru.geekbrains.common.message.*;
 import ru.geekbrains.server.db.Database;
 import ru.geekbrains.server.db.dto.User;
@@ -109,24 +107,11 @@ public class Server implements Addressee {
                         Message message = clientChannel.poll();
                         if (message != null) {
                             if (message.isClass(AuthDemandMessage.class)) {
-                                UsernamePassword usernamePassword = AuthDemandMessage.deserializeUsernamePassword(message.getPayload());
-                                String username = usernamePassword.getUsername();
-                                String password = usernamePassword.getPassword();
+                                String username = ((AuthDemandMessage) message).getUsername();
+                                String password = ((AuthDemandMessage) message).getPassword();
                                 User user = new User(username, password);
-                                boolean isUserExists = Database.checkUserExistence(user);
-                                AuthAnswer authAnswer;
-                                if (!isUserExists) {
-                                    authAnswer = new AuthAnswer(AuthStatus.INCORRECT_USERNAME, usernamePassword, "");
-                                } else {
-                                    boolean isAuthentificate = Database.checkUserAuthentification(user);
-                                    if (!isAuthentificate) {
-                                        authAnswer = new AuthAnswer(AuthStatus.INCORRECT_PASSWORD, usernamePassword, "");
-                                    } else {
-                                        authAnswer = new AuthAnswer(AuthStatus.AUTH_OK, usernamePassword, "");
-                                    }
-                                }
-                                AuthAnswerMessage authAnswerMessage = new AuthAnswerMessage(
-                                    SERVER_ADDRESS, clientAddress, AuthAnswerMessage.serializeAuthAnswer(authAnswer));
+                                AuthStatus authStatus = Database.getAuthStatus(user);
+                                AuthAnswerMessage authAnswerMessage = new AuthAnswerMessage(SERVER_ADDRESS, clientAddress, authStatus, "");
                                 clientChannel.send(authAnswerMessage);
                                 LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
                             }

@@ -2,9 +2,14 @@ package ru.geekbrains.server.db;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.geekbrains.common.dto.AuthStatus;
 import ru.geekbrains.server.db.dto.User;
 
 import java.sql.*;
+
+import static ru.geekbrains.common.dto.AuthStatus.AUTH_OK;
+import static ru.geekbrains.common.dto.AuthStatus.INCORRECT_PASSWORD;
+import static ru.geekbrains.common.dto.AuthStatus.INCORRECT_USERNAME;
 
 public class Database {
     private static final Logger LOG = LoggerFactory.getLogger(Database.class);
@@ -70,6 +75,22 @@ public class Database {
             LOG.error(e.getMessage());
         }
         return false;
+    }
+
+    public static AuthStatus getAuthStatus(User user) {
+        boolean isUserExists = checkUserExistence(user);
+        AuthStatus authStatus;
+        if (!isUserExists) {
+            authStatus = INCORRECT_USERNAME;
+        } else {
+            boolean isAuthentificate = checkUserAuthentification(user);
+            if (!isAuthentificate) {
+                authStatus = INCORRECT_PASSWORD;
+            } else {
+                authStatus = AUTH_OK;
+            }
+        }
+        return authStatus;
     }
 
     private static void openDatabaseConnection() {
