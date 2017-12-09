@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.common.CommonData.SERVER_PORT;
 import static ru.geekbrains.common.dto.AuthStatus.*;
+import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
 
 public class Client implements Addressee {
     private static final Logger LOG = LoggerFactory.getLogger(Client.class);
@@ -30,7 +31,7 @@ public class Client implements Addressee {
     private static final int PAUSE_MS = 250;
     private static final int THREADS_NUMBER = 2;
 
-    ExecutorService executor = Executors.newFixedThreadPool(THREADS_NUMBER);
+    private ExecutorService executor = Executors.newFixedThreadPool(THREADS_NUMBER);
 
     private final CountDownLatch handshakeLatch = new CountDownLatch(1);  // блокировка до установления соединения с сервером
     private final CountDownLatch authentificationLatch = new CountDownLatch(1);  // блокировка до аутентификации клиента на сервере
@@ -44,7 +45,7 @@ public class Client implements Addressee {
     }
 
     public static void main(String[] args) throws Exception {
-        String address = "Client:" + getMacAddress();
+        String address = stringCrypter.encrypt("Client:" + getMacAddress());
         new Client(new Address(address)).start();
     }
 
@@ -55,17 +56,25 @@ public class Client implements Addressee {
         client = new SocketClientManagedChannel(HOST, SERVER_PORT);
         client.init();
 
+        executor.submit(this::handshake);
+        executor.submit(this::authentification);
+
         // Отправляем на сервер HandshakeDemand сообщение
         client.send(new HandshakeDemandMessage(this.address, SERVER_ADDRESS));
-        executor.submit(this::handshake);
+        LOG.debug("Послано сообщение об установлении соединения на сервер");
         handshakeLatch.await();  // ждём handshake-ответа от сервера
 
-        String username = "User1";
-        String password = "password1";
+        String username = "TestUser1";
+        String password = "qwerty";
 
         client.send(new AuthDemandMessage(this.address, SERVER_ADDRESS, username, password));
-        executor.submit(this::authentification);
+        LOG.debug("Послано сообщение об аутентификации на сервер");
         authentificationLatch.await();  // ждём успешной аутентификации
+
+        LOG.debug("Послано сообщение об отключении от сервера");
+        client.send(new DisconnectClientMessage(this.address, SERVER_ADDRESS));
+
+        TimeUnit.MILLISECONDS.sleep(2000);
 
         client.close();
         executor.shutdown();
@@ -86,6 +95,7 @@ public class Client implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -116,6 +126,7 @@ public class Client implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -148,6 +159,7 @@ public class Client implements Addressee {
             return macList.stream().collect(Collectors.joining("|"));
         } catch (SocketException e) {
             LOG.error(e.getMessage());
+            e.printStackTrace();
         }
         return "";
     }

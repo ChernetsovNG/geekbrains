@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-group 'ru.geekbrains.nchernetsov'
+group 'ru.geekbrains'
 version '0.0.1-SNAPSHOT'
 
 allprojects {
@@ -27,6 +27,7 @@ allprojects {
         compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
         compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
         compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+        compile group: 'commons-codec', name: 'commons-codec', version: '1.11'  // шифрование и дефишрование строк
 
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
         testCompile group: 'junit', name: 'junit', version: '4.12'

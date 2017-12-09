@@ -2,8 +2,10 @@ package ru.geekbrains.server.db.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class User {
     @Setter
     private int id = 0;

@@ -42,6 +42,7 @@ public class SocketClientChannel implements MessageChannel {
             }
         } catch (InterruptedException | IOException e) {
             LOG.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -55,6 +56,7 @@ public class SocketClientChannel implements MessageChannel {
             }
         } catch (ClassNotFoundException | IOException e) {
             LOG.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -80,7 +82,6 @@ public class SocketClientChannel implements MessageChannel {
     public void close() throws IOException {
         shutdownRegistrations.forEach(Runnable::run);
         shutdownRegistrations.clear();
-
         executor.shutdown();
     }
 }

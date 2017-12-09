@@ -9,6 +9,7 @@ import ru.geekbrains.common.message.*;
 import ru.geekbrains.server.db.Database;
 import ru.geekbrains.server.db.dto.User;
 
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -19,11 +20,12 @@ import java.util.concurrent.TimeUnit;
 
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.common.CommonData.SERVER_PORT;
+import static ru.geekbrains.server.db.Database.createServerDB;
 
 public class Server implements Addressee {
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
-    private static final int THREADS_COUNT = 5;
+    private static final int THREADS_COUNT = 4;
     private static final int MESSAGE_DELAY_MS = 100;
 
     private final Address address;
@@ -39,15 +41,18 @@ public class Server implements Addressee {
 
     public static void main(String[] args) {
         try {
-            new Server().start();
+            Server server = new Server();
+            server.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void start() throws Exception {
+        createServerDB();
+
         executor.submit(this::handshake);
-        executor.submit(this::authentification);
+        executor.submit(this::clientMessageHandle);
 
         // Ждём подключения клиентов к серверу. Для подключённых клиентов создаём каналы для связи
         try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
@@ -91,13 +96,14 @@ public class Server implements Addressee {
                 TimeUnit.MILLISECONDS.sleep(MESSAGE_DELAY_MS);
             } catch (InterruptedException e) {
                 LOG.error(e.getMessage());
+                e.printStackTrace();
             }
         }
     }
 
-    private void authentification() {
+    private void clientMessageHandle() {
         try {
-            LOG.info("Цикл аутентификации клиентов на сервере");
+            LOG.info("Цикл приёма сообщений от клиентов на сервере");
             while (true) {
                 for (Map.Entry<MessageChannel, Address> entry : connectionMap.entrySet()) {
                     MessageChannel clientChannel = entry.getKey();
@@ -110,18 +116,26 @@ public class Server implements Addressee {
                                 String username = ((AuthDemandMessage) message).getUsername();
                                 String password = ((AuthDemandMessage) message).getPassword();
                                 User user = new User(username, password);
+                                LOG.info("Получен запрос на аутентификацию от: " + clientAddress + ", " + user);
                                 AuthStatus authStatus = Database.getAuthStatus(user);
                                 AuthAnswerMessage authAnswerMessage = new AuthAnswerMessage(SERVER_ADDRESS, clientAddress, authStatus, "");
                                 clientChannel.send(authAnswerMessage);
                                 LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
+                            } else if (message.isClass(DisconnectClientMessage.class)) {
+                                LOG.info("Получено сообщение об отключении клиента: " + clientAddress + ", " + message);
+                                clientChannel.close();
+                                connectionMap.remove(clientChannel);
+                            } else {
+                                LOG.debug("Получено сообщение необрабатываемого класса: " + message);
                             }
                         }
                     }
                 }
                 TimeUnit.MILLISECONDS.sleep(MESSAGE_DELAY_MS);
             }
-        } catch (InterruptedException e) {
+        } catch (InterruptedException | IOException e) {
             LOG.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 

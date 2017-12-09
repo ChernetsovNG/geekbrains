@@ -16,10 +16,10 @@ public class Database {
 
     private static Connection connection;
 
-    public static void main(String[] args) {
+    public static void createServerDB() {
         openDatabaseConnection();
         createAuthTable();
-        closeDatabaseConnection();
+        // insertUser(new User("TestUser1", "qwerty"));
     }
 
     public static void insertUser(User user) {
@@ -111,15 +111,15 @@ public class Database {
                 "  password TEXT NOT NULL);");
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_name_uindex ON users (name);");
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_id_uindex ON users (id);");  // имя пользователя - уникальное
-            statement.execute("DELETE FROM users");
-            statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='users';");
+            // statement.execute("DELETE FROM users");
+            // statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='users';");
             // connection.commit();
         } catch (SQLException e) {
             LOG.error(e.getMessage());
         }
     }
 
-    private static void closeDatabaseConnection() {
+    public static void closeDatabaseConnection() {
         try {
             connection.close();
         } catch (SQLException e) {
