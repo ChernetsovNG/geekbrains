@@ -95,7 +95,6 @@ public class Client implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -105,20 +104,9 @@ public class Client implements Addressee {
             while (true) {
                 Message authAnswer = client.take();
                 if (authAnswer.isClass(AuthAnswerMessage.class)) {
-                    LOG.info("Получен ответ об аутентификации от сервера");
-                    AuthStatus authStatus = ((AuthAnswerMessage) authAnswer).getAuthStatus();
-                    if (authStatus != null) {
-                        if (authStatus.equals(AUTH_OK)) {
-                            System.out.println("Успешная аутентификация на сервере. AuthStatus: " + authStatus);
-                            authentificationLatch.countDown();  // Отпускаем блокировку
-                            break;
-                        } else if (authStatus.equals(INCORRECT_USERNAME)) {
-                            System.out.println("Неправильное имя пользователя. AuthStatus: " + authStatus);
-                            break;
-                        } else if (authStatus.equals(INCORRECT_PASSWORD)) {
-                            System.out.println("Неправильный пароль. AuthStatus: " + authStatus);
-                            break;
-                        }
+                    AuthStatus authStatus = handleAuthMessage((AuthAnswerMessage) authAnswer);
+                    if (authStatus.equals(AUTH_OK)) {
+                        break;
                     }
                 } else {
                     TimeUnit.MILLISECONDS.sleep(PAUSE_MS);
@@ -126,10 +114,26 @@ public class Client implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
-            e.printStackTrace();
         }
     }
 
+    private AuthStatus handleAuthMessage(AuthAnswerMessage authAnswer) {
+        LOG.info("Получен ответ об аутентификации от сервера");
+        AuthStatus authStatus = authAnswer.getAuthStatus();
+        if (authStatus != null) {
+            if (authStatus.equals(AUTH_OK)) {
+                System.out.println("Успешная аутентификация на сервере. AuthStatus: " + authStatus);
+                authentificationLatch.countDown();  // Отпускаем блокировку
+            } else if (authStatus.equals(INCORRECT_USERNAME)) {
+                System.out.println("Неправильное имя пользователя. AuthStatus: " + authStatus);
+            } else if (authStatus.equals(INCORRECT_PASSWORD)) {
+                System.out.println("Неправильный пароль. AuthStatus: " + authStatus);
+            }
+        } else {
+            LOG.error("Auth status in null in message: {}", authAnswer);
+        }
+        return authStatus;
+    }
 
     @Override
     public Address getAddress() {
@@ -159,7 +163,6 @@ public class Client implements Addressee {
             return macList.stream().collect(Collectors.joining("|"));
         } catch (SocketException e) {
             LOG.error(e.getMessage());
-            e.printStackTrace();
         }
         return "";
     }

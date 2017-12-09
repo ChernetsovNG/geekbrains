@@ -96,7 +96,6 @@ public class Server implements Addressee {
                 TimeUnit.MILLISECONDS.sleep(MESSAGE_DELAY_MS);
             } catch (InterruptedException e) {
                 LOG.error(e.getMessage());
-                e.printStackTrace();
             }
         }
     }
@@ -113,14 +112,7 @@ public class Server implements Addressee {
                         Message message = clientChannel.poll();
                         if (message != null) {
                             if (message.isClass(AuthDemandMessage.class)) {
-                                String username = ((AuthDemandMessage) message).getUsername();
-                                String password = ((AuthDemandMessage) message).getPassword();
-                                User user = new User(username, password);
-                                LOG.info("Получен запрос на аутентификацию от: " + clientAddress + ", " + user);
-                                AuthStatus authStatus = Database.getAuthStatus(user);
-                                AuthAnswerMessage authAnswerMessage = new AuthAnswerMessage(SERVER_ADDRESS, clientAddress, authStatus, "");
-                                clientChannel.send(authAnswerMessage);
-                                LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
+                                handleAuthDemandMessage(clientAddress, clientChannel, (AuthDemandMessage) message);
                             } else if (message.isClass(DisconnectClientMessage.class)) {
                                 LOG.info("Получено сообщение об отключении клиента: " + clientAddress + ", " + message);
                                 clientChannel.close();
@@ -135,8 +127,19 @@ public class Server implements Addressee {
             }
         } catch (InterruptedException | IOException e) {
             LOG.error(e.getMessage());
-            e.printStackTrace();
         }
+    }
+
+    // Обработка запроса на аутентификацию
+    private void handleAuthDemandMessage(Address clientAddress, MessageChannel clientChannel, AuthDemandMessage authDemandMessage) {
+        String username = authDemandMessage.getUsername();
+        String password = authDemandMessage.getPassword();
+        User user = new User(username, password);
+        LOG.info("Получен запрос на аутентификацию от: " + authDemandMessage.getFrom() + ", " + user);
+        AuthStatus authStatus = Database.getAuthStatus(user);
+        AuthAnswerMessage authAnswerMessage = new AuthAnswerMessage(SERVER_ADDRESS, clientAddress, authStatus, "");
+        clientChannel.send(authAnswerMessage);
+        LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
     }
 
     // Находим по адресу соответствующий ему канал

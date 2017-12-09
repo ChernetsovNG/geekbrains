@@ -23,6 +23,7 @@ public class Database {
     }
 
     public static void insertUser(User user) {
+        LOG.info("Insert new user in database: {}", user);
         String insertUser = "INSERT INTO users (name, password) VALUES (?, ?);";
         try (PreparedStatement statement = connection.prepareStatement(insertUser)) {
             statement.setString(1, user.getName());
@@ -49,6 +50,7 @@ public class Database {
 
     // Проверяем, что пользователь с заданным именем есть в базе
     public static boolean checkUserExistence(User user) {
+        LOG.info("Check user existence in database: {}", user);
         String selectUser = "SELECT * FROM users WHERE name = ?;";
         try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
             statement.setString(1, user.getName());
@@ -61,7 +63,8 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
-    public static boolean checkUserAuthentification(User user) {
+    public static boolean checkUserPassword(User user) {
+        LOG.info("Check user password in database: {}", user);
         String selectUser = "SELECT password FROM users WHERE name = ?;";
         try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
             statement.setString(1, user.getName());
@@ -83,7 +86,7 @@ public class Database {
         if (!isUserExists) {
             authStatus = INCORRECT_USERNAME;
         } else {
-            boolean isAuthentificate = checkUserAuthentification(user);
+            boolean isAuthentificate = checkUserPassword(user);
             if (!isAuthentificate) {
                 authStatus = INCORRECT_PASSWORD;
             } else {
@@ -94,6 +97,7 @@ public class Database {
     }
 
     private static void openDatabaseConnection() {
+        LOG.info("Start connection with database");
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:server/src/main/java/ru/geekbrains/server/db/data.db");
@@ -104,6 +108,7 @@ public class Database {
     }
 
     private static void createAuthTable() {
+        LOG.info("Create table usert in database (if it is not exists)");
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS users\n" +
                 " (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
@@ -120,6 +125,7 @@ public class Database {
     }
 
     public static void closeDatabaseConnection() {
+        LOG.info("Close database connection");
         try {
             connection.close();
         } catch (SQLException e) {
