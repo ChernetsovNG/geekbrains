@@ -129,8 +129,9 @@ public class Server implements Addressee {
                                 handleAuthDemandMessage(clientAddress, clientChannel, (AuthDemandMessage) message);
                             } else if (message.isClass(DisconnectClientMessage.class)) {
                                 LOG.info("Сообщение об отключении клиента: " + clientAddress + ", " + message);
-                                clientChannel.close();
                                 connectionMap.remove(clientChannel);
+                                authMap.remove(clientChannel);
+                                clientChannel.close();
                             } else if (message.isClass(CreateFolderDemandMessage.class)) {
                                 LOG.info("Запрос на создание папки: " + clientAddress + ", " + message);
                                 handleCreateFolderDemandMessage(clientAddress, clientChannel, (CreateFolderDemandMessage) message);
