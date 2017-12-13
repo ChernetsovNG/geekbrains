@@ -2,6 +2,7 @@ package ru.geekbrains.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.geekbrains.client.utils.ExecutorUtils;
 import ru.geekbrains.common.channel.SocketClientChannel;
 import ru.geekbrains.common.channel.SocketClientManagedChannel;
 import ru.geekbrains.common.dto.AuthStatus;
@@ -58,15 +59,13 @@ public class Client implements Addressee {
 
         executor.submit(this::handshake);
         executor.submit(this::authentification);
-        executor.submit(this::serverMessageHandle);
+        // executor.submit(this::serverMessageHandle);
 
         // 1. HandshakeDemand на сервере
 
         client.send(new HandshakeDemandMessage(this.address, SERVER_ADDRESS));
         LOG.debug("Послано сообщение об установлении соединения на сервер");
         handshakeLatch.await();  // ждём handshake-ответа от сервера
-
-
 
         // 2. аутентификация на сервере
 
@@ -79,29 +78,31 @@ public class Client implements Addressee {
 
         // 3. создание папки на сервере
 
-        client.send(new CreateFolderDemand(this.address, SERVER_ADDRESS));
-        TimeUnit.MILLISECONDS.sleep(100);
+        CreateFolderAnswer createFolderAnswer = (CreateFolderAnswer) ExecutorUtils.INSTANCE.sendMessageAndAwaitAnswer(client, new CreateFolderDemand(this.address, SERVER_ADDRESS));
+        System.out.println(createFolderAnswer.getCreationStatus());
 
         // 4. создание нескольких файлов на сервере
 
-        client.send(new CreateNewFileDemand(this.address, SERVER_ADDRESS, "File1", new byte[0]));
-        client.send(new CreateNewFileDemand(this.address, SERVER_ADDRESS, "File2", new byte[0]));
-        TimeUnit.MILLISECONDS.sleep(100);
+        CreateNewFileAnswer createNewFileAnswer = (CreateNewFileAnswer) ExecutorUtils.INSTANCE.sendMessageAndAwaitAnswer(
+            client, new CreateNewFileDemand(this.address, SERVER_ADDRESS, "File1", new byte[0]));
+        System.out.println(createNewFileAnswer.getCreationStatus());
+        //client.send(new CreateNewFileDemand(this.address, SERVER_ADDRESS, "File2", new byte[0]));
+        //TimeUnit.MILLISECONDS.sleep(100);
 
         // 5. получение списка файлов
 
-        client.send(new GetFileNameList(this.address, SERVER_ADDRESS));
-        TimeUnit.MILLISECONDS.sleep(100);
+        //client.send(new GetFileNameList(this.address, SERVER_ADDRESS));
+        //TimeUnit.MILLISECONDS.sleep(100);
 
         // 6. удаление файла с сервера
 
-        client.send(new DeleteFileDemand(this.address, SERVER_ADDRESS, "File1"));
-        TimeUnit.MILLISECONDS.sleep(100);
+        //client.send(new DeleteFileDemand(this.address, SERVER_ADDRESS, "File1"));
+        //TimeUnit.MILLISECONDS.sleep(100);
 
         // 7. получение списка файлов
 
-        client.send(new GetFileNameList(this.address, SERVER_ADDRESS));
-        TimeUnit.MILLISECONDS.sleep(100);
+        //client.send(new GetFileNameList(this.address, SERVER_ADDRESS));
+        //TimeUnit.MILLISECONDS.sleep(100);
 
         // 8. отключение от сервера
 
