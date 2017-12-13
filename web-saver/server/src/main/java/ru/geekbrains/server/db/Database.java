@@ -2,14 +2,14 @@ package ru.geekbrains.server.db;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.common.dto.AuthStatus;
-import ru.geekbrains.server.db.dto.User;
+import ru.geekbrains.common.dto.ConnectStatus;
+import ru.geekbrains.common.dto.UserDTO;
 
 import java.sql.*;
 
-import static ru.geekbrains.common.dto.AuthStatus.AUTH_OK;
-import static ru.geekbrains.common.dto.AuthStatus.INCORRECT_PASSWORD;
-import static ru.geekbrains.common.dto.AuthStatus.INCORRECT_USERNAME;
+import static ru.geekbrains.common.dto.ConnectStatus.AUTH_OK;
+import static ru.geekbrains.common.dto.ConnectStatus.INCORRECT_PASSWORD;
+import static ru.geekbrains.common.dto.ConnectStatus.INCORRECT_USERNAME;
 
 public class Database {
     private static final Logger LOG = LoggerFactory.getLogger(Database.class);
@@ -22,7 +22,7 @@ public class Database {
         // insertUser(new User("TestUser1", "qwerty"));
     }
 
-    public static void insertUser(User user) {
+    public static void insertUser(UserDTO user) {
         LOG.info("Insert new user in database: {}", user);
         String insertUser = "INSERT INTO users (name, password) VALUES (?, ?);";
         try (PreparedStatement statement = connection.prepareStatement(insertUser)) {
@@ -49,7 +49,7 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем есть в базе
-    public static boolean checkUserExistence(User user) {
+    public static boolean checkUserExistence(UserDTO user) {
         LOG.info("Check user existence in database: {}", user);
         String selectUser = "SELECT * FROM users WHERE name = ?;";
         try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
@@ -63,7 +63,7 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
-    public static boolean checkUserPassword(User user) {
+    public static boolean checkUserPassword(UserDTO user) {
         LOG.info("Check user password in database: {}", user);
         String selectUser = "SELECT password FROM users WHERE name = ?;";
         try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
@@ -80,9 +80,9 @@ public class Database {
         return false;
     }
 
-    public static AuthStatus getAuthStatus(User user) {
+    public static ConnectStatus getAuthStatus(UserDTO user) {
         boolean isUserExists = checkUserExistence(user);
-        AuthStatus authStatus;
+        ConnectStatus authStatus;
         if (!isUserExists) {
             authStatus = INCORRECT_USERNAME;
         } else {

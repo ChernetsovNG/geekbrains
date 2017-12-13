@@ -1,6 +1,7 @@
 package ru.geekbrains.common.dto;
 
-public enum AnswerStatus {
+public enum FileStatus {
+    NOT_AUTH,
     OK,
     ERROR;
 }

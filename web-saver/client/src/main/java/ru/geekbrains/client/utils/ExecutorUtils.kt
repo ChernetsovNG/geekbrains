@@ -3,12 +3,13 @@ package ru.geekbrains.client.utils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import ru.geekbrains.common.channel.SocketClientChannel
-import ru.geekbrains.common.message.*
+import ru.geekbrains.common.message.FileAnswer
+import ru.geekbrains.common.message.FileMessage
+import ru.geekbrains.common.message.Message
 import java.util.concurrent.TimeUnit
 
 // объект для запуска задачи и ожидания её завершения
 object ExecutorUtils {
-    const val THREADS_NUMBER = 1
     const val PAUSE_MS = 250L
     const val WAIT_TIME_SEC = 20  // время ожидания ответа сервера (чтобы избежать бесконечного цикла)
 
@@ -18,16 +19,19 @@ object ExecutorUtils {
     fun sendMessageAndAwaitAnswer(clientChannel: SocketClientChannel, message: Message): Message? {
         val neededAnswerClass = getNeededAnswerClass(message)
         clientChannel.send(message)
-        var startTime = System.nanoTime()*1.0
+        var startTime = System.nanoTime() * 1.0
         var deltaTime = 0.0
         try {
             while (deltaTime < WAIT_TIME_SEC) {  // block and wait server answer
                 val answer = clientChannel.take()
                 if (answer.isClass(neededAnswerClass)) {
-                    return answer
+                    val fileAnswer = answer as FileAnswer
+                    if (fileAnswer.toMessage == message.uuid) {  // если сообщение пришло в ответ на отправленное
+                        return fileAnswer
+                    }
                 } else {
-                    val newTime = System.nanoTime()*1.0
-                    deltaTime += (newTime - startTime)/1e9
+                    val newTime = System.nanoTime() * 1.0
+                    deltaTime += (newTime - startTime) / 1e9
                     startTime = newTime
                     TimeUnit.MILLISECONDS.sleep(PAUSE_MS)
                 }
@@ -40,16 +44,8 @@ object ExecutorUtils {
 
     // по классу сообщения определяем ожидаемый класс ответа
     private fun getNeededAnswerClass(message: Message): Class<out Message> {
-        if (message.isClass(CreateFolderDemand::class.java)) {
-            return CreateFolderAnswer::class.java
-        } else if (message.isClass(CreateNewFileDemand::class.java)) {
-            return CreateNewFileAnswer::class.java
-        } else if (message.isClass(DeleteFileDemand::class.java)) {
-            return DeleteFileAnswer::class.java
-        } else if (message.isClass(GetFileNameList::class.java)) {
-            return FileNameList::class.java
-        } else if (message.isClass(GetFilePayload::class.java)) {
-            return FilePayloadAnswer::class.java
+        if (message.isClass(FileMessage::class.java)) {
+            return FileAnswer::class.java
         } else {
             throw RuntimeException("Unknown message: " + message)
         }
