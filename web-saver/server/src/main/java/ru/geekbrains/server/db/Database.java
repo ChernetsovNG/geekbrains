@@ -7,12 +7,15 @@ import ru.geekbrains.common.dto.UserDTO;
 
 import java.sql.*;
 
-import static ru.geekbrains.common.dto.ConnectStatus.AUTH_OK;
-import static ru.geekbrains.common.dto.ConnectStatus.INCORRECT_PASSWORD;
-import static ru.geekbrains.common.dto.ConnectStatus.INCORRECT_USERNAME;
+import static ru.geekbrains.common.dto.ConnectStatus.*;
 
 public class Database {
     private static final Logger LOG = LoggerFactory.getLogger(Database.class);
+
+    private static final String INSERT_USER = "INSERT INTO users (name, password) VALUES (?, ?);";
+    private static final String GET_LAST_ROW_ID = "SELECT LAST_INSERT_ROWID() FROM users";
+    private static final String SELECT_USER = "SELECT * FROM users WHERE name = ?;";
+    private static final String SELECT_PASSWORD = "SELECT password FROM users WHERE name = ?;";
 
     private static Connection connection;
 
@@ -24,8 +27,8 @@ public class Database {
 
     public static void insertUser(UserDTO user) {
         LOG.info("Insert new user in database: {}", user);
-        String insertUser = "INSERT INTO users (name, password) VALUES (?, ?);";
-        try (PreparedStatement statement = connection.prepareStatement(insertUser)) {
+
+        try (PreparedStatement statement = connection.prepareStatement(INSERT_USER)) {
             statement.setString(1, user.getName());
             statement.setString(2, Password.hashPassword(user.getPassword()));
             statement.executeUpdate();
@@ -37,9 +40,8 @@ public class Database {
 
     // запрашиваем у БД id последней вставленной строки
     private static int getInsertedUserId() {
-        String getLastRowId = "SELECT LAST_INSERT_ROWID() FROM users";
         try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(getLastRowId);
+            ResultSet resultSet = statement.executeQuery(GET_LAST_ROW_ID);
             resultSet.next();
             return resultSet.getInt("LAST_INSERT_ROWID()");
         } catch (SQLException e) {
@@ -51,8 +53,7 @@ public class Database {
     // Проверяем, что пользователь с заданным именем есть в базе
     public static boolean checkUserExistence(UserDTO user) {
         LOG.info("Check user existence in database: {}", user);
-        String selectUser = "SELECT * FROM users WHERE name = ?;";
-        try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_USER)) {
             statement.setString(1, user.getName());
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();
@@ -65,8 +66,7 @@ public class Database {
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
     public static boolean checkUserPassword(UserDTO user) {
         LOG.info("Check user password in database: {}", user);
-        String selectUser = "SELECT password FROM users WHERE name = ?;";
-        try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_PASSWORD)) {
             statement.setString(1, user.getName());
             ResultSet resultSet = statement.executeQuery();
             boolean isUserExists = resultSet.next();
