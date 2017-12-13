@@ -1,6 +1,6 @@
 package ru.geekbrains.common.dto;
 
-public enum CommonAnswerStatus {
+public enum AnswerStatus {
     OK,
     ERROR;
 }

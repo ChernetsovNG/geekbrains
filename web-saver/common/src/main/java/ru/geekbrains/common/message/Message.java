@@ -12,12 +12,11 @@ import java.io.Serializable;
 @ToString
 public abstract class Message implements Serializable {
     public static final Logger LOG = LoggerFactory.getLogger(Message.class);
+    public static final String CLASS_NAME_VARIABLE = "className";
 
     private final Address from;
     private final Address to;
     private final String className;
-
-    public static final String CLASS_NAME_VARIABLE = "className";
 
     protected Message(Address from, Address to, Class<?> clazz) {
         this.from = from;
