@@ -8,8 +8,11 @@ public class CommonData {
     public static final String CLIENTS_FOLDERS_PATH;  // путь к папкам клиентов на сервере
 
     static {
-        String currentUserName = System.getProperty("user.name");
-        CLIENTS_FOLDERS_PATH = "/home/" + currentUserName + "/web-saver-server";
+        String fileSeparator = System.getProperty("file.separator");
+        String homeDirectory = System.getProperty("user.home");
+        String webSaverClientFolder = "web-saver-server";
+
+        CLIENTS_FOLDERS_PATH = homeDirectory + fileSeparator + webSaverClientFolder + fileSeparator;
     }
 
 }

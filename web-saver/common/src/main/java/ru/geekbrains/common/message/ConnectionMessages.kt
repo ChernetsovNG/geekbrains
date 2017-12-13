@@ -13,7 +13,7 @@ class HandshakeAnswerMessage(from: Address, to: Address)
 class AuthDemandMessage(from: Address, to: Address, val username: String, val password: String)
     : Message(from, to, AuthDemandMessage::class.java)
 
-class AuthAnswerMessage(from: Address, to: Address, val authStatus: AuthStatus, val message: String)
+class AuthAnswerMessage(from: Address, to: Address, val authStatus: AuthStatus?, val message: String)
     : Message(from, to, AuthAnswerMessage::class.java)
 
 class DisconnectClientMessage(from: Address, to: Address)

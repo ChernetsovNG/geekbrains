@@ -29,12 +29,12 @@ public class Client implements Addressee {
     private static final String HOST = "localhost";
 
     private static final int PAUSE_MS = 250;
-    private static final int THREADS_NUMBER = 2;
+    private static final int THREADS_NUMBER = 3;
 
     private ExecutorService executor = Executors.newFixedThreadPool(THREADS_NUMBER);
 
     private final CountDownLatch handshakeLatch = new CountDownLatch(1);  // блокировка до установления соединения с сервером
-    private final CountDownLatch authentificationLatch = new CountDownLatch(1);  // блокировка до аутентификации клиента на сервере
+    private final CountDownLatch authLatch = new CountDownLatch(1);  // блокировка до аутентификации клиента на сервере
 
     private SocketClientChannel client;
 
@@ -58,18 +58,52 @@ public class Client implements Addressee {
 
         executor.submit(this::handshake);
         executor.submit(this::authentification);
+        executor.submit(this::serverMessageHandle);
 
-        // Отправляем на сервер HandshakeDemand сообщение
+        // 1. HandshakeDemand на сервере
+
         client.send(new HandshakeDemandMessage(this.address, SERVER_ADDRESS));
         LOG.debug("Послано сообщение об установлении соединения на сервер");
         handshakeLatch.await();  // ждём handshake-ответа от сервера
+
+
+
+        // 2. аутентификация на сервере
 
         String username = "TestUser1";
         String password = "qwerty";
 
         client.send(new AuthDemandMessage(this.address, SERVER_ADDRESS, username, password));
         LOG.debug("Послано сообщение об аутентификации на сервер");
-        authentificationLatch.await();  // ждём успешной аутентификации
+        authLatch.await();  // ждём успешной аутентификации
+
+        // 3. создание папки на сервере
+
+        client.send(new CreateFolderDemand(this.address, SERVER_ADDRESS));
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        // 4. создание нескольких файлов на сервере
+
+        client.send(new CreateNewFileDemand(this.address, SERVER_ADDRESS, "File1", new byte[0]));
+        client.send(new CreateNewFileDemand(this.address, SERVER_ADDRESS, "File2", new byte[0]));
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        // 5. получение списка файлов
+
+        client.send(new GetFileNameList(this.address, SERVER_ADDRESS));
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        // 6. удаление файла с сервера
+
+        client.send(new DeleteFileDemand(this.address, SERVER_ADDRESS, "File1"));
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        // 7. получение списка файлов
+
+        client.send(new GetFileNameList(this.address, SERVER_ADDRESS));
+        TimeUnit.MILLISECONDS.sleep(100);
+
+        // 8. отключение от сервера
 
         LOG.debug("Послано сообщение об отключении от сервера");
         client.send(new DisconnectClientMessage(this.address, SERVER_ADDRESS));
@@ -123,7 +157,7 @@ public class Client implements Addressee {
         if (authStatus != null) {
             if (authStatus.equals(AUTH_OK)) {
                 System.out.println("Успешная аутентификация на сервере. AuthStatus: " + authStatus);
-                authentificationLatch.countDown();  // Отпускаем блокировку
+                authLatch.countDown();  // Отпускаем блокировку
             } else if (authStatus.equals(INCORRECT_USERNAME)) {
                 System.out.println("Неправильное имя пользователя. AuthStatus: " + authStatus);
             } else if (authStatus.equals(INCORRECT_PASSWORD)) {
@@ -133,6 +167,38 @@ public class Client implements Addressee {
             LOG.error("Auth status in null in message: {}", authAnswer);
         }
         return authStatus;
+    }
+
+    // Обработка ответов от сервера
+    private void serverMessageHandle() {
+        try {
+            handshakeLatch.await();
+            authLatch.await();  // блокируемся до соединения с сервером и аутентификации
+            LOG.info("Цикл приёма сообщений с сервера");
+            while (true) {
+                Message message = client.take();
+                if (message != null) {
+                    if (message.isClass(CreateFolderAnswer.class)) {
+                        CreateFolderAnswer createFolderAnswer = (CreateFolderAnswer) message;
+                        System.out.println(createFolderAnswer.getCreationStatus() + " : " + createFolderAnswer.getAdditionalMessage());
+                    } else if (message.isClass(CreateNewFileAnswer.class)) {
+                        CreateNewFileAnswer createNewFileAnswer = (CreateNewFileAnswer) message;
+                        System.out.println(createNewFileAnswer.getCreationStatus() + " : " + createNewFileAnswer.getAdditionalMessage());
+                    } else if (message.isClass(FileNameList.class)) {
+                        FileNameList fileNameList = (FileNameList) message;
+                        System.out.println(fileNameList.getFileNamesList() + " : " + fileNameList.getAdditionalMessage());
+                    } else if (message.isClass(DeleteFileAnswer.class)) {
+                        DeleteFileAnswer deleteFileAnswer = (DeleteFileAnswer) message;
+                        System.out.println(deleteFileAnswer.getAnswerStatus() + " : " + deleteFileAnswer.getAdditionalMessage());
+                    } else {
+                        LOG.debug("Получено сообщение необрабатываемого класса: " + message);
+                    }
+                }
+                TimeUnit.MILLISECONDS.sleep(PAUSE_MS);
+            }
+        } catch (InterruptedException e) {
+            LOG.error(e.getMessage());
+        }
     }
 
     @Override

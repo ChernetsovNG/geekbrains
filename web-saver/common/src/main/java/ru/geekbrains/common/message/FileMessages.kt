@@ -22,7 +22,7 @@ class CreateNewFileAnswer(from: Address, to: Address, val creationStatus: Creati
 class DeleteFileDemand(from: Address, to: Address, val fileName: String)
     : Message(from, to, DeleteFileDemand::class.java)
 
-class DeleteFileAnswer(from: Address, to: Address, val commonAnswerStatus: AnswerStatus, val additionalMessage: String)
+class DeleteFileAnswer(from: Address, to: Address, val answerStatus: AnswerStatus, val additionalMessage: String)
     : Message(from, to, DeleteFileAnswer::class.java)
 
 // получить список файлов
