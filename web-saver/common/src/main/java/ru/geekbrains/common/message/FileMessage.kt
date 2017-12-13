@@ -1,8 +1,8 @@
 package ru.geekbrains.common.message
 
-import ru.geekbrains.common.dto.FileStatus
 import ru.geekbrains.common.dto.FileObject
 import ru.geekbrains.common.dto.FileOperation
+import ru.geekbrains.common.dto.FileStatus
 import java.util.*
 
 // классы сообщений для манипуляций с файлами на сервере
