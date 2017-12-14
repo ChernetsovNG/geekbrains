@@ -80,7 +80,6 @@ public class SocketClientChannel implements MessageChannel {
     public void close() throws IOException {
         shutdownRegistrations.forEach(Runnable::run);
         shutdownRegistrations.clear();
-
         executor.shutdown();
     }
 }

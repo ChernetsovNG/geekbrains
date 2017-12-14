@@ -2,18 +2,13 @@ package ru.geekbrains.common.message;
 
 import lombok.Data;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.io.Serializable;
 
 @Data
-public class Address {
-    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
-    private final String id;
+public class Address implements Serializable {
+    private final String address;
 
-    public Address() {
-        id = String.valueOf(ID_GENERATOR.getAndIncrement());
-    }
-
-    public Address(String id) {
-        this.id = id;
+    public Address(String address) {
+        this.address = address;
     }
 }

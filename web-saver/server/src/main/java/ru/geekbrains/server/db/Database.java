@@ -2,29 +2,33 @@ package ru.geekbrains.server.db;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.common.dto.AuthStatus;
-import ru.geekbrains.server.db.dto.User;
+import ru.geekbrains.common.dto.ConnectStatus;
+import ru.geekbrains.common.dto.UserDTO;
 
 import java.sql.*;
 
-import static ru.geekbrains.common.dto.AuthStatus.AUTH_OK;
-import static ru.geekbrains.common.dto.AuthStatus.INCORRECT_PASSWORD;
-import static ru.geekbrains.common.dto.AuthStatus.INCORRECT_USERNAME;
+import static ru.geekbrains.common.dto.ConnectStatus.*;
 
 public class Database {
     private static final Logger LOG = LoggerFactory.getLogger(Database.class);
 
+    private static final String INSERT_USER = "INSERT INTO users (name, password) VALUES (?, ?);";
+    private static final String GET_LAST_ROW_ID = "SELECT LAST_INSERT_ROWID() FROM users";
+    private static final String SELECT_USER = "SELECT * FROM users WHERE name = ?;";
+    private static final String SELECT_PASSWORD = "SELECT password FROM users WHERE name = ?;";
+
     private static Connection connection;
 
-    public static void main(String[] args) {
+    public static void createServerDB() {
         openDatabaseConnection();
         createAuthTable();
-        closeDatabaseConnection();
+        // insertUser(new User("TestUser1", "qwerty"));
     }
 
-    public static void insertUser(User user) {
-        String insertUser = "INSERT INTO users (name, password) VALUES (?, ?);";
-        try (PreparedStatement statement = connection.prepareStatement(insertUser)) {
+    public static void insertUser(UserDTO user) {
+        LOG.info("Insert new user in database: {}", user);
+
+        try (PreparedStatement statement = connection.prepareStatement(INSERT_USER)) {
             statement.setString(1, user.getName());
             statement.setString(2, Password.hashPassword(user.getPassword()));
             statement.executeUpdate();
@@ -36,9 +40,8 @@ public class Database {
 
     // запрашиваем у БД id последней вставленной строки
     private static int getInsertedUserId() {
-        String getLastRowId = "SELECT LAST_INSERT_ROWID() FROM users";
         try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(getLastRowId);
+            ResultSet resultSet = statement.executeQuery(GET_LAST_ROW_ID);
             resultSet.next();
             return resultSet.getInt("LAST_INSERT_ROWID()");
         } catch (SQLException e) {
@@ -48,9 +51,9 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем есть в базе
-    public static boolean checkUserExistence(User user) {
-        String selectUser = "SELECT * FROM users WHERE name = ?;";
-        try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
+    public static boolean checkUserExistence(UserDTO user) {
+        LOG.info("Check user existence in database: {}", user);
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_USER)) {
             statement.setString(1, user.getName());
             ResultSet resultSet = statement.executeQuery();
             return resultSet.next();
@@ -61,9 +64,9 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
-    public static boolean checkUserAuthentification(User user) {
-        String selectUser = "SELECT password FROM users WHERE name = ?;";
-        try (PreparedStatement statement = connection.prepareStatement(selectUser)) {
+    public static boolean checkUserPassword(UserDTO user) {
+        LOG.info("Check user password in database: {}", user);
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_PASSWORD)) {
             statement.setString(1, user.getName());
             ResultSet resultSet = statement.executeQuery();
             boolean isUserExists = resultSet.next();
@@ -77,13 +80,13 @@ public class Database {
         return false;
     }
 
-    public static AuthStatus getAuthStatus(User user) {
+    public static ConnectStatus getAuthStatus(UserDTO user) {
         boolean isUserExists = checkUserExistence(user);
-        AuthStatus authStatus;
+        ConnectStatus authStatus;
         if (!isUserExists) {
             authStatus = INCORRECT_USERNAME;
         } else {
-            boolean isAuthentificate = checkUserAuthentification(user);
+            boolean isAuthentificate = checkUserPassword(user);
             if (!isAuthentificate) {
                 authStatus = INCORRECT_PASSWORD;
             } else {
@@ -94,6 +97,7 @@ public class Database {
     }
 
     private static void openDatabaseConnection() {
+        LOG.info("Start connection with database");
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:server/src/main/java/ru/geekbrains/server/db/data.db");
@@ -104,6 +108,7 @@ public class Database {
     }
 
     private static void createAuthTable() {
+        LOG.info("Create table usert in database (if it is not exists)");
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS users\n" +
                 " (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
@@ -111,15 +116,16 @@ public class Database {
                 "  password TEXT NOT NULL);");
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_name_uindex ON users (name);");
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_id_uindex ON users (id);");  // имя пользователя - уникальное
-            statement.execute("DELETE FROM users");
-            statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='users';");
+            // statement.execute("DELETE FROM users");
+            // statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='users';");
             // connection.commit();
         } catch (SQLException e) {
             LOG.error(e.getMessage());
         }
     }
 
-    private static void closeDatabaseConnection() {
+    public static void closeDatabaseConnection() {
+        LOG.info("Close database connection");
         try {
             connection.close();
         } catch (SQLException e) {
