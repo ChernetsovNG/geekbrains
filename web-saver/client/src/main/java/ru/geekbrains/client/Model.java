@@ -1,20 +1,19 @@
 package ru.geekbrains.client;
 
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.SocketClientChannel;
 import ru.geekbrains.common.channel.SocketClientManagedChannel;
-import ru.geekbrains.common.dto.*;
+import ru.geekbrains.common.dto.ConnectOperation;
+import ru.geekbrains.common.dto.ConnectStatus;
+import ru.geekbrains.common.dto.UserDTO;
 import ru.geekbrains.common.message.*;
 
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.common.CommonData.SERVER_PORT;
@@ -93,34 +92,14 @@ public class Model implements Addressee {
     private void serverMessageHandle() {
         try {
             while (true) {
-                Message serverAnswer = client.take();
-                System.out.println(serverAnswer);
-                if (serverAnswer != null) {
-                    if (serverAnswer.isClass(ConnectAnswerMessage.class)) {
-                        ConnectAnswerMessage connectAnswerMessage = (ConnectAnswerMessage) serverAnswer;
-                        if (connectAnswerMessage.getToMessage().equals(handshakeMessageUUID)) {  // проверяем, что это ответ именно нам
-                            if (connectAnswerMessage.getConnectStatus().equals(ConnectStatus.HANDSHAKE_OK)) {
-                                LOG.info("Получен ответ об установлении связи от сервера");
-                                // handshakeLatch.countDown();  // Отпускаем блокировку
-                            }
-                        } else if (connectAnswerMessage.getToMessage().equals(authMessageUUID)) {
-                            LOG.info("Получен ответ об аутентификации от сервера");
-                            ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
-                            if (connectStatus.equals(AUTH_OK)) {
-                                LOG.info("Успешная аутентификация");
-                                // authLatch.countDown();  // Отпускаем блокировку
-                            } else if (connectStatus.equals(INCORRECT_USERNAME)) {
-                                LOG.info("Неправильно имя пользвоателя");
-                            } else if (connectStatus.equals(INCORRECT_PASSWORD)) {
-                                LOG.info("Неправильный пароль");
-                            }
-                        }
-                    } else if (serverAnswer.isClass(FileAnswer.class)) {
-                        LOG.info("Получен ответ о файловой операции от сервера");
-                        FileAnswer fileAnswer = (FileAnswer) serverAnswer;
-                        System.out.println(fileAnswer.getFileStatus() + " : " + fileAnswer.getAdditionalMessage());
+                Message serverMessage = client.take();
+                if (serverMessage != null) {
+                    if (serverMessage.isClass(ConnectAnswerMessage.class)) {
+                        handleConnectAnswer(serverMessage);
+                    } else if (serverMessage.isClass(FileAnswer.class)) {
+                        handleFileAnswer(serverMessage);
                     } else {
-                        LOG.debug("Получено сообщение необрабатываемого класса");
+                        LOG.debug("Получено сообщение необрабатываемого класса. Message: {}", serverMessage);
                     }
                 } else {
                     TimeUnit.MILLISECONDS.sleep(PAUSE_MS);
@@ -129,6 +108,41 @@ public class Model implements Addressee {
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
         }
+    }
+
+    private void handleConnectAnswer(Message serverMessage) {
+        ConnectAnswerMessage connectAnswerMessage = (ConnectAnswerMessage) serverMessage;
+        UUID toMessageUuid = connectAnswerMessage.getToMessage();  // по uuid проверяем, что это ответ именно нам
+
+        if (toMessageUuid.equals(handshakeMessageUUID)) {
+            if (connectAnswerMessage.getConnectStatus().equals(ConnectStatus.HANDSHAKE_OK)) {
+                LOG.info("Получен ответ об установлении связи от сервера");
+                // handshakeLatch.countDown();  // Отпускаем блокировку
+            } else {
+                LOG.info("Получен ответ, но не HANSHAKE_OK. Message: {}", serverMessage);
+            }
+        } else if (toMessageUuid.equals(authMessageUUID)) {
+            LOG.info("Получен ответ об аутентификации от сервера");
+            ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
+            if (connectStatus.equals(AUTH_OK)) {
+                LOG.info("Успешная аутентификация");
+                // authLatch.countDown();  // Отпускаем блокировку
+            } else if (connectStatus.equals(INCORRECT_USERNAME)) {
+                LOG.info("Неправильно имя пользвоателя");
+            } else if (connectStatus.equals(INCORRECT_PASSWORD)) {
+                LOG.info("Неправильный пароль");
+            } else {
+                LOG.info("Непонятный ответ об аутентификации. Message: {}", serverMessage);
+            }
+        } else {
+            LOG.info("Пришёл ответ от сервера с UUID не в ответ на наше сообщение! Message: {}", serverMessage);
+        }
+    }
+
+    private void handleFileAnswer(Message serverMessage) {
+        LOG.info("Получен ответ о файловой операции от сервера");
+        FileAnswer fileAnswer = (FileAnswer) serverMessage;
+        System.out.println(fileAnswer.getFileStatus() + " : " + fileAnswer.getAdditionalMessage());
     }
 
     @Override

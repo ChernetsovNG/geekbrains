@@ -87,43 +87,12 @@ public class Server implements Addressee {
                     Address clientAddress = client.getValue();
                     Message message = clientChannel.poll();
                     if (message != null) {
-                        LOG.debug("Получено сообщение от клиента: {}", message);
                         if (message.isClass(ConnectOperationMessage.class)) {
-                            ConnectOperationMessage connectOperationMessage = (ConnectOperationMessage) message;
-                            ConnectOperation connectOperation = connectOperationMessage.getConnectOperation();
-                            if (clientAddress == null) {  // handshake
-                                if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
-                                    clientAddress = connectOperationMessage.getFrom();
-                                    LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + message);
-                                    connectionMap.put(clientChannel, clientAddress);
-                                    ConnectAnswerMessage handshakeAnswerMessage = new ConnectAnswerMessage(this.address, clientAddress, connectOperationMessage.getUuid(), ConnectStatus.HANDSHAKE_OK);
-                                    clientChannel.send(handshakeAnswerMessage);
-                                    LOG.info("Направлен ответ об успешном установлении соединения клиенту: " + clientAddress + ", " + handshakeAnswerMessage);
-                                }
-                            } else {  // if (clientAddress != null)
-                                if (connectOperation.equals(ConnectOperation.AUTH)) {
-                                    LOG.info("Сообщение об аутентификации клиента: " + clientAddress + ", " + message);
-                                    UserDTO userDTO = (UserDTO) connectOperationMessage.getAdditionalObject();
-                                    LOG.info("Получен запрос на аутентификацию от: " + connectOperationMessage.getFrom() + ", " + userDTO);
-                                    ConnectStatus authStatus = Database.getAuthStatus(userDTO);
-                                    ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus);
-                                    if (authStatus.equals(ConnectStatus.AUTH_OK)) {
-                                        fileOperationHandler.addAuthClient(clientChannel, userDTO.getName());  // сохраняем в карте авторизованного пользователя
-                                    }
-                                    clientChannel.send(authAnswerMessage);
-                                    LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
-                                } else if (connectOperation.equals(ConnectOperation.DISCONNECT)) {
-                                    LOG.info("Сообщение об отключении клиента: " + clientAddress + ", " + message);
-                                    connectionMap.remove(clientChannel);
-                                    fileOperationHandler.removeAuthClient(clientChannel);
-                                    clientChannel.close();
-                                } else if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
-                                    LOG.info("Получено handshake сообщение от уже установившего связь клиента");
-                                }
-                            }
+                            handleConnectionDemand(clientAddress, clientChannel, message);
                         } else if (message.isClass(FileMessage.class)) {
-                            LOG.debug("fileMessageHandle. Принято сообщение {}", message);
                             fileOperationHandler.handleFileMessage(clientAddress, clientChannel, (FileMessage) message);
+                        } else {
+                            LOG.warn("От клиента получено сообщение необрабатываемог класса. Message: {}", message);
                         }
                     }
                 }
@@ -131,8 +100,63 @@ public class Server implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
+        }
+    }
+
+    private void handleConnectionDemand(Address clientAddress, MessageChannel clientChannel, Message clientMessage) {
+        ConnectOperationMessage connectOperationMessage = (ConnectOperationMessage) clientMessage;
+        ConnectOperation connectOperation = connectOperationMessage.getConnectOperation();
+        if (clientAddress == null) {
+            handleConnectionDemandNewClient(clientChannel, connectOperation, connectOperationMessage);
+        } else {
+            handleConnectionDemandExistsClient(clientChannel, connectOperation, clientAddress, connectOperationMessage);
+        }
+    }
+
+    private void handleConnectionDemandNewClient(MessageChannel clientChannel, ConnectOperation connectOperation, ConnectOperationMessage connectOperationMessage) {
+        if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
+            Address clientAddress = connectOperationMessage.getFrom();
+            LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + connectOperationMessage);
+            connectionMap.put(clientChannel, clientAddress);
+            ConnectAnswerMessage handshakeAnswerMessage = new ConnectAnswerMessage(this.address, clientAddress, connectOperationMessage.getUuid(), ConnectStatus.HANDSHAKE_OK);
+            clientChannel.send(handshakeAnswerMessage);
+            LOG.info("Направлен ответ об успешном установлении соединения клиенту: " + clientAddress + ", " + handshakeAnswerMessage);
+        } else {
+            LOG.info("Получен не HANDSHAKE запрос от нового клиента. Message: {}", connectOperationMessage);
+        }
+    }
+
+    private void handleConnectionDemandExistsClient(MessageChannel clientChannel, ConnectOperation connectOperation, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
+        if (connectOperation.equals(ConnectOperation.AUTH)) {
+            handleAuthDemand(clientChannel, clientAddress, connectOperationMessage);
+        } else if (connectOperation.equals(ConnectOperation.DISCONNECT)) {
+            handleDisconnectMessage(clientChannel, clientAddress, connectOperationMessage);
+        } else if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
+            LOG.info("Получено handshake сообщение от уже установившего связь клиента");
+        }
+    }
+
+    private void handleAuthDemand(MessageChannel clientChannel, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
+        LOG.info("Сообщение об аутентификации клиента: " + clientAddress + ", " + connectOperationMessage);
+        UserDTO userDTO = (UserDTO) connectOperationMessage.getAdditionalObject();
+        LOG.info("Получен запрос на аутентификацию от: " + connectOperationMessage.getFrom() + ", " + userDTO);
+        ConnectStatus authStatus = Database.getAuthStatus(userDTO);
+        ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus);
+        if (authStatus.equals(ConnectStatus.AUTH_OK)) {
+            fileOperationHandler.addAuthClient(clientChannel, userDTO.getName());  // сохраняем в карте авторизованного пользователя
+        }
+        clientChannel.send(authAnswerMessage);
+        LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
+    }
+
+    private void handleDisconnectMessage(MessageChannel clientChannel, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
+        LOG.info("Сообщение об отключении клиента: " + clientAddress + ", " + connectOperationMessage);
+        connectionMap.remove(clientChannel);
+        fileOperationHandler.removeAuthClient(clientChannel);
+        try {
+            clientChannel.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error(e.getMessage());
         }
     }
 
