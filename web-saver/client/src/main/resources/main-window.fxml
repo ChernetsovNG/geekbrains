@@ -24,7 +24,7 @@
     <bottom>
         <HBox fx:id="bottomPanel">
          <children>
-            <TextArea fx:id="clientTerminal" prefHeight="100.0" prefWidth="1053.0" />
+            <TextArea fx:id="clientTerminal" prefHeight="175.0" prefWidth="700.0" />
          </children></HBox>
     </bottom>
    <center>
