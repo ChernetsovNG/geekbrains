@@ -2,13 +2,15 @@ package ru.geekbrains.common.dto;
 
 import lombok.Getter;
 
-@Getter
-public class FileDTO {
-    private final String fileName;
-    private final byte[] payload;
+import java.io.Serializable;
 
-    public FileDTO(String fileName, byte[] payload) {
+@Getter
+public class FileDTO implements Serializable {
+    private final String fileName;
+    private final byte[] content;
+
+    public FileDTO(String fileName, byte[] content) {
         this.fileName = fileName;
-        this.payload = payload;
+        this.content = content;
     }
 }

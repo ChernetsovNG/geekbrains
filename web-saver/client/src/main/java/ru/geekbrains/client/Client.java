@@ -84,7 +84,7 @@ public class Client implements Addressee {
 
         // 3. создание папки на сервере
 
-        FileAnswer createFolderAnswer = (FileAnswer) ExecutorUtils.INSTANCE.sendMessageAndAwaitAnswer(client, new FileMessage(this.address, SERVER_ADDRESS, FileObject.FOLDER, FileOperation.CREATE, null));
+        FileAnswer createFolderAnswer = (FileAnswer) ExecutorUtils.INSTANCE.sendMessageAndAwaitAnswer(client, new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null));
         System.out.println(createFolderAnswer.getFileStatus());
 
         // 4. создание нескольких файлов на сервере

@@ -3,13 +3,11 @@ package ru.geekbrains.server.operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.MessageChannel;
-import ru.geekbrains.common.dto.FileDTO;
-import ru.geekbrains.common.dto.FileObject;
-import ru.geekbrains.common.dto.FileOperation;
-import ru.geekbrains.common.dto.FileStatus;
+import ru.geekbrains.common.dto.*;
 import ru.geekbrains.common.message.Address;
 import ru.geekbrains.common.message.FileAnswer;
 import ru.geekbrains.common.message.FileMessage;
+import ru.geekbrains.server.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,7 +47,7 @@ public class FileOperationHandler {
             clientChannel.send(createFolderAnswerMessage);
             return;
         }
-        FileObject fileObject = message.getFileObject();
+        FileObjectToOperate fileObject = message.getFileObjectToOperate();
         FileOperation fileOperation = message.getFileOperation();
         switch (fileObject) {
             case FOLDER:
@@ -65,7 +63,11 @@ public class FileOperationHandler {
         switch (fileOperation) {
             case CREATE:
                 LOG.info("Запрос на создание папки: " + clientAddress + ", " + message);
-                handleCreateFolderDemandMessage(clientAddress, clientChannel, message);
+                createClientFolder(clientAddress, clientChannel, message);
+                break;
+            case DELETE:
+                LOG.info("Запрос на удаление папки: " + clientAddress + ", " + message);
+                deleteClientFolder(clientAddress, clientChannel, message);
                 break;
         }
     }
@@ -74,24 +76,30 @@ public class FileOperationHandler {
         switch (fileOperation) {
             case CREATE:
                 LOG.info("Запрос на создание нового файла: " + clientAddress + ", " + message);
-                handleCreateNewFileDemandMessage(clientAddress, clientChannel, message);
+                createNewFile(clientAddress, clientChannel, message);
                 break;
             case READ:
                 LOG.info("Запрос содержимого файла: " + clientAddress + ", " + message);
-                handleGetFilePayloadDemandMessage(clientAddress, clientChannel, message);
+                getFileContent(clientAddress, clientChannel, message);
+                break;
+            case UPDATE:
+            case CHANGE_NAME:
+            case CHANGE_CONTENT:
+                LOG.info("Запрос на изменение файла: " + clientAddress + ", " + message);
+                changeFile(clientAddress, clientChannel, message, fileOperation);
                 break;
             case DELETE:
                 LOG.info("Запрос на удаление файла: " + clientAddress + ", " + message);
-                handleDeleteFileDemandMessage(clientAddress, clientChannel, message);
+                deleteFile(clientAddress, clientChannel, message);
                 break;
             case GET_LIST:
                 LOG.info("Запрос списка файлов: " + clientAddress + ", " + message);
-                handleGetFileListDemandMessage(clientAddress, clientChannel, message);
+                getFileList(clientAddress, clientChannel, message);
                 break;
         }
     }
 
-    private void handleCreateFolderDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
+    private void createClientFolder(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
         FileStatus fileStatus = FileStatus.ERROR;
         String additionalMessage = null;
 
@@ -113,7 +121,29 @@ public class FileOperationHandler {
         clientChannel.send(createFolderAnswerMessage);
     }
 
-    private void handleCreateNewFileDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
+    private void deleteClientFolder(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
+        FileStatus fileStatus = FileStatus.ERROR;
+        String additionalMessage = null;
+
+        String folderPath = getClientFolderPath(clientChannel);
+        if (!isFolderExists(folderPath)) {
+            fileStatus = FileStatus.ERROR;
+            additionalMessage = "Папка не существует";
+        } else {
+            boolean isFolderDelete = deleteDirectory(folderPath);
+            if (isFolderDelete) {
+                fileStatus = FileStatus.OK;
+                additionalMessage = null;
+            } else {
+                fileStatus = FileStatus.ERROR;
+                additionalMessage = "Директория не удалена";
+            }
+        }
+        FileAnswer createFolderAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, null);
+        clientChannel.send(createFolderAnswerMessage);
+    }
+
+    private void createNewFile(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
         FileStatus fileStatus;
         String additionalMessage;
 
@@ -124,7 +154,7 @@ public class FileOperationHandler {
             fileStatus = FileStatus.ERROR;
             additionalMessage = "Файл уже существует";
         } else {
-            boolean isFileCreate = createNewFile(folderPath, fileName, fileDTO.getPayload());
+            boolean isFileCreate = FileUtils.createNewFile(folderPath, fileName, fileDTO.getContent());
             if (isFileCreate) {
                 fileStatus = FileStatus.OK;
                 additionalMessage = null;
@@ -138,13 +168,75 @@ public class FileOperationHandler {
         clientChannel.send(createNewFileAnswerMessage);
     }
 
-    private void handleGetFileListDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
+    private void changeFile(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage, FileOperation fileOperation) {
+        FileStatus fileStatus = FileStatus.ERROR;
+        String additionalMessage = null;
+
+        String folderPath = getClientFolderPath(clientChannel);
+
+        ChangeFileDTO changeFileDTO = (ChangeFileDTO) fileMessage.getAdditionalObject();
+
+        FileDTO oldFile = changeFileDTO.getOldFile();
+        FileDTO newFile = changeFileDTO.getNewFile();
+
+        String changeableFileName = oldFile.getFileName();
+        String newName = newFile.getFileName();
+        byte[] newContent = newFile.getContent();
+
+        switch (fileOperation) {
+            case CHANGE_NAME:
+
+                boolean isFileRenamed = renameFile(folderPath, changeableFileName, newName);
+                if (isFileRenamed) {
+                    fileStatus = FileStatus.OK;
+                    additionalMessage = "";
+                } else {
+                    fileStatus = FileStatus.ERROR;
+                    additionalMessage = "Ошибка при переименовании файла";
+                }
+                break;
+            case CHANGE_CONTENT:
+                boolean isFileChanged = changeFileContent(folderPath, changeableFileName, newContent);
+                if (isFileChanged) {
+                    fileStatus = FileStatus.OK;
+                    additionalMessage = "";
+                } else {
+                    fileStatus = FileStatus.ERROR;
+                    additionalMessage = "Ошибка при изменении содержимого файла";
+                }
+                break;
+            case UPDATE:  // удаляем старый файл и создаём новый
+                boolean isFileDeleted = FileUtils.deleteFile(folderPath, changeableFileName);
+                boolean isFileCreated = FileUtils.createNewFile(folderPath, newName, newContent);
+                if (isFileDeleted && isFileCreated) {
+                    fileStatus = FileStatus.OK;
+                }
+                if (!isFileDeleted) {
+                    fileStatus = FileStatus.ERROR;
+                    additionalMessage = "Ошибка при удалении старого файла";
+                }
+                if (!isFileCreated) {
+                    fileStatus = FileStatus.ERROR;
+                    additionalMessage = "Ошибка при создании нового файла";
+                }
+                if (!isFileDeleted && !isFileCreated) {
+                    fileStatus = FileStatus.ERROR;
+                    additionalMessage = "Ошибка при удалении старого файла и создании нового";
+                }
+                break;
+        }
+
+        FileAnswer createNewFileAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, null);
+        clientChannel.send(createNewFileAnswerMessage);
+    }
+
+    private void getFileList(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
         FileStatus fileStatus;
         String additionalMessage;
         List<String> fileNamesList = Collections.emptyList();
 
         String folderPath = getClientFolderPath(clientChannel);
-        List<String> filesList = getFileList(folderPath);
+        List<String> filesList = FileUtils.getFileList(folderPath);
         if (filesList != null) {
             fileStatus = FileStatus.OK;
             additionalMessage = null;
@@ -158,24 +250,28 @@ public class FileOperationHandler {
         clientChannel.send(getFileListAnswerMessage);
     }
 
-    private void handleDeleteFileDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
-        FileStatus fileStatus = FileStatus.ERROR;
+    private void deleteFile(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
+        FileStatus fileStatus;
         String additionalMessage = null;
 
         String folderPath = getClientFolderPath(clientChannel);
         FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
-        try {
-            Files.delete(Paths.get(folderPath, fileDTO.getFileName()));
+        String fileName = fileDTO.getFileName();
+
+        boolean isFileDeleted = FileUtils.deleteFile(folderPath, fileName);
+
+        if (isFileDeleted) {
             fileStatus = FileStatus.OK;
-        } catch (IOException e) {
-            LOG.error(e.getMessage());
+        } else {
+            fileStatus = FileStatus.ERROR;
+            additionalMessage = "Ошибка при удалении файла";
         }
 
         FileAnswer deleteFileAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, null);
         clientChannel.send(deleteFileAnswerMessage);
     }
 
-    private void handleGetFilePayloadDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
+    private void getFileContent(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
         FileStatus fileStatus = FileStatus.ERROR;
         String additionalMessage = null;
         byte[] filePayload = null;
