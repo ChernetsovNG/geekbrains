@@ -124,40 +124,47 @@ public class Model implements Addressee {
 
     private void handleConnectAnswer(Message serverMessage) {
         ConnectAnswerMessage connectAnswerMessage = (ConnectAnswerMessage) serverMessage;
-        UUID toMessageUuid = connectAnswerMessage.getToMessage();  // по uuid проверяем, что это ответ именно нам
-
+        UUID toMessageUuid = connectAnswerMessage.getToMessage();  // по uuid проверяем, что это ответ именно на наш запрос
         if (toMessageUuid.equals(handshakeMessageUUID)) {
-            if (connectAnswerMessage.getConnectStatus().equals(ConnectStatus.HANDSHAKE_OK)) {
-                LOG.info("Получен ответ об установлении связи от сервера");
-                Platform.runLater(() -> controller.writeLogInTerminal("Установлено соединение с сервером"));
-                // handshakeLatch.countDown();  // Отпускаем блокировку
-            } else {
-                LOG.info("Получен ответ, но не HANSHAKE_OK. Message: {}", serverMessage);
-            }
+            handleHandshakeAnswer(connectAnswerMessage);
         } else if (toMessageUuid.equals(authMessageUUID)) {
-            LOG.info("Получен ответ об аутентификации от сервера");
-            ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
-            if (connectStatus.equals(AUTH_OK)) {
-                LOG.info("Успешная аутентификация");
-                Platform.runLater(() -> {
-                    controller.writeLogInTerminal("Успешная аутентификация на сервере");
-                    controller.setAuthentificate(true);
-                });
-                // authLatch.countDown();  // Отпускаем блокировку
-            } else if (connectStatus.equals(INCORRECT_USERNAME)) {
-                LOG.info("Неправильное имя пользователя");
-                Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильное имя пользователя"));
-            } else if (connectStatus.equals(INCORRECT_PASSWORD)) {
-                LOG.info("Неправильный пароль");
-                Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильный пароль"));
-            } else if (connectStatus.equals(ALREADY_AUTH)) {
-                LOG.info("Клиент уже аутентифицирован на сервере");
-                Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: клиент уже аутентифицирован на сервере"));
-            } else {
-                LOG.info("Непонятный ответ об аутентификации. Message: {}", serverMessage);
-            }
+            handleAuthAnswer(connectAnswerMessage);
         } else {
             LOG.info("Пришёл ответ от сервера с UUID не в ответ на наше сообщение! Message: {}", serverMessage);
+        }
+    }
+
+    private void handleHandshakeAnswer(ConnectAnswerMessage connectAnswerMessage) {
+        if (connectAnswerMessage.getConnectStatus().equals(ConnectStatus.HANDSHAKE_OK)) {
+            LOG.info("Получен ответ об установлении связи от сервера");
+            Platform.runLater(() -> controller.writeLogInTerminal("Установлено соединение с сервером"));
+            // handshakeLatch.countDown();  // Отпускаем блокировку
+        } else {
+            LOG.info("Получен ответ, но не HANDSHAKE_OK. Message: {}", connectAnswerMessage);
+        }
+    }
+
+    private void handleAuthAnswer(ConnectAnswerMessage connectAnswerMessage) {
+        LOG.info("Получен ответ об аутентификации от сервера");
+        ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
+        if (connectStatus.equals(AUTH_OK)) {
+            LOG.info("Успешная аутентификация");
+            Platform.runLater(() -> {
+                controller.writeLogInTerminal("Успешная аутентификация на сервере");
+                controller.setAuthentificate(true);
+            });
+            // authLatch.countDown();  // Отпускаем блокировку
+        } else if (connectStatus.equals(INCORRECT_USERNAME)) {
+            LOG.info("Неправильное имя пользователя");
+            Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильное имя пользователя"));
+        } else if (connectStatus.equals(INCORRECT_PASSWORD)) {
+            LOG.info("Неправильный пароль");
+            Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильный пароль"));
+        } else if (connectStatus.equals(ALREADY_AUTH)) {
+            LOG.info("Клиент уже аутентифицирован на сервере");
+            Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: клиент уже аутентифицирован на сервере"));
+        } else {
+            LOG.info("Аутентификация: непонятный ответ!. Message: {}", connectAnswerMessage);
         }
     }
 
@@ -168,12 +175,13 @@ public class Model implements Addressee {
         UUID answerOnDemand = fileAnswer.getToMessage();
         if (fileOperationDemandMessages.containsKey(answerOnDemand)) {
             FileMessage demandMessage = fileOperationDemandMessages.get(answerOnDemand);
+            FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
             FileOperation demandFileOperation = demandMessage.getFileOperation();
             FileStatus answerStatus = fileAnswer.getFileStatus();
             String additionalMessage = fileAnswer.getAdditionalMessage();
-            LOG.info("Ответ на запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
-                demandMessage.getFileObjectToOperate(), demandMessage.getFileOperation(), answerStatus, additionalMessage);
-            switch (demandMessage.getFileObjectToOperate()) {
+            LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
+                demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
+            switch (demandFileObjectToOperate) {
                 case FOLDER:
                     if (demandFileOperation.equals(FileOperation.CREATE)) {
                         switch (answerStatus) {
@@ -192,12 +200,10 @@ public class Model implements Addressee {
                 case FILE:
                     break;
             }
+            fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
         } else {
             LOG.info("Пришёл ответ не на наш запрос");
         }
-
-        fileAnswer.getFileStatus();
-        System.out.println(fileAnswer.getFileStatus() + " : " + fileAnswer.getAdditionalMessage());
     }
 
     @Override
