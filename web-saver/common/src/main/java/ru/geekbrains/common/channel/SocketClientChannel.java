@@ -38,6 +38,7 @@ public class SocketClientChannel implements MessageChannel {
         try (ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream())) {
             while (client.isConnected()) {
                 Message message = outputMessages.take();  // blocks here
+                LOG.debug("Сокет: {}. Отправлено сообщение: {}", client, message);
                 out.writeObject(message);
             }
         } catch (InterruptedException | IOException e) {
@@ -51,6 +52,7 @@ public class SocketClientChannel implements MessageChannel {
             Object readObject;
             while ((readObject = in.readObject()) != null) {  // blocks here
                 Message message = (Message) readObject;
+                LOG.debug("Сокет: {}. Принято сообщение: {}", client, message);
                 inputMessages.add(message);
             }
         } catch (ClassNotFoundException | IOException e) {

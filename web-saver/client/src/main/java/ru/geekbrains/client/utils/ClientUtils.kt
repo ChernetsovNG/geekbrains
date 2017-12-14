@@ -6,14 +6,18 @@ import ru.geekbrains.common.channel.SocketClientChannel
 import ru.geekbrains.common.message.FileAnswer
 import ru.geekbrains.common.message.FileMessage
 import ru.geekbrains.common.message.Message
+import java.net.NetworkInterface
+import java.net.SocketException
+import java.util.ArrayList
 import java.util.concurrent.TimeUnit
+import java.util.stream.Collectors
 
 // объект для запуска задачи и ожидания её завершения
-object ExecutorUtils {
+object ClientUtils {
     const val PAUSE_MS = 250L
     const val WAIT_TIME_SEC = 20  // время ожидания ответа сервера (чтобы избежать бесконечного цикла)
 
-    private val LOG: Logger = LoggerFactory.getLogger(ExecutorUtils::class.java)
+    private val LOG: Logger = LoggerFactory.getLogger(ClientUtils::class.java)
 
     // Отправить сообщение и дождаться ответа от сервера
     fun sendMessageAndAwaitAnswer(clientChannel: SocketClientChannel, message: Message): Message? {
@@ -40,6 +44,34 @@ object ExecutorUtils {
             LOG.error(e.message)
         }
         return null
+    }
+
+    // Находим список MAC-адресов данного хоста. Будем считать его уникальными именем клиента
+    fun getMacAddress(): String {
+        try {
+            val macList = ArrayList<String>()
+
+            val networks = NetworkInterface.getNetworkInterfaces()
+
+            while (networks.hasMoreElements()) {
+                val network = networks.nextElement()
+                val mac = network.hardwareAddress
+
+                if (mac != null) {
+                    val sb = StringBuilder()
+                    for (i in mac.indices) {
+                        sb.append(String.format("%02X%s", mac[i], if (i < mac.size - 1) "-" else ""))
+                    }
+                    macList.add(sb.toString())
+                }
+            }
+
+            return macList.stream().collect(Collectors.joining("|"))
+        } catch (e: SocketException) {
+            LOG.error(e.message)
+        }
+
+        return ""
     }
 
     // по классу сообщения определяем ожидаемый класс ответа
