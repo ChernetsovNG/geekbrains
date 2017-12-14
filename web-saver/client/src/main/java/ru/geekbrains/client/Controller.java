@@ -33,7 +33,7 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        setAuthorized(false);
+        setAuthentificate(false);
         try {
             startModel();
         } catch (Exception e) {
@@ -60,15 +60,22 @@ public class Controller implements Initializable {
         }
     }
 
-    public void setAuthorized(boolean isAuthorized) {  // переключаем режим авторизации
+    public void getFileList() {
+    }
+
+    public void addNewFile() {
+    }
+
+    public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации
         this.isAuthorized = isAuthorized;
         if (!this.isAuthorized) {         // если пользователь не авторизован
             authPanel.setVisible(true);   // включаем панель авторизации
             authPanel.setManaged(true);
         } else {
             authPass.clear();
-            authPanel.setVisible(false);  // выключаем панель авторизации
-            authPanel.setManaged(false);
+            // authPanel.setVisible(false);  // выключаем панель авторизации
+            // authPanel.setManaged(false);
+            model.createClientFolder();
         }
     }
 

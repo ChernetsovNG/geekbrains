@@ -5,12 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.SocketClientChannel;
 import ru.geekbrains.common.channel.SocketClientManagedChannel;
-import ru.geekbrains.common.dto.ConnectOperation;
-import ru.geekbrains.common.dto.ConnectStatus;
-import ru.geekbrains.common.dto.UserDTO;
+import ru.geekbrains.common.dto.*;
 import ru.geekbrains.common.message.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,6 +36,7 @@ public class Model implements Addressee {
 
     private UUID handshakeMessageUUID;
     private UUID authMessageUUID;
+    private final Map<UUID, FileMessage> fileOperationDemandMessages = new HashMap<>();  // сохраняем запросы, чтобы понять, но что приходят ответы
 
     private SocketClientChannel client;
 
@@ -92,6 +93,13 @@ public class Model implements Addressee {
         }*/
     }
 
+    public void createClientFolder() {
+        FileMessage createFolderDemandMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
+        fileOperationDemandMessages.put(createFolderDemandMessage.getUuid(), createFolderDemandMessage);
+        client.send(createFolderDemandMessage);
+        LOG.debug("Послан запрос на создание папки пользователя на сервер");
+    }
+
     // Обработка ответов от сервера
     private void serverMessageHandle() {
         try {
@@ -131,7 +139,10 @@ public class Model implements Addressee {
             ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
             if (connectStatus.equals(AUTH_OK)) {
                 LOG.info("Успешная аутентификация");
-                Platform.runLater(() -> controller.writeLogInTerminal("Успешная аутентификация на сервере"));
+                Platform.runLater(() -> {
+                    controller.writeLogInTerminal("Успешная аутентификация на сервере");
+                    controller.setAuthentificate(true);
+                });
                 // authLatch.countDown();  // Отпускаем блокировку
             } else if (connectStatus.equals(INCORRECT_USERNAME)) {
                 LOG.info("Неправильное имя пользователя");
@@ -153,6 +164,39 @@ public class Model implements Addressee {
     private void handleFileAnswer(Message serverMessage) {
         LOG.info("Получен ответ о файловой операции от сервера");
         FileAnswer fileAnswer = (FileAnswer) serverMessage;
+
+        UUID answerOnDemand = fileAnswer.getToMessage();
+        if (fileOperationDemandMessages.containsKey(answerOnDemand)) {
+            FileMessage demandMessage = fileOperationDemandMessages.get(answerOnDemand);
+            FileOperation demandFileOperation = demandMessage.getFileOperation();
+            FileStatus answerStatus = fileAnswer.getFileStatus();
+            String additionalMessage = fileAnswer.getAdditionalMessage();
+            LOG.info("Ответ на запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
+                demandMessage.getFileObjectToOperate(), demandMessage.getFileOperation(), answerStatus, additionalMessage);
+            switch (demandMessage.getFileObjectToOperate()) {
+                case FOLDER:
+                    if (demandFileOperation.equals(FileOperation.CREATE)) {
+                        switch (answerStatus) {
+                            case OK:
+                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: ОК"));
+                                break;
+                            case ERROR:
+                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: Error; additionalMessage: " + additionalMessage));
+                                break;
+                            case NOT_AUTH:
+                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: пользователь не авторизован"));
+                                break;
+                        }
+                    }
+                    break;
+                case FILE:
+                    break;
+            }
+        } else {
+            LOG.info("Пришёл ответ не на наш запрос");
+        }
+
+        fileAnswer.getFileStatus();
         System.out.println(fileAnswer.getFileStatus() + " : " + fileAnswer.getAdditionalMessage());
     }
 
