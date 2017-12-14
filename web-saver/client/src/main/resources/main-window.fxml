@@ -5,6 +5,7 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -23,7 +24,7 @@
     <bottom>
         <HBox fx:id="bottomPanel">
          <children>
-            <TextField fx:id="clientTerminal" prefHeight="98.0" prefWidth="1024.0" />
+            <TextArea fx:id="clientTerminal" prefHeight="100.0" prefWidth="1053.0" />
          </children></HBox>
     </bottom>
    <center>

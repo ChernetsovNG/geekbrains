@@ -1,5 +1,6 @@
 package ru.geekbrains.client;
 
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.SocketClientChannel;
@@ -38,10 +39,13 @@ public class Model implements Addressee {
 
     private SocketClientChannel client;
 
+    private final Controller controller;
+
     private final Address address;
 
-    public Model(Address address) {
+    public Model(Address address, Controller controller) {
         this.address = address;
+        this.controller = controller;
     }
 
     public void start() {
@@ -117,6 +121,7 @@ public class Model implements Addressee {
         if (toMessageUuid.equals(handshakeMessageUUID)) {
             if (connectAnswerMessage.getConnectStatus().equals(ConnectStatus.HANDSHAKE_OK)) {
                 LOG.info("Получен ответ об установлении связи от сервера");
+                Platform.runLater(() -> controller.writeLogInTerminal("Установлено соединение с сервером"));
                 // handshakeLatch.countDown();  // Отпускаем блокировку
             } else {
                 LOG.info("Получен ответ, но не HANSHAKE_OK. Message: {}", serverMessage);
@@ -126,11 +131,17 @@ public class Model implements Addressee {
             ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
             if (connectStatus.equals(AUTH_OK)) {
                 LOG.info("Успешная аутентификация");
+                Platform.runLater(() -> controller.writeLogInTerminal("Успешная аутентификация на сервере"));
                 // authLatch.countDown();  // Отпускаем блокировку
             } else if (connectStatus.equals(INCORRECT_USERNAME)) {
-                LOG.info("Неправильно имя пользвоателя");
+                LOG.info("Неправильное имя пользователя");
+                Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильное имя пользователя"));
             } else if (connectStatus.equals(INCORRECT_PASSWORD)) {
                 LOG.info("Неправильный пароль");
+                Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильный пароль"));
+            } else if (connectStatus.equals(ALREADY_AUTH)) {
+                LOG.info("Клиент уже аутентифицирован на сервере");
+                Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: клиент уже аутентифицирован на сервере"));
             } else {
                 LOG.info("Непонятный ответ об аутентификации. Message: {}", serverMessage);
             }

@@ -1,8 +1,8 @@
 package ru.geekbrains.client;
 
-import javafx.application.Platform;
 import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
@@ -11,10 +11,8 @@ import ru.geekbrains.client.utils.ClientUtils;
 import ru.geekbrains.common.message.Address;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
 
@@ -24,7 +22,7 @@ public class Controller implements Initializable {
     public HBox authPanel;
     public TextField authLogin;
     public PasswordField authPass;
-    public TextField clientTerminal;
+    public TextArea clientTerminal;
 
     private Model model;
 
@@ -46,7 +44,7 @@ public class Controller implements Initializable {
     private void startModel() {
         String clientAddress = stringCrypter.encrypt(ClientUtils.INSTANCE.getMacAddress());
 
-        model = new Model(new Address(clientAddress));
+        model = new Model(new Address(clientAddress), this);
         model.start();
 
         model.handshakeOnServer();
@@ -74,9 +72,7 @@ public class Controller implements Initializable {
         }
     }
 
-    public void writeTextInTerminal(String text) {
-        clientTerminal.setText(text);
-        clientTerminal.requestFocus();
-        clientTerminal.selectEnd();
+    public void writeLogInTerminal(String text) {
+        clientTerminal.appendText(Instant.now() + ": " + text + "\n");
     }
 }

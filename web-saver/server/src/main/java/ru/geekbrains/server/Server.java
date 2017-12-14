@@ -140,11 +140,16 @@ public class Server implements Addressee {
         LOG.info("Сообщение об аутентификации клиента: " + clientAddress + ", " + connectOperationMessage);
         UserDTO userDTO = (UserDTO) connectOperationMessage.getAdditionalObject();
         LOG.info("Получен запрос на аутентификацию от: " + connectOperationMessage.getFrom() + ", " + userDTO);
-        ConnectStatus authStatus = Database.getAuthStatus(userDTO);
-        ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus);
+        ConnectStatus authStatus;
+        if (fileOperationHandler.isClientAuth(clientChannel)) {
+            authStatus = ConnectStatus.ALREADY_AUTH;
+        } else {
+            authStatus = Database.getAuthStatus(userDTO);
+        }
         if (authStatus.equals(ConnectStatus.AUTH_OK)) {
             fileOperationHandler.addAuthClient(clientChannel, userDTO.getName());  // сохраняем в карте авторизованного пользователя
         }
+        ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus);
         clientChannel.send(authAnswerMessage);
         LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
     }

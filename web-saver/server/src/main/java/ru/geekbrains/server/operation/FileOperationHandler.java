@@ -40,6 +40,10 @@ public class FileOperationHandler {
         authMap.remove(clientChannel);
     }
 
+    public boolean isClientAuth(MessageChannel clientChannel) {
+        return authMap.containsKey(clientChannel);
+    }
+
     public void handleFileMessage(Address clientAddress, MessageChannel clientChannel, FileMessage message) {
         // вначале проверяем аутентификацию
         if (!authMap.containsKey(clientChannel)) {
