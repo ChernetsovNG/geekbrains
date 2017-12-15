@@ -40,26 +40,55 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                 demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
             switch (demandFileObjectToOperate) {
                 case FOLDER:
-                    if (demandFileOperation.equals(FileOperation.CREATE)) {
-                        switch (answerStatus) {
-                            case OK:
-                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: ОК"));
-                                break;
-                            case ERROR:
-                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: Error; additionalMessage: " + additionalMessage));
-                                break;
-                            case NOT_AUTH:
-                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: пользователь не авторизован"));
-                                break;
-                        }
-                    }
+                    handleFolderAnswer(demandFileOperation, answerStatus, additionalMessage);
                     break;
                 case FILE:
+                    handleFileAnswer(demandFileOperation, answerStatus, additionalMessage);
                     break;
             }
             fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
         } else {
             LOG.info("Пришёл ответ не на наш запрос");
+        }
+    }
+
+    private void handleFolderAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage) {
+        if (answerStatus.equals(FileStatus.NOT_AUTH)) {
+            Platform.runLater(() -> controller.writeLogInTerminal("Операция с папкой: пользователь не авторизован"));
+        } else {
+            if (answerStatus.equals(FileStatus.OK)) {
+                switch (demandFileOperation) {
+                    case CREATE:
+                        Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: ОК"));
+                        break;
+                }
+            } else if (answerStatus.equals(FileStatus.ERROR)) {
+                switch (demandFileOperation) {
+                    case CREATE:
+                        Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: Error; additionalMessage: " + additionalMessage));
+                        break;
+                }
+            }
+        }
+    }
+
+    private void handleFileAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage) {
+        if (answerStatus.equals(FileStatus.NOT_AUTH)) {
+            Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
+        } else {
+            if (answerStatus.equals(FileStatus.OK)) {
+                switch (demandFileOperation) {
+                    case CREATE:
+                        Platform.runLater(() -> controller.writeLogInTerminal("Создание нового файла: ОК"));
+                        break;
+                }
+            } else if (answerStatus.equals(FileStatus.ERROR)) {
+                switch (demandFileOperation) {
+                    case CREATE:
+                        Platform.runLater(() -> controller.writeLogInTerminal("Создание нового файла: Error; additionalMessage: " + additionalMessage));
+                        break;
+                }
+            }
         }
     }
 

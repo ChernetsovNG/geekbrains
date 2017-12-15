@@ -8,13 +8,13 @@ import ru.geekbrains.client.handler.FileAnswerHandler;
 import ru.geekbrains.client.handler.FileAnswerHandlerImpl;
 import ru.geekbrains.common.channel.SocketClientChannel;
 import ru.geekbrains.common.channel.SocketClientManagedChannel;
-import ru.geekbrains.common.dto.ConnectOperation;
-import ru.geekbrains.common.dto.FileObjectToOperate;
-import ru.geekbrains.common.dto.FileOperation;
-import ru.geekbrains.common.dto.UserDTO;
+import ru.geekbrains.common.dto.*;
 import ru.geekbrains.common.message.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -90,10 +90,25 @@ public class Model implements Addressee {
     }
 
     public void createClientFolder() {
-        FileMessage createFolderDemandMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
-        fileAnswerHandler.addFileDemandMessage(createFolderDemandMessage);
-        client.send(createFolderDemandMessage);
+        FileMessage createFolderMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
+        fileAnswerHandler.addFileDemandMessage(createFolderMessage);
+        client.send(createFolderMessage);
         LOG.debug("Послан запрос на создание папки пользователя на сервер");
+    }
+
+    public void createNewFile(File file) {
+        String fileName = file.getName();
+        Path path = file.toPath();
+        try {
+            byte[] fileContent = Files.readAllBytes(path);
+            FileDTO fileDTO = new FileDTO(fileName, fileContent);
+            FileMessage createNewFileMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO);
+            fileAnswerHandler.addFileDemandMessage(createNewFileMessage);
+            client.send(createNewFileMessage);
+            LOG.debug("Послан запрос на создание файла на сервере. Файл: {}", fileDTO);
+        } catch (IOException e) {
+            LOG.error("Ошибка при чтении содержимого файла. file: {}, path: {}", file, file.getAbsolutePath());
+        }
     }
 
     // Обработка ответов от сервера

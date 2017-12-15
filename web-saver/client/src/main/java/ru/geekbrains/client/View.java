@@ -12,9 +12,14 @@ public class View extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(getClass().getResource("/main-window.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/main-window.fxml"));
+        Parent root = fxmlLoader.load();
         primaryStage.setTitle("JavaFX web-saver client");
         primaryStage.setScene(new Scene(root, 1024, 768));
+
+        Controller controller = fxmlLoader.getController();
+        controller.setStage(primaryStage);
+
         primaryStage.show();
     }
 

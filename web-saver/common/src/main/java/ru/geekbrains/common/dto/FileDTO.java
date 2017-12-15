@@ -13,4 +13,12 @@ public class FileDTO implements Serializable {
         this.fileName = fileName;
         this.content = content;
     }
+
+    @Override
+    public String toString() {
+        return "FileDTO{" +
+            "fileName = '" + fileName + '\'' +
+            ", size = " + content.length * 1.0 / 1000 + " kB" +
+            '}';
+    }
 }

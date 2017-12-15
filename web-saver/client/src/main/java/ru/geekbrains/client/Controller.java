@@ -5,12 +5,15 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.utils.ClientUtils;
 import ru.geekbrains.client.utils.RandomString;
 import ru.geekbrains.common.message.Address;
 
+import java.io.File;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ResourceBundle;
@@ -27,6 +30,9 @@ public class Controller implements Initializable {
 
     private Model model;
 
+    private Stage stage;
+    private final FileChooser fileChooser = new FileChooser();
+
     private static final int PAUSE_MS = 249;
     private static final int THREADS_NUMBER = 1;
 
@@ -40,6 +46,10 @@ public class Controller implements Initializable {
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     private void startModel() {
@@ -70,6 +80,12 @@ public class Controller implements Initializable {
     }
 
     public void addNewFile() {
+        File file = fileChooser.showOpenDialog(stage);
+        if (file != null) {
+            model.createNewFile(file);
+        } else {
+            LOG.error("Файл не выбран (file == null)");
+        }
     }
 
     public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации
