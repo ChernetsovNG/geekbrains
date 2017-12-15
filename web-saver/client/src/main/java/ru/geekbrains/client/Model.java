@@ -1,24 +1,26 @@
 package ru.geekbrains.client;
 
-import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.geekbrains.client.handler.ConnectAnswerHandler;
+import ru.geekbrains.client.handler.ConnectAnswerHandlerImpl;
+import ru.geekbrains.client.handler.FileAnswerHandler;
+import ru.geekbrains.client.handler.FileAnswerHandlerImpl;
 import ru.geekbrains.common.channel.SocketClientChannel;
 import ru.geekbrains.common.channel.SocketClientManagedChannel;
-import ru.geekbrains.common.dto.*;
+import ru.geekbrains.common.dto.ConnectOperation;
+import ru.geekbrains.common.dto.FileObjectToOperate;
+import ru.geekbrains.common.dto.FileOperation;
+import ru.geekbrains.common.dto.UserDTO;
 import ru.geekbrains.common.message.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.common.CommonData.SERVER_PORT;
-import static ru.geekbrains.common.dto.ConnectStatus.*;
 
 public class Model implements Addressee {
     private static final Logger LOG = LoggerFactory.getLogger(Model.class);
@@ -30,23 +32,17 @@ public class Model implements Addressee {
 
     private ExecutorService executor = Executors.newFixedThreadPool(THREADS_NUMBER);
 
-    // private final CountDownLatch handshakeLatch = new CountDownLatch(1);   // блокировка до установления соединения с сервером
-    // private final CountDownLatch authLatch = new CountDownLatch(1);        // блокировка до аутентификации клиента на сервере
-    // private final CountDownLatch disconnectLatch = new CountDownLatch(1);  // блокировка до отключения от сервера
-
-    private UUID handshakeMessageUUID;
-    private UUID authMessageUUID;
-    private final Map<UUID, FileMessage> fileOperationDemandMessages = new HashMap<>();  // сохраняем запросы, чтобы понять, но что приходят ответы
+    private final ConnectAnswerHandler connectAnswerHandler;
+    private final FileAnswerHandler fileAnswerHandler;
 
     private SocketClientChannel client;
-
-    private final Controller controller;
 
     private final Address address;
 
     public Model(Address address, Controller controller) {
         this.address = address;
-        this.controller = controller;
+        this.connectAnswerHandler = new ConnectAnswerHandlerImpl(controller);
+        this.fileAnswerHandler = new FileAnswerHandlerImpl(controller);
     }
 
     public void start() {
@@ -71,7 +67,7 @@ public class Model implements Addressee {
 
     public void handshakeOnServer() {
         Message handshakeDemandMessage = new ConnectOperationMessage(this.address, SERVER_ADDRESS, ConnectOperation.HANDSHAKE, null);
-        handshakeMessageUUID = handshakeDemandMessage.getUuid();
+        connectAnswerHandler.setHandshakeMessageUuid(handshakeDemandMessage.getUuid());
         client.send(handshakeDemandMessage);
         LOG.debug("Послано сообщение об установлении соединения на сервер");
         /*try {
@@ -83,7 +79,7 @@ public class Model implements Addressee {
 
     public void authOnServer(String username, String password) {
         Message authDemandMessage = new ConnectOperationMessage(this.address, SERVER_ADDRESS, ConnectOperation.AUTH, new UserDTO(username, password));
-        authMessageUUID = authDemandMessage.getUuid();
+        connectAnswerHandler.setAuthMessageUuid(authDemandMessage.getUuid());
         client.send(authDemandMessage);
         LOG.debug("Послано сообщение об аутентификации на сервер");
         /*try {
@@ -95,7 +91,7 @@ public class Model implements Addressee {
 
     public void createClientFolder() {
         FileMessage createFolderDemandMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
-        fileOperationDemandMessages.put(createFolderDemandMessage.getUuid(), createFolderDemandMessage);
+        fileAnswerHandler.addFileDemandMessage(createFolderDemandMessage);
         client.send(createFolderDemandMessage);
         LOG.debug("Послан запрос на создание папки пользователя на сервер");
     }
@@ -107,9 +103,9 @@ public class Model implements Addressee {
                 Message serverMessage = client.take();
                 if (serverMessage != null) {
                     if (serverMessage.isClass(ConnectAnswerMessage.class)) {
-                        handleConnectAnswer(serverMessage);
+                        connectAnswerHandler.handleMessage((ConnectAnswerMessage) serverMessage);
                     } else if (serverMessage.isClass(FileAnswer.class)) {
-                        handleFileAnswer(serverMessage);
+                        fileAnswerHandler.handleMessage((FileAnswer) serverMessage);
                     } else {
                         LOG.debug("Получено сообщение необрабатываемого класса. Message: {}", serverMessage);
                     }
@@ -119,90 +115,6 @@ public class Model implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
-        }
-    }
-
-    private void handleConnectAnswer(Message serverMessage) {
-        ConnectAnswerMessage connectAnswerMessage = (ConnectAnswerMessage) serverMessage;
-        UUID toMessageUuid = connectAnswerMessage.getToMessage();  // по uuid проверяем, что это ответ именно на наш запрос
-        if (toMessageUuid.equals(handshakeMessageUUID)) {
-            handleHandshakeAnswer(connectAnswerMessage);
-        } else if (toMessageUuid.equals(authMessageUUID)) {
-            handleAuthAnswer(connectAnswerMessage);
-        } else {
-            LOG.info("Пришёл ответ от сервера с UUID не в ответ на наше сообщение! Message: {}", serverMessage);
-        }
-    }
-
-    private void handleHandshakeAnswer(ConnectAnswerMessage connectAnswerMessage) {
-        if (connectAnswerMessage.getConnectStatus().equals(ConnectStatus.HANDSHAKE_OK)) {
-            LOG.info("Получен ответ об установлении связи от сервера");
-            Platform.runLater(() -> controller.writeLogInTerminal("Установлено соединение с сервером"));
-            // handshakeLatch.countDown();  // Отпускаем блокировку
-        } else {
-            LOG.info("Получен ответ, но не HANDSHAKE_OK. Message: {}", connectAnswerMessage);
-        }
-    }
-
-    private void handleAuthAnswer(ConnectAnswerMessage connectAnswerMessage) {
-        LOG.info("Получен ответ об аутентификации от сервера");
-        ConnectStatus connectStatus = connectAnswerMessage.getConnectStatus();
-        if (connectStatus.equals(AUTH_OK)) {
-            LOG.info("Успешная аутентификация");
-            Platform.runLater(() -> {
-                controller.writeLogInTerminal("Успешная аутентификация на сервере");
-                controller.setAuthentificate(true);
-            });
-            // authLatch.countDown();  // Отпускаем блокировку
-        } else if (connectStatus.equals(INCORRECT_USERNAME)) {
-            LOG.info("Неправильное имя пользователя");
-            Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильное имя пользователя"));
-        } else if (connectStatus.equals(INCORRECT_PASSWORD)) {
-            LOG.info("Неправильный пароль");
-            Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: неправильный пароль"));
-        } else if (connectStatus.equals(ALREADY_AUTH)) {
-            LOG.info("Клиент уже аутентифицирован на сервере");
-            Platform.runLater(() -> controller.writeLogInTerminal("Аутентификация: клиент уже аутентифицирован на сервере"));
-        } else {
-            LOG.info("Аутентификация: непонятный ответ!. Message: {}", connectAnswerMessage);
-        }
-    }
-
-    private void handleFileAnswer(Message serverMessage) {
-        LOG.info("Получен ответ о файловой операции от сервера");
-        FileAnswer fileAnswer = (FileAnswer) serverMessage;
-
-        UUID answerOnDemand = fileAnswer.getToMessage();
-        if (fileOperationDemandMessages.containsKey(answerOnDemand)) {
-            FileMessage demandMessage = fileOperationDemandMessages.get(answerOnDemand);
-            FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
-            FileOperation demandFileOperation = demandMessage.getFileOperation();
-            FileStatus answerStatus = fileAnswer.getFileStatus();
-            String additionalMessage = fileAnswer.getAdditionalMessage();
-            LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
-                demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
-            switch (demandFileObjectToOperate) {
-                case FOLDER:
-                    if (demandFileOperation.equals(FileOperation.CREATE)) {
-                        switch (answerStatus) {
-                            case OK:
-                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: ОК"));
-                                break;
-                            case ERROR:
-                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: Error; additionalMessage: " + additionalMessage));
-                                break;
-                            case NOT_AUTH:
-                                Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: пользователь не авторизован"));
-                                break;
-                        }
-                    }
-                    break;
-                case FILE:
-                    break;
-            }
-            fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
-        } else {
-            LOG.info("Пришёл ответ не на наш запрос");
         }
     }
 

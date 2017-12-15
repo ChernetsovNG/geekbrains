@@ -4,17 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.common.channel.MessageChannel;
 import ru.geekbrains.common.channel.SocketClientChannel;
-import ru.geekbrains.common.dto.ConnectOperation;
-import ru.geekbrains.common.dto.ConnectStatus;
-import ru.geekbrains.common.dto.UserDTO;
 import ru.geekbrains.common.message.*;
-import ru.geekbrains.server.db.Database;
-import ru.geekbrains.server.operation.FileOperationHandler;
+import ru.geekbrains.server.handler.ConnectDemandHandler;
+import ru.geekbrains.server.handler.ConnectDemandHandlerImpl;
+import ru.geekbrains.server.handler.FileDemandHandler;
+import ru.geekbrains.server.handler.FileDemandHandlerImpl;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,18 +29,18 @@ public class Server implements Addressee {
 
     private final Address address;
 
-    private final Map<MessageChannel, Address> connectionMap;  // карта вида <Канал для сообщений -> соответствующий ему адрес>
-
     private final ExecutorService executor;
-    private final FileOperationHandler fileOperationHandler;
+
+    private final FileDemandHandler fileDemandHandler;
+    private final ConnectDemandHandler connectDemandHandler;
 
     public Server() {
         executor = Executors.newFixedThreadPool(THREADS_COUNT);
 
-        connectionMap = new HashMap<>();
-
         address = SERVER_ADDRESS;
-        fileOperationHandler = new FileOperationHandler();
+
+        connectDemandHandler = new ConnectDemandHandlerImpl();
+        fileDemandHandler = new FileDemandHandlerImpl(connectDemandHandler);
     }
 
     public static void main(String[] args) {
@@ -71,8 +68,9 @@ public class Server implements Addressee {
 
                 SocketClientChannel channel = new SocketClientChannel(client);
                 channel.init();
-                channel.addShutdownRegistration(() -> connectionMap.remove(channel));
-                connectionMap.put(channel, null);
+                channel.addShutdownRegistration(() -> connectDemandHandler.removeClientChannel(channel));
+
+                connectDemandHandler.addNewClientChannel(channel);
             }
         }
     }
@@ -82,15 +80,15 @@ public class Server implements Addressee {
         try {
             LOG.info("Начат цикл обработки соединений клиентов");
             while (true) {
-                for (Map.Entry<MessageChannel, Address> client : connectionMap.entrySet()) {
+                for (Map.Entry<MessageChannel, Address> client : connectDemandHandler.getClientAddressMap().entrySet()) {
                     MessageChannel clientChannel = client.getKey();
                     Address clientAddress = client.getValue();
                     Message message = clientChannel.poll();
                     if (message != null) {
                         if (message.isClass(ConnectOperationMessage.class)) {
-                            handleConnectionDemand(clientAddress, clientChannel, message);
+                            connectDemandHandler.handleConnectDemand(clientAddress, clientChannel, (ConnectOperationMessage) message);
                         } else if (message.isClass(FileMessage.class)) {
-                            fileOperationHandler.handleFileMessage(clientAddress, clientChannel, (FileMessage) message);
+                            fileDemandHandler.handleFileDemandMessage(clientAddress, clientChannel, (FileMessage) message);
                         } else {
                             LOG.warn("От клиента получено сообщение необрабатываемог класса. Message: {}", message);
                         }
@@ -99,68 +97,6 @@ public class Server implements Addressee {
                 TimeUnit.MILLISECONDS.sleep(MESSAGE_DELAY_MS);
             }
         } catch (InterruptedException e) {
-            LOG.error(e.getMessage());
-        }
-    }
-
-    private void handleConnectionDemand(Address clientAddress, MessageChannel clientChannel, Message clientMessage) {
-        ConnectOperationMessage connectOperationMessage = (ConnectOperationMessage) clientMessage;
-        ConnectOperation connectOperation = connectOperationMessage.getConnectOperation();
-        if (clientAddress == null) {
-            handleConnectionDemandNewClient(clientChannel, connectOperation, connectOperationMessage);
-        } else {
-            handleConnectionDemandExistsClient(clientChannel, connectOperation, clientAddress, connectOperationMessage);
-        }
-    }
-
-    private void handleConnectionDemandNewClient(MessageChannel clientChannel, ConnectOperation connectOperation, ConnectOperationMessage connectOperationMessage) {
-        if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
-            Address clientAddress = connectOperationMessage.getFrom();
-            LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + connectOperationMessage);
-            connectionMap.put(clientChannel, clientAddress);
-            ConnectAnswerMessage handshakeAnswerMessage = new ConnectAnswerMessage(this.address, clientAddress, connectOperationMessage.getUuid(), ConnectStatus.HANDSHAKE_OK);
-            clientChannel.send(handshakeAnswerMessage);
-            LOG.info("Направлен ответ об успешном установлении соединения клиенту: " + clientAddress + ", " + handshakeAnswerMessage);
-        } else {
-            LOG.info("Получен не HANDSHAKE запрос от нового клиента. Message: {}", connectOperationMessage);
-        }
-    }
-
-    private void handleConnectionDemandExistsClient(MessageChannel clientChannel, ConnectOperation connectOperation, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
-        if (connectOperation.equals(ConnectOperation.AUTH)) {
-            handleAuthDemand(clientChannel, clientAddress, connectOperationMessage);
-        } else if (connectOperation.equals(ConnectOperation.DISCONNECT)) {
-            handleDisconnectMessage(clientChannel, clientAddress, connectOperationMessage);
-        } else if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
-            LOG.info("Получено handshake сообщение от уже установившего связь клиента");
-        }
-    }
-
-    private void handleAuthDemand(MessageChannel clientChannel, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
-        LOG.info("Сообщение об аутентификации клиента: " + clientAddress + ", " + connectOperationMessage);
-        UserDTO userDTO = (UserDTO) connectOperationMessage.getAdditionalObject();
-        LOG.info("Получен запрос на аутентификацию от: " + connectOperationMessage.getFrom() + ", " + userDTO);
-        ConnectStatus authStatus;
-        if (fileOperationHandler.isClientAuth(clientChannel)) {
-            authStatus = ConnectStatus.ALREADY_AUTH;
-        } else {
-            authStatus = Database.getAuthStatus(userDTO);
-        }
-        if (authStatus.equals(ConnectStatus.AUTH_OK)) {
-            fileOperationHandler.addAuthClient(clientChannel, userDTO.getName());  // сохраняем в карте авторизованного пользователя
-        }
-        ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus);
-        clientChannel.send(authAnswerMessage);
-        LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
-    }
-
-    private void handleDisconnectMessage(MessageChannel clientChannel, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
-        LOG.info("Сообщение об отключении клиента: " + clientAddress + ", " + connectOperationMessage);
-        connectionMap.remove(clientChannel);
-        fileOperationHandler.removeAuthClient(clientChannel);
-        try {
-            clientChannel.close();
-        } catch (IOException e) {
             LOG.error(e.getMessage());
         }
     }

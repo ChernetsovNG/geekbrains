@@ -1,4 +1,4 @@
-package ru.geekbrains.server.operation;
+package ru.geekbrains.server.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,53 +13,39 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import static ru.geekbrains.common.CommonData.CLIENTS_FOLDERS_PATH;
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.server.utils.FileUtils.*;
 
 // Класс для работы с файлами клиентов на сервере
-public class FileOperationHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(FileOperationHandler.class);
+public class FileDemandHandlerImpl implements FileDemandHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(FileDemandHandler.class);
 
-    private final Map<MessageChannel, String> authMap;  // карта вида <Канал -> имя авторизованного пользователя>
+    private final ConnectDemandHandler connectDemandHandler;
 
-    public FileOperationHandler() {
-        authMap = new HashMap<>();
+    public FileDemandHandlerImpl(ConnectDemandHandler connectDemandHandler) {
+        this.connectDemandHandler = connectDemandHandler;
     }
 
-    // сохраняем в карте авторизованного пользователя
-    public void addAuthClient(MessageChannel clientChannel, String userName) {
-        authMap.put(clientChannel, userName);
-    }
-
-    public void removeAuthClient(MessageChannel clientChannel) {
-        authMap.remove(clientChannel);
-    }
-
-    public boolean isClientAuth(MessageChannel clientChannel) {
-        return authMap.containsKey(clientChannel);
-    }
-
-    public void handleFileMessage(Address clientAddress, MessageChannel clientChannel, FileMessage message) {
-        // вначале проверяем аутентификацию
-        if (!authMap.containsKey(clientChannel)) {
+    @Override
+    public void handleFileDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage message) {
+        if (!connectDemandHandler.isClientAuth(clientChannel)) {  // вначале проверяем аутентификацию
             FileAnswer createFolderAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, message.getUuid(), FileStatus.NOT_AUTH, "Пользователь не аутентифицирован", null);
             clientChannel.send(createFolderAnswerMessage);
-            return;
-        }
-        FileObjectToOperate fileObject = message.getFileObjectToOperate();
-        FileOperation fileOperation = message.getFileOperation();
-        switch (fileObject) {
-            case FOLDER:
-                handleFolderOperation(clientAddress, clientChannel, message, fileOperation);
-                break;
-            case FILE:
-                handleFileOperation(clientAddress, clientChannel, message, fileOperation);
-                break;
+        } else {
+            FileObjectToOperate fileObject = message.getFileObjectToOperate();
+            FileOperation fileOperation = message.getFileOperation();
+            switch (fileObject) {
+                case FOLDER:
+                    handleFolderOperation(clientAddress, clientChannel, message, fileOperation);
+                    break;
+                case FILE:
+                    handleFileOperation(clientAddress, clientChannel, message, fileOperation);
+                    break;
+            }
         }
     }
 
@@ -299,7 +285,14 @@ public class FileOperationHandler {
     }
 
     private String getClientFolderPath(MessageChannel clientChannel) {
-        String folderName = authMap.get(clientChannel);  // имя папки на сервере равно имени клиента (по соглашению)
-        return CLIENTS_FOLDERS_PATH + folderName;
+        Optional<String> clientNameOptional = connectDemandHandler.getClientName(clientChannel);
+        if (clientNameOptional.isPresent()) {
+            String folderName = clientNameOptional.get();  // имя папки на сервере равно имени клиента (по соглашению)
+            return CLIENTS_FOLDERS_PATH + folderName;
+        } else {
+            LOG.error("Запрос имени папки неаутентифицированного клиента. Channel: {}", clientChannel);
+            return null;
+        }
     }
+
 }
