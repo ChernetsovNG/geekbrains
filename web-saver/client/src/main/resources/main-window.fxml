@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
@@ -25,13 +24,7 @@
          </children></HBox>
     </bottom>
    <center>
-      <TableView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <columns>
-          <TableColumn prefWidth="392.0" text="Name" />
-          <TableColumn minWidth="3.0" prefWidth="224.0" text="Size" />
-            <TableColumn prefWidth="207.0" text="Modify time" />
-        </columns>
-      </TableView>
+      <TableView fx:id="fileTable" editable="true" prefHeight="400.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
    </center>
    <right>
       <VBox prefHeight="567.0" prefWidth="177.0" BorderPane.alignment="CENTER">

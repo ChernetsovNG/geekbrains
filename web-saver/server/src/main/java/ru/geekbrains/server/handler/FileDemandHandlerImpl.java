@@ -95,7 +95,7 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
 
         String folderPath = getClientFolderPath(clientChannel);
         if (isFolderExists(folderPath)) {
-            fileStatus = FileStatus.ERROR;
+            fileStatus = FileStatus.ALREADY_EXISTS;
             additionalMessage = "Папка уже существует";
         } else {
             try {
@@ -141,7 +141,7 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
         String fileName = fileDTO.getFileName();
         if (isFileExists(folderPath, fileName)) {
-            fileStatus = FileStatus.ERROR;
+            fileStatus = FileStatus.ALREADY_EXISTS;
             additionalMessage = "Файл уже существует";
         } else {
             boolean isFileCreate = FileUtils.createNewFile(folderPath, fileName, fileDTO.getContent());
@@ -223,20 +223,20 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
     private void getFileList(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
         FileStatus fileStatus;
         String additionalMessage;
-        List<String> fileNamesList = Collections.emptyList();
+        List<FileInfo> fileInfoList = Collections.emptyList();
 
         String folderPath = getClientFolderPath(clientChannel);
-        List<String> filesList = FileUtils.getFileList(folderPath);
+        List<FileInfo> filesList = FileUtils.getFileList(folderPath);
         if (filesList != null) {
             fileStatus = FileStatus.OK;
             additionalMessage = null;
-            fileNamesList = filesList;
+            fileInfoList = filesList;
         } else {
             fileStatus = FileStatus.ERROR;
             additionalMessage = "Ошибка чтения списка файлов";
         }
 
-        FileAnswer getFileListAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, fileNamesList);
+        FileAnswer getFileListAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, fileInfoList);
         clientChannel.send(getFileListAnswerMessage);
     }
 

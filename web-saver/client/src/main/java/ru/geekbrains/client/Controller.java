@@ -1,9 +1,10 @@
 package ru.geekbrains.client;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -11,12 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.utils.ClientUtils;
 import ru.geekbrains.client.utils.RandomString;
+import ru.geekbrains.client.view.FileView;
+import ru.geekbrains.common.dto.FileInfo;
 import ru.geekbrains.common.message.Address;
 
 import java.io.File;
 import java.net.URL;
 import java.time.Instant;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
 
@@ -28,10 +33,14 @@ public class Controller implements Initializable {
     public PasswordField authPass;
     public TextArea clientTerminal;
 
+    public TableView fileTable;
+    private final ObservableList<FileView> tableData = FXCollections.observableArrayList();
+
     private Model model;
 
     private Stage stage;
     private final FileChooser fileChooser = new FileChooser();
+
 
     private static final int PAUSE_MS = 249;
     private static final int THREADS_NUMBER = 1;
@@ -58,12 +67,38 @@ public class Controller implements Initializable {
         RandomString randomStringGenerator = new RandomString(10);
         String randomString = randomStringGenerator.nextString();
 
+        prepareFileTable();
+
         String clientAddress = stringCrypter.encrypt(randomString + macAddresses);
 
         model = new Model(new Address(clientAddress), this);
         model.start();
 
         model.handshakeOnServer();
+    }
+
+    private void prepareFileTable() {
+        TableColumn nameCol = new TableColumn("Name");
+        TableColumn sizeCol = new TableColumn("Size, kB");
+        TableColumn lastModifyTimeCol = new TableColumn("Modify time");
+
+        fileTable.setEditable(false);
+
+        nameCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("name"));
+        sizeCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("sizeInKb"));
+        lastModifyTimeCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("lastModifyTime"));
+
+        nameCol.setMinWidth(300);
+        nameCol.setMaxWidth(300);
+        sizeCol.setMinWidth(200);
+        nameCol.setMaxWidth(200);
+        lastModifyTimeCol.setMinWidth(200);
+        nameCol.setMaxWidth(200);
+
+        fileTable.setItems(tableData);
+        fileTable.getColumns().addAll(nameCol, sizeCol, lastModifyTimeCol);
+
+        fileTable.refresh();
     }
 
     public void sendAuth() {
@@ -77,6 +112,7 @@ public class Controller implements Initializable {
     }
 
     public void getFileList() {
+        model.getFileList();
     }
 
     public void addNewFile() {
@@ -103,5 +139,18 @@ public class Controller implements Initializable {
 
     public void writeLogInTerminal(String text) {
         clientTerminal.appendText(Instant.now() + ": " + text + "\n");
+    }
+
+    public void writeFileListInTable(List<FileInfo> fileInfoList) {
+        tableData.clear();
+
+        List<FileView> fileViewList = fileInfoList.stream()
+            .map(FileView::fromFileInfo)
+            .collect(Collectors.toList());
+
+        tableData.addAll(fileViewList);
+        fileTable.refresh();
+
+        writeLogInTerminal("Вывод списка файлов: ОК");
     }
 }

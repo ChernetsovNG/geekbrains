@@ -66,7 +66,7 @@ public class Model implements Addressee {
     }
 
     public void handshakeOnServer() {
-        Message handshakeDemandMessage = new ConnectOperationMessage(this.address, SERVER_ADDRESS, ConnectOperation.HANDSHAKE, null);
+        Message handshakeDemandMessage = new ConnectOperationMessage(address, SERVER_ADDRESS, ConnectOperation.HANDSHAKE, null);
         connectAnswerHandler.setHandshakeMessageUuid(handshakeDemandMessage.getUuid());
         client.send(handshakeDemandMessage);
         LOG.debug("Послано сообщение об установлении соединения на сервер");
@@ -78,7 +78,7 @@ public class Model implements Addressee {
     }
 
     public void authOnServer(String username, String password) {
-        Message authDemandMessage = new ConnectOperationMessage(this.address, SERVER_ADDRESS, ConnectOperation.AUTH, new UserDTO(username, password));
+        Message authDemandMessage = new ConnectOperationMessage(address, SERVER_ADDRESS, ConnectOperation.AUTH, new UserDTO(username, password));
         connectAnswerHandler.setAuthMessageUuid(authDemandMessage.getUuid());
         client.send(authDemandMessage);
         LOG.debug("Послано сообщение об аутентификации на сервер");
@@ -89,8 +89,15 @@ public class Model implements Addressee {
         }*/
     }
 
+    public void getFileList() {
+        FileMessage getFileListMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.GET_LIST, null);
+        fileAnswerHandler.addFileDemandMessage(getFileListMessage);
+        client.send(getFileListMessage);
+        LOG.debug("Послан запрос на получение списка файлов");
+    }
+
     public void createClientFolder() {
-        FileMessage createFolderMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
+        FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
         fileAnswerHandler.addFileDemandMessage(createFolderMessage);
         client.send(createFolderMessage);
         LOG.debug("Послан запрос на создание папки пользователя на сервер");
@@ -102,7 +109,7 @@ public class Model implements Addressee {
         try {
             byte[] fileContent = Files.readAllBytes(path);
             FileDTO fileDTO = new FileDTO(fileName, fileContent);
-            FileMessage createNewFileMessage = new FileMessage(this.address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO);
+            FileMessage createNewFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO);
             fileAnswerHandler.addFileDemandMessage(createNewFileMessage);
             client.send(createNewFileMessage);
             LOG.debug("Послан запрос на создание файла на сервере. Файл: {}", fileDTO);

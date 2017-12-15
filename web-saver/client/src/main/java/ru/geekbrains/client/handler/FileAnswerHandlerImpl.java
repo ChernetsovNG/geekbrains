@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.Controller;
+import ru.geekbrains.common.dto.FileInfo;
 import ru.geekbrains.common.dto.FileObjectToOperate;
 import ru.geekbrains.common.dto.FileOperation;
 import ru.geekbrains.common.dto.FileStatus;
@@ -11,6 +12,7 @@ import ru.geekbrains.common.message.FileAnswer;
 import ru.geekbrains.common.message.FileMessage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,6 +38,7 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
             FileOperation demandFileOperation = demandMessage.getFileOperation();
             FileStatus answerStatus = message.getFileStatus();
             String additionalMessage = message.getAdditionalMessage();
+            Object additionalObject = message.getAdditionalObject();
             LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
                 demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
             switch (demandFileObjectToOperate) {
@@ -43,7 +46,7 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                     handleFolderAnswer(demandFileOperation, answerStatus, additionalMessage);
                     break;
                 case FILE:
-                    handleFileAnswer(demandFileOperation, answerStatus, additionalMessage);
+                    handleFileAnswer(demandFileOperation, answerStatus, additionalMessage, additionalObject);
                     break;
             }
             fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
@@ -62,6 +65,15 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                         Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: ОК"));
                         break;
                 }
+            } else if (answerStatus.equals(FileStatus.ALREADY_EXISTS)) {
+                switch (demandFileOperation) {
+                    case CREATE:
+                        Platform.runLater(() -> {
+                            controller.getFileList();  // получаем список файлов из папки
+                            controller.writeLogInTerminal("Создание папки: Папка уже существует");
+                        });
+                        break;
+                }
             } else if (answerStatus.equals(FileStatus.ERROR)) {
                 switch (demandFileOperation) {
                     case CREATE:
@@ -72,14 +84,21 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
         }
     }
 
-    private void handleFileAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage) {
+    private void handleFileAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage, Object additionalObject) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
             Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
         } else {
             if (answerStatus.equals(FileStatus.OK)) {
                 switch (demandFileOperation) {
                     case CREATE:
-                        Platform.runLater(() -> controller.writeLogInTerminal("Создание нового файла: ОК"));
+                        Platform.runLater(() -> {
+                            controller.getFileList();  // после создания нового файла обновляем таблицу со списком файлов
+                            controller.writeLogInTerminal("Создание нового файла: ОК");
+                        });
+                        break;
+                    case GET_LIST:
+                        List<FileInfo> fileInfoList = (List<FileInfo>) additionalObject;
+                        Platform.runLater(() -> controller.writeFileListInTable(fileInfoList));
                         break;
                 }
             } else if (answerStatus.equals(FileStatus.ERROR)) {
