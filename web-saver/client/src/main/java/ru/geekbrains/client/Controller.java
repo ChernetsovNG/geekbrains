@@ -8,6 +8,7 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.utils.ClientUtils;
+import ru.geekbrains.client.utils.RandomString;
 import ru.geekbrains.common.message.Address;
 
 import java.net.URL;
@@ -42,7 +43,12 @@ public class Controller implements Initializable {
     }
 
     private void startModel() {
-        String clientAddress = stringCrypter.encrypt(ClientUtils.INSTANCE.getMacAddress());
+        String macAddresses = ClientUtils.INSTANCE.getMacAddress();  // MAC-адреса клинта
+        // на случай запуска нескольких клиентов на одном хосте ещё добавим случайную строку, чтобы адреса были разные
+        RandomString randomStringGenerator = new RandomString(10);
+        String randomString = randomStringGenerator.nextString();
+
+        String clientAddress = stringCrypter.encrypt(randomString + macAddresses);
 
         model = new Model(new Address(clientAddress), this);
         model.start();
