@@ -100,11 +100,20 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                         List<FileInfo> fileInfoList = (List<FileInfo>) additionalObject;
                         Platform.runLater(() -> controller.writeFileListInTable(fileInfoList));
                         break;
+                    case DELETE:
+                        Platform.runLater(() -> {
+                            controller.getFileList();  // после удаления файла обновляем таблицу со списком файлов
+                            controller.writeLogInTerminal("Удаление файла: ОК. " + additionalMessage);
+                        });
+                        break;
                 }
             } else if (answerStatus.equals(FileStatus.ERROR)) {
                 switch (demandFileOperation) {
                     case CREATE:
                         Platform.runLater(() -> controller.writeLogInTerminal("Создание нового файла: Error; additionalMessage: " + additionalMessage));
+                        break;
+                    case DELETE:
+                        Platform.runLater(() -> controller.writeLogInTerminal("Удаление файла: Error. additionalMessage: " + additionalMessage));
                         break;
                 }
             }

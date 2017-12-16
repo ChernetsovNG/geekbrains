@@ -252,9 +252,10 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
 
         if (isFileDeleted) {
             fileStatus = FileStatus.OK;
+            additionalMessage = "File Name: " + fileName;
         } else {
             fileStatus = FileStatus.ERROR;
-            additionalMessage = "Ошибка при удалении файла";
+            additionalMessage = "Ошибка при удалении файла. File Name: " + fileName;
         }
 
         FileAnswer deleteFileAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, null);

@@ -98,6 +98,8 @@ public class Controller implements Initializable {
         fileTable.setItems(tableData);
         fileTable.getColumns().addAll(nameCol, sizeCol, lastModifyTimeCol);
 
+        fileTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // чтобы можно было выбирать несколько строк
+
         fileTable.refresh();
     }
 
@@ -122,6 +124,12 @@ public class Controller implements Initializable {
         } else {
             LOG.error("Файл не выбран (file == null)");
         }
+    }
+
+    public void deleteFile() {
+        // Если в таблице выбран какой-то файл, то удаляем его
+        List<FileView> selectedFiles = fileTable.getSelectionModel().getSelectedItems();
+        selectedFiles.forEach(fileView -> model.deleteFile(fileView.getName()));
     }
 
     public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации

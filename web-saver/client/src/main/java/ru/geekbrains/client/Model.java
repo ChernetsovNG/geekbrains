@@ -69,7 +69,7 @@ public class Model implements Addressee {
         Message handshakeDemandMessage = new ConnectOperationMessage(address, SERVER_ADDRESS, ConnectOperation.HANDSHAKE, null);
         connectAnswerHandler.setHandshakeMessageUuid(handshakeDemandMessage.getUuid());
         client.send(handshakeDemandMessage);
-        LOG.debug("Послано сообщение об установлении соединения на сервер");
+        LOG.debug("Отправлено сообщение об установлении соединения на сервер");
         /*try {
             handshakeLatch.await();  // ждём handshake-ответа от сервера
         } catch (InterruptedException e) {
@@ -81,7 +81,7 @@ public class Model implements Addressee {
         Message authDemandMessage = new ConnectOperationMessage(address, SERVER_ADDRESS, ConnectOperation.AUTH, new UserDTO(username, password));
         connectAnswerHandler.setAuthMessageUuid(authDemandMessage.getUuid());
         client.send(authDemandMessage);
-        LOG.debug("Послано сообщение об аутентификации на сервер");
+        LOG.debug("Отправлено сообщение об аутентификации на сервер");
         /*try {
             authLatch.await();
         } catch (InterruptedException e) {
@@ -93,14 +93,14 @@ public class Model implements Addressee {
         FileMessage getFileListMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.GET_LIST, null);
         fileAnswerHandler.addFileDemandMessage(getFileListMessage);
         client.send(getFileListMessage);
-        LOG.debug("Послан запрос на получение списка файлов");
+        LOG.debug("Отправлен запрос на получение списка файлов");
     }
 
     public void createClientFolder() {
         FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
         fileAnswerHandler.addFileDemandMessage(createFolderMessage);
         client.send(createFolderMessage);
-        LOG.debug("Послан запрос на создание папки пользователя на сервер");
+        LOG.debug("Отправлен запрос на создание папки пользователя на сервер");
     }
 
     public void createNewFile(File file) {
@@ -112,10 +112,18 @@ public class Model implements Addressee {
             FileMessage createNewFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO);
             fileAnswerHandler.addFileDemandMessage(createNewFileMessage);
             client.send(createNewFileMessage);
-            LOG.debug("Послан запрос на создание файла на сервере. Файл: {}", fileDTO);
+            LOG.debug("Отправлен запрос на создание файла на сервере. Файл: {}", fileDTO);
         } catch (IOException e) {
             LOG.error("Ошибка при чтении содержимого файла. file: {}, path: {}", file, file.getAbsolutePath());
         }
+    }
+
+    public void deleteFile(String fileName) {
+        FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
+        FileMessage deleteFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.DELETE, fileDTO);
+        fileAnswerHandler.addFileDemandMessage(deleteFileMessage);
+        client.send(deleteFileMessage);
+        LOG.debug("Отправлен запрос на удаление файла. Файл: {}", fileName);
     }
 
     // Обработка ответов от сервера
