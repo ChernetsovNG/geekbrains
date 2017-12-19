@@ -2,6 +2,7 @@ package ru.geekbrains.client;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -29,12 +30,17 @@ import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
 public class Controller implements Initializable {
     private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
 
-    public HBox authPanel;
-    public TextField authLogin;
-    public PasswordField authPass;
-    public TextArea clientTerminal;
+    @FXML
+    private HBox authPanel;
+    @FXML
+    private TextField authLogin;
+    @FXML
+    private PasswordField authPass;
+    @FXML
+    private TextArea clientTerminal;
 
-    public TableView fileTable;
+    @FXML
+    private TableView fileTable;
     private final ObservableList<FileView> tableData = FXCollections.observableArrayList();
 
     private Model model;
@@ -138,6 +144,16 @@ public class Controller implements Initializable {
         List<FileView> selectedFiles = getSelectedFiles();
         File directoryToSaveFiles = directoryChooser.showDialog(stage);
         selectedFiles.forEach(fileView -> model.downloadFile(fileView.getName(), directoryToSaveFiles));
+    }
+
+    public void renameFile() {
+        List<FileView> selectedFiles = getSelectedFiles();
+        if (selectedFiles.size() > 1) {
+            LOG.error("Выбрано больше одного файла. Нельзя переименовать");
+            writeLogInTerminal("Выбрано больше одного файла. Нельзя переименовать");
+        } else {
+
+        }
     }
 
     public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации

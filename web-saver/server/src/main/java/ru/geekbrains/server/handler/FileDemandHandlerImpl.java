@@ -73,7 +73,7 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
                 getFileContent(clientAddress, clientChannel, message);
                 break;
             case UPDATE:
-            case CHANGE_NAME:
+            case RENAME:
             case CHANGE_CONTENT:
                 LOG.info("Запрос на изменение файла: " + clientAddress + ", " + message);
                 changeFile(clientAddress, clientChannel, message, fileOperation);
@@ -174,7 +174,7 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         byte[] newContent = newFile.getContent();
 
         switch (fileOperation) {
-            case CHANGE_NAME:
+            case RENAME:
 
                 boolean isFileRenamed = renameFile(folderPath, changeableFileName, newName);
                 if (isFileRenamed) {
