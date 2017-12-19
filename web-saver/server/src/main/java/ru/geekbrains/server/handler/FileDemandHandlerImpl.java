@@ -7,7 +7,7 @@ import ru.geekbrains.common.dto.*;
 import ru.geekbrains.common.message.Address;
 import ru.geekbrains.common.message.FileAnswer;
 import ru.geekbrains.common.message.FileMessage;
-import ru.geekbrains.server.utils.FileUtils;
+import ru.geekbrains.common.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import static ru.geekbrains.common.CommonData.CLIENTS_FOLDERS_PATH;
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
-import static ru.geekbrains.server.utils.FileUtils.*;
+import static ru.geekbrains.common.utils.FileUtils.*;
 
 // Класс для работы с файлами клиентов на сервере
 public class FileDemandHandlerImpl implements FileDemandHandler {

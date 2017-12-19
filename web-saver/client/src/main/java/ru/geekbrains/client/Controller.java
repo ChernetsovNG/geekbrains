@@ -6,6 +6,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class Controller implements Initializable {
 
     private Stage stage;
     private final FileChooser fileChooser = new FileChooser();
+    private final DirectoryChooser directoryChooser = new DirectoryChooser();
 
 
     private static final int PAUSE_MS = 249;
@@ -126,10 +128,16 @@ public class Controller implements Initializable {
         }
     }
 
-    public void deleteFile() {
+    public void deleteFiles() {
         // Если в таблице выбран какой-то файл, то удаляем его
-        List<FileView> selectedFiles = fileTable.getSelectionModel().getSelectedItems();
+        List<FileView> selectedFiles = getSelectedFiles();
         selectedFiles.forEach(fileView -> model.deleteFile(fileView.getName()));
+    }
+
+    public void downloadFiles() {
+        List<FileView> selectedFiles = getSelectedFiles();
+        File directoryToSaveFiles = directoryChooser.showDialog(stage);
+        selectedFiles.forEach(fileView -> model.downloadFile(fileView.getName(), directoryToSaveFiles));
     }
 
     public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации
@@ -160,5 +168,9 @@ public class Controller implements Initializable {
         fileTable.refresh();
 
         writeLogInTerminal("Вывод списка файлов: ОК");
+    }
+
+    private List<FileView> getSelectedFiles() {
+        return fileTable.getSelectionModel().getSelectedItems();
     }
 }

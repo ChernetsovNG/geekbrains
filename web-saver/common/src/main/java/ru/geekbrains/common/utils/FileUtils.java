@@ -1,4 +1,4 @@
-package ru.geekbrains.server.utils;
+package ru.geekbrains.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,22 @@ public class FileUtils {
         Path path = Paths.get(pathToFolder, fileName);
         try {
             Files.write(path, filePayload, StandardOpenOption.CREATE_NEW);
+            return true;
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return false;
+    }
+
+    // создать файл, если он не существует, или перезаписать существующий
+    public static boolean createNewOrUpdateFile(String pathToFolder, String fileName, byte[] filePayload) {
+        Path path = Paths.get(pathToFolder, fileName);
+        try {
+            if (isFileExists(pathToFolder, fileName)) {
+                Files.write(path, filePayload, StandardOpenOption.WRITE);
+            } else {
+                Files.write(path, filePayload, StandardOpenOption.CREATE_NEW);
+            }
             return true;
         } catch (IOException e) {
             LOG.error(e.getMessage());

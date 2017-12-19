@@ -126,6 +126,14 @@ public class Model implements Addressee {
         LOG.debug("Отправлен запрос на удаление файла. Файл: {}", fileName);
     }
 
+    public void downloadFile(String fileName, File directoryToSave) {
+        FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
+        FileMessage getFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.READ, fileDTO);
+        fileAnswerHandler.addDownloadFileMessage(getFileMessage, directoryToSave);
+        client.send(getFileMessage);
+        LOG.debug("Отправлен запрос на скачивание файла. Файл: {}, папка: {}", fileName, directoryToSave.getPath());
+    }
+
     // Обработка ответов от сервера
     private void serverMessageHandle() {
         try {
