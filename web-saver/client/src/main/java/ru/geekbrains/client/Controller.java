@@ -1,6 +1,7 @@
 package ru.geekbrains.client;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -48,7 +49,6 @@ public class Controller implements Initializable {
     private Stage stage;
     private final FileChooser fileChooser = new FileChooser();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
-
 
     private static final int PAUSE_MS = 249;
     private static final int THREADS_NUMBER = 1;
@@ -152,7 +152,19 @@ public class Controller implements Initializable {
             LOG.error("Выбрано больше одного файла. Нельзя переименовать");
             writeLogInTerminal("Выбрано больше одного файла. Нельзя переименовать");
         } else {
-
+            fileTable.getSelectionModel().setCellSelectionEnabled(true);
+            ObservableList<TablePosition> selectedCells = fileTable.getSelectionModel().getSelectedCells() ;
+            selectedCells.addListener((ListChangeListener.Change<? extends TablePosition> change) -> {
+                if (selectedCells.size() > 0) {
+                    TablePosition selectedCell = selectedCells.get(0);
+                    TableColumn column = selectedCell.getTableColumn();
+                    int rowIndex = selectedCell.getRow();
+                    fileTable.getSelectionModel().focus(rowIndex);
+                    Object data = column.getCellObservableValue(rowIndex).getValue();
+                    System.out.println(data);
+                }
+            });
+            System.out.println(selectedCells);
         }
     }
 
