@@ -1,7 +1,8 @@
-package ru.geekbrains.server.utils;
+package ru.geekbrains.common.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.geekbrains.common.dto.FileInfo;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -38,11 +40,30 @@ public class FileUtils {
         return false;
     }
 
-    public static List<String> getFileList(String pathToFolder) {
+    // создать файл, если он не существует, или перезаписать существующий
+    public static boolean createNewOrUpdateFile(String pathToFolder, String fileName, byte[] filePayload) {
+        Path path = Paths.get(pathToFolder, fileName);
+        try {
+            if (isFileExists(pathToFolder, fileName)) {
+                Files.write(path, filePayload, StandardOpenOption.WRITE);
+            } else {
+                Files.write(path, filePayload, StandardOpenOption.CREATE_NEW);
+            }
+            return true;
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return false;
+    }
+
+    public static List<FileInfo> getFileList(String pathToFolder) {
         try (Stream<Path> paths = Files.walk(Paths.get(pathToFolder))) {
             return paths
                 .filter(Files::isRegularFile)
-                .map(path -> path.getFileName().toString())
+                .map(path -> {
+                    File file = path.toFile();
+                    return new FileInfo(file.getName(), file.length(), Instant.ofEpochMilli(file.lastModified()));
+                })
                 .collect(Collectors.toList());
         } catch (IOException e) {
             LOG.error(e.getMessage());

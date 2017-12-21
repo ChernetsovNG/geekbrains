@@ -4,7 +4,7 @@ public enum FileOperation {
     CREATE,
     READ,
     UPDATE,
-    CHANGE_NAME,
+    RENAME,
     CHANGE_CONTENT,
     DELETE,
     GET_LIST;

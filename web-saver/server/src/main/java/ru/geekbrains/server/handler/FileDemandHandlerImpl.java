@@ -1,4 +1,4 @@
-package ru.geekbrains.server.operation;
+package ru.geekbrains.server.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,55 +7,45 @@ import ru.geekbrains.common.dto.*;
 import ru.geekbrains.common.message.Address;
 import ru.geekbrains.common.message.FileAnswer;
 import ru.geekbrains.common.message.FileMessage;
-import ru.geekbrains.server.utils.FileUtils;
+import ru.geekbrains.common.utils.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import static ru.geekbrains.common.CommonData.CLIENTS_FOLDERS_PATH;
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
-import static ru.geekbrains.server.utils.FileUtils.*;
+import static ru.geekbrains.common.utils.FileUtils.*;
 
 // Класс для работы с файлами клиентов на сервере
-public class FileOperationHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(FileOperationHandler.class);
+public class FileDemandHandlerImpl implements FileDemandHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(FileDemandHandler.class);
 
-    private final Map<MessageChannel, String> authMap;  // карта вида <Канал -> имя авторизованного пользователя>
+    private final ConnectDemandHandler connectDemandHandler;
 
-    public FileOperationHandler() {
-        authMap = new HashMap<>();
+    public FileDemandHandlerImpl(ConnectDemandHandler connectDemandHandler) {
+        this.connectDemandHandler = connectDemandHandler;
     }
 
-    // сохраняем в карте авторизованного пользователя
-    public void addAuthClient(MessageChannel clientChannel, String userName) {
-        authMap.put(clientChannel, userName);
-    }
-
-    public void removeAuthClient(MessageChannel clientChannel) {
-        authMap.remove(clientChannel);
-    }
-
-    public void handleFileMessage(Address clientAddress, MessageChannel clientChannel, FileMessage message) {
-        // вначале проверяем аутентификацию
-        if (!authMap.containsKey(clientChannel)) {
+    @Override
+    public void handleFileDemandMessage(Address clientAddress, MessageChannel clientChannel, FileMessage message) {
+        if (!connectDemandHandler.isClientAuth(clientChannel)) {  // вначале проверяем аутентификацию
             FileAnswer createFolderAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, message.getUuid(), FileStatus.NOT_AUTH, "Пользователь не аутентифицирован", null);
             clientChannel.send(createFolderAnswerMessage);
-            return;
-        }
-        FileObjectToOperate fileObject = message.getFileObjectToOperate();
-        FileOperation fileOperation = message.getFileOperation();
-        switch (fileObject) {
-            case FOLDER:
-                handleFolderOperation(clientAddress, clientChannel, message, fileOperation);
-                break;
-            case FILE:
-                handleFileOperation(clientAddress, clientChannel, message, fileOperation);
-                break;
+        } else {
+            FileObjectToOperate fileObject = message.getFileObjectToOperate();
+            FileOperation fileOperation = message.getFileOperation();
+            switch (fileObject) {
+                case FOLDER:
+                    handleFolderOperation(clientAddress, clientChannel, message, fileOperation);
+                    break;
+                case FILE:
+                    handleFileOperation(clientAddress, clientChannel, message, fileOperation);
+                    break;
+            }
         }
     }
 
@@ -83,7 +73,7 @@ public class FileOperationHandler {
                 getFileContent(clientAddress, clientChannel, message);
                 break;
             case UPDATE:
-            case CHANGE_NAME:
+            case RENAME:
             case CHANGE_CONTENT:
                 LOG.info("Запрос на изменение файла: " + clientAddress + ", " + message);
                 changeFile(clientAddress, clientChannel, message, fileOperation);
@@ -105,7 +95,7 @@ public class FileOperationHandler {
 
         String folderPath = getClientFolderPath(clientChannel);
         if (isFolderExists(folderPath)) {
-            fileStatus = FileStatus.ERROR;
+            fileStatus = FileStatus.ALREADY_EXISTS;
             additionalMessage = "Папка уже существует";
         } else {
             try {
@@ -151,7 +141,7 @@ public class FileOperationHandler {
         FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
         String fileName = fileDTO.getFileName();
         if (isFileExists(folderPath, fileName)) {
-            fileStatus = FileStatus.ERROR;
+            fileStatus = FileStatus.ALREADY_EXISTS;
             additionalMessage = "Файл уже существует";
         } else {
             boolean isFileCreate = FileUtils.createNewFile(folderPath, fileName, fileDTO.getContent());
@@ -184,8 +174,7 @@ public class FileOperationHandler {
         byte[] newContent = newFile.getContent();
 
         switch (fileOperation) {
-            case CHANGE_NAME:
-
+            case RENAME:
                 boolean isFileRenamed = renameFile(folderPath, changeableFileName, newName);
                 if (isFileRenamed) {
                     fileStatus = FileStatus.OK;
@@ -233,20 +222,20 @@ public class FileOperationHandler {
     private void getFileList(Address clientAddress, MessageChannel clientChannel, FileMessage fileMessage) {
         FileStatus fileStatus;
         String additionalMessage;
-        List<String> fileNamesList = Collections.emptyList();
+        List<FileInfo> fileInfoList = Collections.emptyList();
 
         String folderPath = getClientFolderPath(clientChannel);
-        List<String> filesList = FileUtils.getFileList(folderPath);
+        List<FileInfo> filesList = FileUtils.getFileList(folderPath);
         if (filesList != null) {
             fileStatus = FileStatus.OK;
             additionalMessage = null;
-            fileNamesList = filesList;
+            fileInfoList = filesList;
         } else {
             fileStatus = FileStatus.ERROR;
             additionalMessage = "Ошибка чтения списка файлов";
         }
 
-        FileAnswer getFileListAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, fileNamesList);
+        FileAnswer getFileListAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, fileInfoList);
         clientChannel.send(getFileListAnswerMessage);
     }
 
@@ -262,9 +251,10 @@ public class FileOperationHandler {
 
         if (isFileDeleted) {
             fileStatus = FileStatus.OK;
+            additionalMessage = "File Name: " + fileName;
         } else {
             fileStatus = FileStatus.ERROR;
-            additionalMessage = "Ошибка при удалении файла";
+            additionalMessage = "Ошибка при удалении файла. File Name: " + fileName;
         }
 
         FileAnswer deleteFileAnswerMessage = new FileAnswer(SERVER_ADDRESS, clientAddress, fileMessage.getUuid(), fileStatus, additionalMessage, null);
@@ -295,7 +285,14 @@ public class FileOperationHandler {
     }
 
     private String getClientFolderPath(MessageChannel clientChannel) {
-        String folderName = authMap.get(clientChannel);  // имя папки на сервере равно имени клиента (по соглашению)
-        return CLIENTS_FOLDERS_PATH + folderName;
+        Optional<String> clientNameOptional = connectDemandHandler.getClientName(clientChannel);
+        if (clientNameOptional.isPresent()) {
+            String folderName = clientNameOptional.get();  // имя папки на сервере равно имени клиента (по соглашению)
+            return CLIENTS_FOLDERS_PATH + folderName;
+        } else {
+            LOG.error("Запрос имени папки неаутентифицированного клиента. Channel: {}", clientChannel);
+            return null;
+        }
     }
+
 }
