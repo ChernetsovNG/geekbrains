@@ -175,7 +175,6 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
 
         switch (fileOperation) {
             case RENAME:
-
                 boolean isFileRenamed = renameFile(folderPath, changeableFileName, newName);
                 if (isFileRenamed) {
                     fileStatus = FileStatus.OK;

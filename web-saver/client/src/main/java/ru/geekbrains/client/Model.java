@@ -126,6 +126,14 @@ public class Model implements Addressee {
         LOG.debug("Отправлен запрос на удаление файла. Файл: {}", fileName);
     }
 
+    public void renameFile(String fileName, String newFileName) {
+        ChangeFileDTO renameFileDTO = new ChangeFileDTO(new FileDTO(fileName, new byte[0]), new FileDTO(newFileName, new byte[0]));
+        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO);
+        fileAnswerHandler.addFileDemandMessage(renameFileMessage);
+        client.send(renameFileMessage);
+        LOG.debug("Отправлен запрос на переименование файла. Файл: {}, новое имя: {}", fileName, newFileName);
+    }
+
     public void downloadFile(String fileName, File directoryToSave) {
         FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
         FileMessage getFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.READ, fileDTO);

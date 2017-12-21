@@ -35,46 +35,55 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
     @Override
     public void handleMessage(FileAnswer message) {
         LOG.info("Получен ответ о файловой операции от сервера");
-        UUID answerOnDemand = message.getToMessage();
-        if (fileOperationDemandMessages.containsKey(answerOnDemand)) {
-            FileMessage demandMessage = fileOperationDemandMessages.get(answerOnDemand);
-            FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
-            FileOperation demandFileOperation = demandMessage.getFileOperation();
-            FileStatus answerStatus = message.getFileStatus();
-            String additionalMessage = message.getAdditionalMessage();
-            Object additionalObject = message.getAdditionalObject();
-            LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
-                demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
-            switch (demandFileObjectToOperate) {
-                case FOLDER:
-                    handleFolderAnswer(demandFileOperation, answerStatus, additionalMessage);
-                    break;
-                case FILE:
-                    handleFileAnswer(demandFileOperation, answerStatus, additionalMessage, additionalObject);
-                    break;
-            }
-            fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
-        } else if (fileDownloadDemandMessages.containsKey(answerOnDemand)) {
-            Pair<FileMessage, File> demandMessageAndDirectory = fileDownloadDemandMessages.get(answerOnDemand);
-            FileMessage demandMessage = demandMessageAndDirectory.getFirst();
-            FileDTO demandFileDTO = (FileDTO) demandMessage.getAdditionalObject();
-            String downloadFileName = demandFileDTO.getFileName();
-            File directoryToSave = demandMessageAndDirectory.getSecond();
-            FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
-            FileOperation demandFileOperation = demandMessage.getFileOperation();
-            FileStatus answerStatus = message.getFileStatus();
-            String additionalMessage = message.getAdditionalMessage();
-            Object additionalObject = message.getAdditionalObject();
-            LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
-                demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
-            if (demandFileObjectToOperate.equals(FileObjectToOperate.FILE)) {
-                handleDownloadFileAnswer(downloadFileName, directoryToSave, answerStatus, additionalMessage, additionalObject);
-                fileDownloadDemandMessages.remove(answerOnDemand);
+        try {
+            UUID answerOnDemand = message.getToMessage();
+            if (fileOperationDemandMessages.containsKey(answerOnDemand)) {
+                FileMessage demandMessage = fileOperationDemandMessages.get(answerOnDemand);
+                FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
+                FileOperation demandFileOperation = demandMessage.getFileOperation();
+                Object demandAdditionalObject = demandMessage.getAdditionalObject();
+                ChangeFileDTO demandChangeFileDTOObject = null;
+                if (demandAdditionalObject != null && demandAdditionalObject.getClass().equals(ChangeFileDTO.class)) {
+                    demandChangeFileDTOObject = (ChangeFileDTO) demandAdditionalObject;
+                }
+                FileStatus answerStatus = message.getFileStatus();
+                String answerAdditionalMessage = message.getAdditionalMessage();
+                Object answerAdditionalObject = message.getAdditionalObject();
+                LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
+                    demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, answerAdditionalMessage);
+                switch (demandFileObjectToOperate) {
+                    case FOLDER:
+                        handleFolderAnswer(demandFileOperation, answerStatus, answerAdditionalMessage);
+                        break;
+                    case FILE:
+                        handleFileAnswer(demandFileOperation, demandChangeFileDTOObject, answerStatus, answerAdditionalMessage, answerAdditionalObject);
+                        break;
+                }
+                fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
+            } else if (fileDownloadDemandMessages.containsKey(answerOnDemand)) {
+                Pair<FileMessage, File> demandMessageAndDirectory = fileDownloadDemandMessages.get(answerOnDemand);
+                FileMessage demandMessage = demandMessageAndDirectory.getFirst();
+                FileDTO demandFileDTO = (FileDTO) demandMessage.getAdditionalObject();
+                String downloadFileName = demandFileDTO.getFileName();
+                File directoryToSave = demandMessageAndDirectory.getSecond();
+                FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
+                FileOperation demandFileOperation = demandMessage.getFileOperation();
+                FileStatus answerStatus = message.getFileStatus();
+                String additionalMessage = message.getAdditionalMessage();
+                Object additionalObject = message.getAdditionalObject();
+                LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
+                    demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
+                if (demandFileObjectToOperate.equals(FileObjectToOperate.FILE)) {
+                    handleDownloadFileAnswer(downloadFileName, directoryToSave, answerStatus, additionalMessage, additionalObject);
+                    fileDownloadDemandMessages.remove(answerOnDemand);
+                } else {
+                    LOG.error("Скачивать можно только файлы. demandMessage: {}", demandMessage);
+                }
             } else {
-                LOG.error("Скачивать можно только файлы. demandMessage: {}", demandMessage);
+                LOG.info("Пришёл ответ не на наш запрос");
             }
-        } else {
-            LOG.info("Пришёл ответ не на наш запрос");
+        } catch (Exception e) {
+            LOG.error(e.getMessage());
         }
     }
 
@@ -107,7 +116,7 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
         }
     }
 
-    private void handleFileAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage, Object additionalObject) {
+    private void handleFileAnswer(FileOperation demandFileOperation, ChangeFileDTO demandChangeFileDTOObject, FileStatus answerStatus, String additionalMessage, Object additionalObject) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
             Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
         } else {
@@ -129,6 +138,14 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                             controller.writeLogInTerminal("Удаление файла: ОК. " + additionalMessage);
                         });
                         break;
+                    case RENAME:
+                        String oldFileName = demandChangeFileDTOObject.getOldFile().getFileName();
+                        String newFileName = demandChangeFileDTOObject.getNewFile().getFileName();
+                        Platform.runLater(() -> {
+                            controller.getFileList();  // после переименования файла обновляем таблицу со списком файлов
+                            controller.writeLogInTerminal("Переименование файла: ОК. Старое имя " + oldFileName + ", " + " новое имя " + newFileName);
+                        });
+                        break;
                 }
             } else if (answerStatus.equals(FileStatus.ERROR)) {
                 switch (demandFileOperation) {
@@ -137,6 +154,11 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                         break;
                     case DELETE:
                         Platform.runLater(() -> controller.writeLogInTerminal("Удаление файла: Error. additionalMessage: " + additionalMessage));
+                        break;
+                    case RENAME:
+                        String oldFileName = demandChangeFileDTOObject.getOldFile().getFileName();
+                        String newFileName = demandChangeFileDTOObject.getNewFile().getFileName();
+                        Platform.runLater(() -> controller.writeLogInTerminal("Переименование файла: Error. Старое имя: " + oldFileName + ", " + " новое имя " + newFileName));
                         break;
                 }
             }

@@ -18,7 +18,7 @@ public class View extends Application {
         primaryStage.setScene(new Scene(root, 1024, 768));
 
         Controller controller = fxmlLoader.getController();
-        controller.setStage(primaryStage);
+        controller.setPrimaryStage(primaryStage);
 
         primaryStage.show();
     }

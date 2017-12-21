@@ -1,4 +1,4 @@
-package ru.geekbrains.client.view;
+package ru.geekbrains.client.view_elements;
 
 import javafx.beans.property.SimpleStringProperty;
 import ru.geekbrains.common.dto.FileInfo;
