@@ -2,7 +2,7 @@ package ru.geekbrains.common.channel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.common.message.AbstractMessage;
+import ru.geekbrains.common.message.Message;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,8 +15,8 @@ public class SocketClientChannel implements MessageChannel {
     private static final Logger LOG = LoggerFactory.getLogger(SocketClientChannel.class);
     private static final int WORKERS_COUNT = 2;
 
-    private final BlockingQueue<AbstractMessage> outputMessages = new LinkedBlockingQueue<>();
-    private final BlockingQueue<AbstractMessage> inputMessages = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Message> outputMessages = new LinkedBlockingQueue<>();
+    private final BlockingQueue<Message> inputMessages = new LinkedBlockingQueue<>();
 
     private final ExecutorService executor;
     private final Socket client;
@@ -37,7 +37,7 @@ public class SocketClientChannel implements MessageChannel {
     private void sendMessage() {
         try (ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream())) {
             while (client.isConnected()) {
-                AbstractMessage message = outputMessages.take();  // blocks here
+                Message message = outputMessages.take();  // blocks here
                 out.writeObject(message);
             }
         } catch (InterruptedException | IOException e) {
@@ -50,7 +50,7 @@ public class SocketClientChannel implements MessageChannel {
         try (ObjectInputStream in = new ObjectInputStream(client.getInputStream())) {
             Object readObject;
             while ((readObject = in.readObject()) != null) {  // blocks here
-                AbstractMessage message = (AbstractMessage) readObject;
+                Message message = (Message) readObject;
                 inputMessages.add(message);
             }
         } catch (ClassNotFoundException | IOException e) {
@@ -63,24 +63,23 @@ public class SocketClientChannel implements MessageChannel {
     }
 
     @Override
-    public void send(AbstractMessage message) {
+    public void send(Message message) {
         outputMessages.add(message);
     }
 
     @Override
-    public AbstractMessage poll() {
+    public Message poll() {
         return inputMessages.poll();
     }
 
     @Override
-    public AbstractMessage take() throws InterruptedException {
+    public Message take() throws InterruptedException {
         return inputMessages.take();
     }
 
     public void close() throws IOException {
         shutdownRegistrations.forEach(Runnable::run);
         shutdownRegistrations.clear();
-
         executor.shutdown();
     }
 }
