@@ -46,35 +46,42 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                 if (demandAdditionalObject != null && demandAdditionalObject.getClass().equals(ChangeFileDTO.class)) {
                     demandChangeFileDTOObject = (ChangeFileDTO) demandAdditionalObject;
                 }
+                boolean updateFileListAfter = demandMessage.getUpdateFileListAfter();
+
                 FileStatus answerStatus = message.getFileStatus();
                 String answerAdditionalMessage = message.getAdditionalMessage();
                 Object answerAdditionalObject = message.getAdditionalObject();
+
                 LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
                     demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, answerAdditionalMessage);
                 switch (demandFileObjectToOperate) {
                     case FOLDER:
-                        handleFolderAnswer(demandFileOperation, answerStatus, answerAdditionalMessage);
+                        handleFolderAnswer(demandFileOperation, answerStatus, answerAdditionalMessage, updateFileListAfter);
                         break;
                     case FILE:
-                        handleFileAnswer(demandFileOperation, demandChangeFileDTOObject, answerStatus, answerAdditionalMessage, answerAdditionalObject);
+                        handleFileAnswer(demandFileOperation, demandChangeFileDTOObject, answerStatus, answerAdditionalMessage, answerAdditionalObject, updateFileListAfter);
                         break;
                 }
                 fileOperationDemandMessages.remove(answerOnDemand);  // после обработки ответа на запрос удаляем запрос
             } else if (fileDownloadDemandMessages.containsKey(answerOnDemand)) {
                 Pair<FileMessage, File> demandMessageAndDirectory = fileDownloadDemandMessages.get(answerOnDemand);
+
                 FileMessage demandMessage = demandMessageAndDirectory.getFirst();
                 FileDTO demandFileDTO = (FileDTO) demandMessage.getAdditionalObject();
                 String downloadFileName = demandFileDTO.getFileName();
                 File directoryToSave = demandMessageAndDirectory.getSecond();
                 FileObjectToOperate demandFileObjectToOperate = demandMessage.getFileObjectToOperate();
                 FileOperation demandFileOperation = demandMessage.getFileOperation();
+                boolean updateFileListAfter = demandMessage.getUpdateFileListAfter();
+
                 FileStatus answerStatus = message.getFileStatus();
                 String additionalMessage = message.getAdditionalMessage();
                 Object additionalObject = message.getAdditionalObject();
+
                 LOG.info("Ответ на file запрос: object: {}, operation: {}, answerStatus: {}, additionalMessage: {}",
                     demandFileObjectToOperate, demandMessage.getFileOperation(), answerStatus, additionalMessage);
                 if (demandFileObjectToOperate.equals(FileObjectToOperate.FILE)) {
-                    handleDownloadFileAnswer(downloadFileName, directoryToSave, answerStatus, additionalMessage, additionalObject);
+                    handleDownloadFileAnswer(downloadFileName, directoryToSave, answerStatus, additionalMessage, additionalObject, updateFileListAfter);
                     fileDownloadDemandMessages.remove(answerOnDemand);
                 } else {
                     LOG.error("Скачивать можно только файлы. demandMessage: {}", demandMessage);
@@ -87,7 +94,7 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
         }
     }
 
-    private void handleFolderAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage) {
+    private void handleFolderAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage, boolean updateFileListAfter) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
             Platform.runLater(() -> controller.writeLogInTerminal("Операция с папкой: пользователь не авторизован"));
         } else {
@@ -116,7 +123,8 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
         }
     }
 
-    private void handleFileAnswer(FileOperation demandFileOperation, ChangeFileDTO demandChangeFileDTOObject, FileStatus answerStatus, String additionalMessage, Object additionalObject) {
+    private void handleFileAnswer(FileOperation demandFileOperation, ChangeFileDTO demandChangeFileDTOObject, FileStatus answerStatus,
+                                  String additionalMessage, Object additionalObject, boolean updateFileListAfter) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
             Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
         } else {
@@ -124,8 +132,10 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                 switch (demandFileOperation) {
                     case CREATE:
                         Platform.runLater(() -> {
-                            controller.getFileList();  // после создания нового файла обновляем таблицу со списком файлов
                             controller.writeLogInTerminal("Создание нового файла: ОК");
+                            if (updateFileListAfter) {
+                                controller.getFileList();  // после создания нового файла обновляем таблицу со списком файлов
+                            }
                         });
                         break;
                     case GET_LIST:
@@ -134,16 +144,20 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                         break;
                     case DELETE:
                         Platform.runLater(() -> {
-                            controller.getFileList();  // после удаления файла обновляем таблицу со списком файлов
                             controller.writeLogInTerminal("Удаление файла: ОК. " + additionalMessage);
+                            if (updateFileListAfter) {
+                                controller.getFileList();  // после удаления файла обновляем таблицу со списком файлов
+                            }
                         });
                         break;
                     case RENAME:
                         String oldFileName = demandChangeFileDTOObject.getOldFile().getFileName();
                         String newFileName = demandChangeFileDTOObject.getNewFile().getFileName();
                         Platform.runLater(() -> {
-                            controller.getFileList();  // после переименования файла обновляем таблицу со списком файлов
                             controller.writeLogInTerminal("Переименование файла: ОК. Старое имя " + oldFileName + ", " + " новое имя " + newFileName);
+                            if (updateFileListAfter) {
+                                controller.getFileList();  // после переименования файла обновляем таблицу со списком файлов
+                            }
                         });
                         break;
                 }
@@ -165,7 +179,8 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
         }
     }
 
-    private void handleDownloadFileAnswer(String fileName, File directoryToSave, FileStatus answerStatus, String additionalMessage, Object additionalObject) {
+    private void handleDownloadFileAnswer(String fileName, File directoryToSave, FileStatus answerStatus,
+                                          String additionalMessage, Object additionalObject, boolean updateFileListAfter) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
             Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
         } else {

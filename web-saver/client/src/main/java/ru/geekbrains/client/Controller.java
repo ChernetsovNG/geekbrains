@@ -128,7 +128,7 @@ public class Controller implements Initializable {
     public void addNewFile() {
         List<File> files = fileChooser.showOpenMultipleDialog(primaryStage);
         if (files != null) {
-            files.forEach(file -> model.createNewFile(file));
+            model.createNewFiles(files);
         } else {
             LOG.error("Файл не выбран (file == null)");
         }
@@ -137,7 +137,8 @@ public class Controller implements Initializable {
     public void deleteFiles() {
         // Если в таблице выбран какой-то файл, то удаляем его
         List<FileView> selectedFiles = getSelectedFiles();
-        selectedFiles.forEach(fileView -> model.deleteFile(fileView.getName()));
+        List<String> fileNames = selectedFiles.stream().map(FileView::getName).collect(Collectors.toList());
+        model.deleteFiles(fileNames);
     }
 
     public void downloadFiles() {

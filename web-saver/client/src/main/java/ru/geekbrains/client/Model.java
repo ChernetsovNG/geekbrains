@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -90,26 +91,46 @@ public class Model implements Addressee {
     }
 
     public void getFileList() {
-        FileMessage getFileListMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.GET_LIST, null);
+        FileMessage getFileListMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.GET_LIST, null, false);
         fileAnswerHandler.addFileDemandMessage(getFileListMessage);
         client.send(getFileListMessage);
         LOG.debug("Отправлен запрос на получение списка файлов");
     }
 
     public void createClientFolder() {
-        FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null);
+        FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null, true);
         fileAnswerHandler.addFileDemandMessage(createFolderMessage);
         client.send(createFolderMessage);
         LOG.debug("Отправлен запрос на создание папки пользователя на сервер");
     }
 
-    public void createNewFile(File file) {
+    public void createNewFiles(List<File> files) {
+        // для всех файлов кроме последнего отправляем сообщение о создании, а для последнего - ещё и обновляем список файлов
+        for (int i = 0; i < files.size() - 1; i++) {
+            File file = files.get(i);
+            createNewFile(file, false);
+        }
+        File file = files.get(files.size() - 1);
+        createNewFile(file, true);
+    }
+
+    public void deleteFiles(List<String> fileNames) {
+        // для всех файлов кроме последнего отправляем сообщение об удалении, а для последнего - ещё и обновляем список файлов
+        for (int i = 0; i < fileNames.size() - 1; i++) {
+            String fileName = fileNames.get(i);
+            deleteFile(fileName, false);
+        }
+        String fileName = fileNames.get(fileNames.size() - 1);
+        deleteFile(fileName, true);
+    }
+
+    private void createNewFile(File file, boolean updateFileListAfter) {
         String fileName = file.getName();
         Path path = file.toPath();
         try {
             byte[] fileContent = Files.readAllBytes(path);
             FileDTO fileDTO = new FileDTO(fileName, fileContent);
-            FileMessage createNewFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO);
+            FileMessage createNewFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO, updateFileListAfter);
             fileAnswerHandler.addFileDemandMessage(createNewFileMessage);
             client.send(createNewFileMessage);
             LOG.debug("Отправлен запрос на создание файла на сервере. Файл: {}", fileDTO);
@@ -118,9 +139,9 @@ public class Model implements Addressee {
         }
     }
 
-    public void deleteFile(String fileName) {
+    private void deleteFile(String fileName, boolean updateFileListAfter) {
         FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
-        FileMessage deleteFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.DELETE, fileDTO);
+        FileMessage deleteFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.DELETE, fileDTO, updateFileListAfter);
         fileAnswerHandler.addFileDemandMessage(deleteFileMessage);
         client.send(deleteFileMessage);
         LOG.debug("Отправлен запрос на удаление файла. Файл: {}", fileName);
@@ -128,7 +149,7 @@ public class Model implements Addressee {
 
     public void renameFile(String fileName, String newFileName) {
         ChangeFileDTO renameFileDTO = new ChangeFileDTO(new FileDTO(fileName, new byte[0]), new FileDTO(newFileName, new byte[0]));
-        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO);
+        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO, false);
         fileAnswerHandler.addFileDemandMessage(renameFileMessage);
         client.send(renameFileMessage);
         LOG.debug("Отправлен запрос на переименование файла. Файл: {}, новое имя: {}", fileName, newFileName);
@@ -136,7 +157,7 @@ public class Model implements Addressee {
 
     public void downloadFile(String fileName, File directoryToSave) {
         FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
-        FileMessage getFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.READ, fileDTO);
+        FileMessage getFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.READ, fileDTO, false);
         fileAnswerHandler.addDownloadFileMessage(getFileMessage, directoryToSave);
         client.send(getFileMessage);
         LOG.debug("Отправлен запрос на скачивание файла. Файл: {}, папка: {}", fileName, directoryToSave.getPath());
