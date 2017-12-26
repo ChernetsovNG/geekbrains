@@ -1,5 +1,6 @@
 package ru.geekbrains.client.handler;
 
+import ru.geekbrains.client.controller.FileController;
 import ru.geekbrains.common.message.FileAnswer;
 import ru.geekbrains.common.message.FileMessage;
 
@@ -11,4 +12,6 @@ public interface FileAnswerHandler {
     void addFileDemandMessage(FileMessage message);
 
     void addDownloadFileMessage(FileMessage message, File directoryToSave);
+
+    void setFileController(FileController clientController);
 }

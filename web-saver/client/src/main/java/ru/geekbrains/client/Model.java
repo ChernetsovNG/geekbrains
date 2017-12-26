@@ -2,10 +2,14 @@ package ru.geekbrains.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.geekbrains.client.controller.ConnectController;
+import ru.geekbrains.client.controller.FileController;
 import ru.geekbrains.client.handler.ConnectAnswerHandler;
 import ru.geekbrains.client.handler.ConnectAnswerHandlerImpl;
 import ru.geekbrains.client.handler.FileAnswerHandler;
 import ru.geekbrains.client.handler.FileAnswerHandlerImpl;
+import ru.geekbrains.client.utils.ClientUtils;
+import ru.geekbrains.client.utils.RandomString;
 import ru.geekbrains.common.channel.SocketClientChannel;
 import ru.geekbrains.common.channel.SocketClientManagedChannel;
 import ru.geekbrains.common.dto.*;
@@ -22,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
 import static ru.geekbrains.common.CommonData.SERVER_PORT;
+import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
 
 public class Model implements Addressee {
     private static final Logger LOG = LoggerFactory.getLogger(Model.class);
@@ -40,10 +45,21 @@ public class Model implements Addressee {
 
     private final Address address;
 
-    public Model(Address address, Controller controller) {
-        this.address = address;
-        this.connectAnswerHandler = new ConnectAnswerHandlerImpl(controller);
-        this.fileAnswerHandler = new FileAnswerHandlerImpl(controller);
+    public Model(ConnectController loginPageController, FileController clientController) {
+        String macAddresses = ClientUtils.INSTANCE.getMacAddress();  // MAC-адреса клинта
+        // на случай запуска нескольких клиентов на одном хосте ещё добавим случайную строку, чтобы адреса были разные
+        RandomString randomStringGenerator = new RandomString(10);
+        String randomString = randomStringGenerator.nextString();
+
+        String clientAddress = stringCrypter.encrypt(randomString + macAddresses);
+
+        this.address = new Address(clientAddress);
+
+        this.connectAnswerHandler = new ConnectAnswerHandlerImpl();
+        this.fileAnswerHandler = new FileAnswerHandlerImpl();
+
+        connectAnswerHandler.setConnectController(loginPageController);
+        fileAnswerHandler.setFileController(clientController);
     }
 
     public void start() {
@@ -71,11 +87,6 @@ public class Model implements Addressee {
         connectAnswerHandler.setHandshakeMessageUuid(handshakeDemandMessage.getUuid());
         client.send(handshakeDemandMessage);
         LOG.debug("Отправлено сообщение об установлении соединения на сервер");
-        /*try {
-            handshakeLatch.await();  // ждём handshake-ответа от сервера
-        } catch (InterruptedException e) {
-            LOG.error(e.getMessage());
-        }*/
     }
 
     public void authOnServer(String username, String password) {
@@ -83,11 +94,13 @@ public class Model implements Addressee {
         connectAnswerHandler.setAuthMessageUuid(authDemandMessage.getUuid());
         client.send(authDemandMessage);
         LOG.debug("Отправлено сообщение об аутентификации на сервер");
-        /*try {
-            authLatch.await();
-        } catch (InterruptedException e) {
-            LOG.error(e.getMessage());
-        }*/
+    }
+
+    public void registerNewClient(String username, String password) {
+        Message registerNewClientMessage = new ConnectOperationMessage(address, SERVER_ADDRESS, ConnectOperation.REGISTER, new UserDTO(username, password));
+        connectAnswerHandler.setRegisterMessageUuid(registerNewClientMessage.getUuid());
+        client.send(registerNewClientMessage);
+        LOG.debug("Отправлено сообщение о регистрации нового клиента");
     }
 
     public void getFileList() {
