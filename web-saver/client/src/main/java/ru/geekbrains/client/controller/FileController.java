@@ -5,7 +5,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -25,8 +24,6 @@ public class FileController {
     private static final Logger LOG = LoggerFactory.getLogger(FileController.class);
 
     @FXML
-    private HBox authPanel;
-    @FXML
     private TextArea clientTerminal;
 
     @FXML
@@ -35,7 +32,8 @@ public class FileController {
 
     private Model model;
 
-    private Stage primaryStage;
+    private Stage stage;
+
     private final FileChooser fileChooser = new FileChooser();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
 
@@ -46,8 +44,14 @@ public class FileController {
         this.model = model;
     }
 
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void authClient() {
+        prepareFileTable();
+        stage.show();
+        model.createClientFolder();
     }
 
     private void prepareFileTable() {
@@ -81,7 +85,7 @@ public class FileController {
     }
 
     public void addNewFile() {
-        List<File> files = fileChooser.showOpenMultipleDialog(primaryStage);
+        List<File> files = fileChooser.showOpenMultipleDialog(stage);
         if (files != null) {
             model.createNewFiles(files);
         } else {
@@ -98,7 +102,7 @@ public class FileController {
 
     public void downloadFiles() {
         List<FileView> selectedFiles = getSelectedFiles();
-        File directoryToSaveFiles = directoryChooser.showDialog(primaryStage);
+        File directoryToSaveFiles = directoryChooser.showDialog(stage);
         selectedFiles.forEach(fileView -> model.downloadFile(fileView.getName(), directoryToSaveFiles));
     }
 

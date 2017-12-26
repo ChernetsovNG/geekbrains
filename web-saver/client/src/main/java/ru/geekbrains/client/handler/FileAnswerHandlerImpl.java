@@ -24,15 +24,12 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
     // для скачивания файлов надо сохранить ещё и папку, куда записывать пришедший от сервера ответ
     private final Map<UUID, Pair<FileMessage, File>> fileDownloadDemandMessages;
 
-    private FileController fileController;
+    private final FileController fileController;
 
-    public FileAnswerHandlerImpl() {
+    public FileAnswerHandlerImpl(FileController fileController) {
         fileOperationDemandMessages = new HashMap<>();
         fileDownloadDemandMessages = new HashMap<>();
-    }
 
-    @Override
-    public void setFileController(FileController fileController) {
         this.fileController = fileController;
     }
 

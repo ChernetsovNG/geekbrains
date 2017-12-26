@@ -1,18 +1,16 @@
 package ru.geekbrains.client.controller;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.Model;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
-public class ConnectController implements Initializable {
+public class ConnectController {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectController.class);
 
     @FXML
@@ -22,17 +20,16 @@ public class ConnectController implements Initializable {
     @FXML
     private PasswordField authPass;
 
-    private boolean isAuthorized;
-
     private Model model;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        setAuthentificate(false);
-    }
+    private Stage stage;
 
     public void setModel(Model model) {
         this.model = model;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     public void createAccount() {
@@ -55,15 +52,12 @@ public class ConnectController implements Initializable {
         }
     }
 
-    public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации
-        this.isAuthorized = isAuthorized;
-        if (this.isAuthorized) {         // если пользователь не авторизован
-            authPass.clear();
-            model.createClientFolder();
-        }
-    }
-
     public void setStatus(String text) {
         statusLabel.setText(text);
+    }
+
+    public void authClient() {
+        Platform.runLater(() -> stage.hide());
+        model.authClient();
     }
 }

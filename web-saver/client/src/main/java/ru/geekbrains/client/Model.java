@@ -1,5 +1,6 @@
 package ru.geekbrains.client;
 
+import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.controller.ConnectController;
@@ -38,6 +39,9 @@ public class Model implements Addressee {
 
     private ExecutorService executor = Executors.newFixedThreadPool(THREADS_NUMBER);
 
+    private final FileController fileController;
+    private final ConnectController connectController;
+
     private final ConnectAnswerHandler connectAnswerHandler;
     private final FileAnswerHandler fileAnswerHandler;
 
@@ -45,7 +49,7 @@ public class Model implements Addressee {
 
     private final Address address;
 
-    public Model(ConnectController loginPageController, FileController clientController) {
+    public Model(ConnectController connectController, FileController fileController) {
         String macAddresses = ClientUtils.INSTANCE.getMacAddress();  // MAC-адреса клинта
         // на случай запуска нескольких клиентов на одном хосте ещё добавим случайную строку, чтобы адреса были разные
         RandomString randomStringGenerator = new RandomString(10);
@@ -55,11 +59,15 @@ public class Model implements Addressee {
 
         this.address = new Address(clientAddress);
 
-        this.connectAnswerHandler = new ConnectAnswerHandlerImpl();
-        this.fileAnswerHandler = new FileAnswerHandlerImpl();
+        this.connectAnswerHandler = new ConnectAnswerHandlerImpl(connectController);
+        this.fileAnswerHandler = new FileAnswerHandlerImpl(fileController);
 
-        connectAnswerHandler.setConnectController(loginPageController);
-        fileAnswerHandler.setFileController(clientController);
+        this.connectController = connectController;
+        this.fileController = fileController;
+    }
+
+    public void authClient() {
+        Platform.runLater(fileController::authClient);
     }
 
     public void start() {

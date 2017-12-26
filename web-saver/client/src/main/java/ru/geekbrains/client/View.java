@@ -13,7 +13,7 @@ import java.io.IOException;
 public class View extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage loginStage) throws IOException {
 
         // загружаем контроллеры
         FXMLLoader loginFxmlLoader = new FXMLLoader(getClass().getResource("/login-screen.fxml"));
@@ -22,11 +22,15 @@ public class View extends Application {
         Parent loginScreen = loginFxmlLoader.load();
         Parent clientScreen = clientFxmlLoader.load();
 
-        primaryStage.setTitle("JavaFX web-saver login page");
-        primaryStage.setScene(new Scene(loginScreen, 500, 336));
+        loginStage.setTitle("JavaFX web-saver login page");
+        loginStage.setScene(new Scene(loginScreen, 500, 336));
 
         ConnectController connectController = loginFxmlLoader.getController();
         FileController fileController = clientFxmlLoader.getController();
+
+        Stage clientStage = new Stage();
+        clientStage.setTitle("JavaFX web-saver client page");
+        clientStage.setScene(new Scene(clientScreen));
 
         // создаём модель
 
@@ -35,22 +39,13 @@ public class View extends Application {
         connectController.setModel(model);
         fileController.setModel(model);
 
-        primaryStage.show();
+        connectController.setStage(loginStage);
+        fileController.setStage(clientStage);
+
+        loginStage.show();
 
         model.start();
         model.handshakeOnServer();
-
-        /*
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/client-window.fxml"));
-        Parent root = fxmlLoader.load();
-        primaryStage.setTitle("JavaFX web-saver client");
-        primaryStage.setScene(new Scene(root, 1024, 768));
-
-        ClientController controller = fxmlLoader.getController();
-        controller.setPrimaryStage(primaryStage);
-
-        primaryStage.show();
-        */
     }
 
     public static void main(String[] args) {

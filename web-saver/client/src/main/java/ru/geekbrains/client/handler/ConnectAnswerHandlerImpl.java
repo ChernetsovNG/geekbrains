@@ -22,10 +22,9 @@ public class ConnectAnswerHandlerImpl implements ConnectAnswerHandler {
     @Setter
     private UUID registerMessageUuid;
 
-    private ConnectController connectController;
+    private final ConnectController connectController;
 
-    @Override
-    public void setConnectController(ConnectController connectController) {
+    public ConnectAnswerHandlerImpl(ConnectController connectController) {
         this.connectController = connectController;
     }
 
@@ -76,7 +75,7 @@ public class ConnectAnswerHandlerImpl implements ConnectAnswerHandler {
             LOG.info("Успешная аутентификация");
             Platform.runLater(() -> {
                 connectController.setStatus("Успешная аутентификация на сервере");
-                connectController.setAuthentificate(true);
+                connectController.authClient();
             });
         } else if (connectStatus.equals(NOT_REGISTER)) {
             LOG.info("Пользователь с таким именем не зарегистрирован");

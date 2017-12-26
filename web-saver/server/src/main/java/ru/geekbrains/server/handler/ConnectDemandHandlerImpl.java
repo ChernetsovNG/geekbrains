@@ -134,6 +134,7 @@ public class ConnectDemandHandlerImpl implements ConnectDemandHandler {
         } else {
             authStatus = Database.getRegistrationAndAuthStatus(userDTO);
         }
+        LOG.debug("Результат аутентификации: " + authStatus);
         if (authStatus.equals(ConnectStatus.AUTH_OK)) {
             addAuthClient(clientChannel, userDTO.getName());  // сохраняем в карте авторизованного пользователя
         }

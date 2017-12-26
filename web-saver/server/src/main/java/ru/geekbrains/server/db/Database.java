@@ -22,7 +22,7 @@ public class Database {
     public static void createServerDB() {
         openDatabaseConnection();
         createAuthTable();
-        // insertUser(new User("TestUser1", "qwerty"));
+        // insertUser(new UserDTO("TestUser1", "qwerty"));
     }
 
     public static boolean insertUser(UserDTO user) {
@@ -66,7 +66,7 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
-    public static boolean checkUserPassword(UserDTO user) {
+    private static boolean checkUserPassword(UserDTO user) {
         LOG.info("Check user password in database: {}", user);
         try (PreparedStatement statement = connection.prepareStatement(SELECT_PASSWORD)) {
             statement.setString(1, user.getName());
@@ -84,11 +84,13 @@ public class Database {
 
     public static ConnectStatus getRegistrationAndAuthStatus(UserDTO user) {
         boolean isUserExists = checkUserExistence(user);
+        LOG.debug("isUserExists: {}", isUserExists);
         ConnectStatus authStatus;
         if (!isUserExists) {
             authStatus = NOT_REGISTER;
         } else {
             boolean isAuthentificate = checkUserPassword(user);
+            LOG.debug("isAuthentificate: {}", isAuthentificate);
             if (!isAuthentificate) {
                 authStatus = INCORRECT_PASSWORD;
             } else {

@@ -13,6 +13,4 @@ public interface ConnectAnswerHandler {
     void setAuthMessageUuid(UUID authMessageUuid);
 
     void setRegisterMessageUuid(UUID registerMessageUuid);
-
-    void setConnectController(ConnectController connectController);
 }
