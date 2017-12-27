@@ -8,5 +8,5 @@ import java.util.*
 class ConnectOperationMessage(from: Address, to: Address, val connectOperation: ConnectOperation, val additionalObject: Any?)
     : Message(from, to, ConnectOperationMessage::class.java)
 
-class ConnectAnswerMessage(from: Address, to: Address, val toMessage: UUID, val connectStatus: ConnectStatus)
+class ConnectAnswerMessage(from: Address, to: Address, val toMessage: UUID, val connectStatus: ConnectStatus, val additionalMessage: String?)
     : Message(from, to, ConnectAnswerMessage::class.java)

@@ -1,42 +1,28 @@
-package ru.geekbrains.client;
+package ru.geekbrains.client.controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.client.utils.ClientUtils;
-import ru.geekbrains.client.utils.RandomString;
+import ru.geekbrains.client.Model;
 import ru.geekbrains.client.view_elements.FileView;
 import ru.geekbrains.common.dto.FileInfo;
-import ru.geekbrains.common.message.Address;
 
 import java.io.File;
-import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
+public class FileController {
+    private static final Logger LOG = LoggerFactory.getLogger(FileController.class);
 
-public class Controller implements Initializable {
-    private static final Logger LOG = LoggerFactory.getLogger(Controller.class);
-
-    @FXML
-    private HBox authPanel;
-    @FXML
-    private TextField authLogin;
-    @FXML
-    private PasswordField authPass;
     @FXML
     private TextArea clientTerminal;
 
@@ -46,43 +32,26 @@ public class Controller implements Initializable {
 
     private Model model;
 
-    private Stage primaryStage;
+    private Stage stage;
+
     private final FileChooser fileChooser = new FileChooser();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
 
     private static final int PAUSE_MS = 249;
     private static final int THREADS_NUMBER = 1;
 
-    private boolean isAuthorized;
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        setAuthentificate(false);
-        try {
-            startModel();
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-        }
+    public void setModel(Model model) {
+        this.model = model;
     }
 
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
-    private void startModel() {
-        String macAddresses = ClientUtils.INSTANCE.getMacAddress();  // MAC-адреса клинта
-        // на случай запуска нескольких клиентов на одном хосте ещё добавим случайную строку, чтобы адреса были разные
-        RandomString randomStringGenerator = new RandomString(10);
-        String randomString = randomStringGenerator.nextString();
-
+    public void authClient() {
         prepareFileTable();
-
-        String clientAddress = stringCrypter.encrypt(randomString + macAddresses);
-
-        model = new Model(new Address(clientAddress), this);
-        model.start();
-
-        model.handshakeOnServer();
+        stage.show();
+        model.createClientFolder();
     }
 
     private void prepareFileTable() {
@@ -111,22 +80,12 @@ public class Controller implements Initializable {
         fileTable.refresh();
     }
 
-    public void sendAuth() {
-        if (model != null) {
-            String username = authLogin.getText();
-            String password = authPass.getText();
-            model.authOnServer(username, password);
-        } else {
-            LOG.error("Модель не инициализирована");
-        }
-    }
-
     public void getFileList() {
         model.getFileList();
     }
 
     public void addNewFile() {
-        List<File> files = fileChooser.showOpenMultipleDialog(primaryStage);
+        List<File> files = fileChooser.showOpenMultipleDialog(stage);
         if (files != null) {
             model.createNewFiles(files);
         } else {
@@ -143,7 +102,7 @@ public class Controller implements Initializable {
 
     public void downloadFiles() {
         List<FileView> selectedFiles = getSelectedFiles();
-        File directoryToSaveFiles = directoryChooser.showDialog(primaryStage);
+        File directoryToSaveFiles = directoryChooser.showDialog(stage);
         selectedFiles.forEach(fileView -> model.downloadFile(fileView.getName(), directoryToSaveFiles));
     }
 
@@ -169,19 +128,6 @@ public class Controller implements Initializable {
                     model.renameFile(selectedFileName, newName);
                 }
             });
-        }
-    }
-
-    public void setAuthentificate(boolean isAuthorized) {  // переключаем режим авторизации
-        this.isAuthorized = isAuthorized;
-        if (!this.isAuthorized) {         // если пользователь не авторизован
-            authPanel.setVisible(true);   // включаем панель авторизации
-            authPanel.setManaged(true);
-        } else {
-            authPass.clear();
-            // authPanel.setVisible(false);  // выключаем панель авторизации
-            // authPanel.setManaged(false);
-            model.createClientFolder();
         }
     }
 

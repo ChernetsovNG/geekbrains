@@ -4,7 +4,7 @@ import javafx.application.Platform;
 import kotlin.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.geekbrains.client.Controller;
+import ru.geekbrains.client.controller.FileController;
 import ru.geekbrains.common.dto.*;
 import ru.geekbrains.common.message.FileAnswer;
 import ru.geekbrains.common.message.FileMessage;
@@ -24,12 +24,13 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
     // для скачивания файлов надо сохранить ещё и папку, куда записывать пришедший от сервера ответ
     private final Map<UUID, Pair<FileMessage, File>> fileDownloadDemandMessages;
 
-    private final Controller controller;
+    private final FileController fileController;
 
-    public FileAnswerHandlerImpl(Controller controller) {
-        this.controller = controller;
+    public FileAnswerHandlerImpl(FileController fileController) {
         fileOperationDemandMessages = new HashMap<>();
         fileDownloadDemandMessages = new HashMap<>();
+
+        this.fileController = fileController;
     }
 
     @Override
@@ -96,27 +97,27 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
 
     private void handleFolderAnswer(FileOperation demandFileOperation, FileStatus answerStatus, String additionalMessage, boolean updateFileListAfter) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
-            Platform.runLater(() -> controller.writeLogInTerminal("Операция с папкой: пользователь не авторизован"));
+            Platform.runLater(() -> fileController.writeLogInTerminal("Операция с папкой: пользователь не авторизован"));
         } else {
             if (answerStatus.equals(FileStatus.OK)) {
                 switch (demandFileOperation) {
                     case CREATE:
-                        Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: ОК"));
+                        Platform.runLater(() -> fileController.writeLogInTerminal("Создание папки: ОК"));
                         break;
                 }
             } else if (answerStatus.equals(FileStatus.ALREADY_EXISTS)) {
                 switch (demandFileOperation) {
                     case CREATE:
                         Platform.runLater(() -> {
-                            controller.getFileList();  // получаем список файлов из папки
-                            controller.writeLogInTerminal("Создание папки: Папка уже существует");
+                            fileController.getFileList();  // получаем список файлов из папки
+                            fileController.writeLogInTerminal("Создание папки: Папка уже существует");
                         });
                         break;
                 }
             } else if (answerStatus.equals(FileStatus.ERROR)) {
                 switch (demandFileOperation) {
                     case CREATE:
-                        Platform.runLater(() -> controller.writeLogInTerminal("Создание папки: Error; additionalMessage: " + additionalMessage));
+                        Platform.runLater(() -> fileController.writeLogInTerminal("Создание папки: Error; additionalMessage: " + additionalMessage));
                         break;
                 }
             }
@@ -126,27 +127,27 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
     private void handleFileAnswer(FileOperation demandFileOperation, ChangeFileDTO demandChangeFileDTOObject, FileStatus answerStatus,
                                   String additionalMessage, Object additionalObject, boolean updateFileListAfter) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
-            Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
+            Platform.runLater(() -> fileController.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
         } else {
             if (answerStatus.equals(FileStatus.OK)) {
                 switch (demandFileOperation) {
                     case CREATE:
                         Platform.runLater(() -> {
-                            controller.writeLogInTerminal("Создание нового файла: ОК");
+                            fileController.writeLogInTerminal("Создание нового файла: ОК");
                             if (updateFileListAfter) {
-                                controller.getFileList();  // после создания нового файла обновляем таблицу со списком файлов
+                                fileController.getFileList();  // после создания нового файла обновляем таблицу со списком файлов
                             }
                         });
                         break;
                     case GET_LIST:
                         List<FileInfo> fileInfoList = (List<FileInfo>) additionalObject;
-                        Platform.runLater(() -> controller.writeFileListInTable(fileInfoList));
+                        Platform.runLater(() -> fileController.writeFileListInTable(fileInfoList));
                         break;
                     case DELETE:
                         Platform.runLater(() -> {
-                            controller.writeLogInTerminal("Удаление файла: ОК. " + additionalMessage);
+                            fileController.writeLogInTerminal("Удаление файла: ОК. " + additionalMessage);
                             if (updateFileListAfter) {
-                                controller.getFileList();  // после удаления файла обновляем таблицу со списком файлов
+                                fileController.getFileList();  // после удаления файла обновляем таблицу со списком файлов
                             }
                         });
                         break;
@@ -154,9 +155,9 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
                         String oldFileName = demandChangeFileDTOObject.getOldFile().getFileName();
                         String newFileName = demandChangeFileDTOObject.getNewFile().getFileName();
                         Platform.runLater(() -> {
-                            controller.writeLogInTerminal("Переименование файла: ОК. Старое имя " + oldFileName + ", " + " новое имя " + newFileName);
+                            fileController.writeLogInTerminal("Переименование файла: ОК. Старое имя " + oldFileName + ", " + " новое имя " + newFileName);
                             if (updateFileListAfter) {
-                                controller.getFileList();  // после переименования файла обновляем таблицу со списком файлов
+                                fileController.getFileList();  // после переименования файла обновляем таблицу со списком файлов
                             }
                         });
                         break;
@@ -164,15 +165,15 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
             } else if (answerStatus.equals(FileStatus.ERROR)) {
                 switch (demandFileOperation) {
                     case CREATE:
-                        Platform.runLater(() -> controller.writeLogInTerminal("Создание нового файла: Error; additionalMessage: " + additionalMessage));
+                        Platform.runLater(() -> fileController.writeLogInTerminal("Создание нового файла: Error; additionalMessage: " + additionalMessage));
                         break;
                     case DELETE:
-                        Platform.runLater(() -> controller.writeLogInTerminal("Удаление файла: Error. additionalMessage: " + additionalMessage));
+                        Platform.runLater(() -> fileController.writeLogInTerminal("Удаление файла: Error. additionalMessage: " + additionalMessage));
                         break;
                     case RENAME:
                         String oldFileName = demandChangeFileDTOObject.getOldFile().getFileName();
                         String newFileName = demandChangeFileDTOObject.getNewFile().getFileName();
-                        Platform.runLater(() -> controller.writeLogInTerminal("Переименование файла: Error. Старое имя: " + oldFileName + ", " + " новое имя " + newFileName));
+                        Platform.runLater(() -> fileController.writeLogInTerminal("Переименование файла: Error. Старое имя: " + oldFileName + ", " + " новое имя " + newFileName));
                         break;
                 }
             }
@@ -182,14 +183,14 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
     private void handleDownloadFileAnswer(String fileName, File directoryToSave, FileStatus answerStatus,
                                           String additionalMessage, Object additionalObject, boolean updateFileListAfter) {
         if (answerStatus.equals(FileStatus.NOT_AUTH)) {
-            Platform.runLater(() -> controller.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
+            Platform.runLater(() -> fileController.writeLogInTerminal("Операция с файлами: пользователь не авторизован"));
         } else {
             if (answerStatus.equals(FileStatus.OK)) {
                 byte[] payload = (byte[]) additionalObject;
                 FileUtils.createNewOrUpdateFile(directoryToSave.getAbsolutePath(), fileName, payload);
-                Platform.runLater(() -> controller.writeLogInTerminal("Скачивание файла: ОК. Файл: " + fileName));
+                Platform.runLater(() -> fileController.writeLogInTerminal("Скачивание файла: ОК. Файл: " + fileName));
             } else if (answerStatus.equals(FileStatus.ERROR)) {
-                Platform.runLater(() -> controller.writeLogInTerminal("Скачивание файла: Error; additionalMessage: " + additionalMessage));
+                Platform.runLater(() -> fileController.writeLogInTerminal("Скачивание файла: Error; additionalMessage: " + additionalMessage));
             }
         }
     }

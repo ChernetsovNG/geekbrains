@@ -41,7 +41,7 @@ public class SocketClientChannel implements MessageChannel {
                 out.writeObject(message);
             }
         } catch (InterruptedException | IOException e) {
-            LOG.error(e.getMessage());
+            LOG.error("sendMessage: " + e.getMessage() + "; exceptionClass: " + e.getClass());
         }
     }
 
@@ -54,7 +54,7 @@ public class SocketClientChannel implements MessageChannel {
                 inputMessages.add(message);
             }
         } catch (ClassNotFoundException | IOException e) {
-            LOG.error(e.getMessage());
+            LOG.error("receiveMessage: " + e.getMessage() + "; exceptionClass: " + e.getClass());
         }
     }
 
@@ -80,6 +80,6 @@ public class SocketClientChannel implements MessageChannel {
     public void close() throws IOException {
         shutdownRegistrations.forEach(Runnable::run);
         shutdownRegistrations.clear();
-        executor.shutdown();
+        executor.shutdownNow();
     }
 }

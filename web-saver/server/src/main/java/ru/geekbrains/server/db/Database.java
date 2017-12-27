@@ -22,10 +22,10 @@ public class Database {
     public static void createServerDB() {
         openDatabaseConnection();
         createAuthTable();
-        // insertUser(new User("TestUser1", "qwerty"));
+        // insertUser(new UserDTO("TestUser1", "qwerty"));
     }
 
-    public static void insertUser(UserDTO user) {
+    public static boolean insertUser(UserDTO user) {
         LOG.info("Insert new user in database: {}", user);
 
         try (PreparedStatement statement = connection.prepareStatement(INSERT_USER)) {
@@ -33,9 +33,11 @@ public class Database {
             statement.setString(2, Password.hashPassword(user.getPassword()));
             statement.executeUpdate();
             user.setId(getInsertedUserId());
+            return true;
         } catch (SQLException e) {
             LOG.error(e.getMessage());
         }
+        return false;
     }
 
     // запрашиваем у БД id последней вставленной строки
@@ -64,7 +66,7 @@ public class Database {
     }
 
     // Проверяем, что пользователь с заданным именем и паролем есть в базе
-    public static boolean checkUserPassword(UserDTO user) {
+    private static boolean checkUserPassword(UserDTO user) {
         LOG.info("Check user password in database: {}", user);
         try (PreparedStatement statement = connection.prepareStatement(SELECT_PASSWORD)) {
             statement.setString(1, user.getName());
@@ -80,13 +82,15 @@ public class Database {
         return false;
     }
 
-    public static ConnectStatus getAuthStatus(UserDTO user) {
+    public static ConnectStatus getRegistrationAndAuthStatus(UserDTO user) {
         boolean isUserExists = checkUserExistence(user);
+        LOG.debug("isUserExists: {}", isUserExists);
         ConnectStatus authStatus;
         if (!isUserExists) {
-            authStatus = INCORRECT_USERNAME;
+            authStatus = NOT_REGISTER;
         } else {
             boolean isAuthentificate = checkUserPassword(user);
+            LOG.debug("isAuthentificate: {}", isAuthentificate);
             if (!isAuthentificate) {
                 authStatus = INCORRECT_PASSWORD;
             } else {
@@ -113,7 +117,9 @@ public class Database {
             statement.execute("CREATE TABLE IF NOT EXISTS users\n" +
                 " (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 "  name TEXT NOT NULL," +
-                "  password TEXT NOT NULL);");
+                "  password TEXT NOT NULL, " +
+                "  CHECK(name <> '')," +
+                "  CHECK(password <> ''));");
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_name_uindex ON users (name);");
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_id_uindex ON users (id);");  // имя пользователя - уникальное
             // statement.execute("DELETE FROM users");

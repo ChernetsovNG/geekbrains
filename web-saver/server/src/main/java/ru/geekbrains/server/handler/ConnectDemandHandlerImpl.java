@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
+import static ru.geekbrains.common.dto.ConnectStatus.*;
 
 public class ConnectDemandHandlerImpl implements ConnectDemandHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectDemandHandler.class);
@@ -49,7 +50,7 @@ public class ConnectDemandHandlerImpl implements ConnectDemandHandler {
             Address clientAddress = connectOperationMessage.getFrom();
             LOG.info("Получен запрос на установление соединения от: " + clientAddress + ", " + connectOperationMessage);
             connectionMap.put(clientChannel, clientAddress);
-            ConnectAnswerMessage handshakeAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), ConnectStatus.HANDSHAKE_OK);
+            ConnectAnswerMessage handshakeAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), HANDSHAKE_OK, null);
             clientChannel.send(handshakeAnswerMessage);
             LOG.info("Направлен ответ об успешном установлении соединения клиенту: " + clientAddress + ", " + handshakeAnswerMessage);
         } else {
@@ -57,14 +58,70 @@ public class ConnectDemandHandlerImpl implements ConnectDemandHandler {
         }
     }
 
+    // Обработка сообщений уже соединённого клиента (прошедшего процедуру handshake)
     private void handleConnectionDemandExistsClient(MessageChannel clientChannel, ConnectOperation connectOperation, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
-        if (connectOperation.equals(ConnectOperation.AUTH)) {
+        if (connectOperation.equals(ConnectOperation.REGISTER)) {
+            handleRegisterDemand(clientChannel, clientAddress, connectOperationMessage);
+        } else if (connectOperation.equals(ConnectOperation.AUTH)) {
             handleAuthDemand(clientChannel, clientAddress, connectOperationMessage);
         } else if (connectOperation.equals(ConnectOperation.DISCONNECT)) {
             handleDisconnectMessage(clientChannel, clientAddress, connectOperationMessage);
         } else if (connectOperation.equals(ConnectOperation.HANDSHAKE)) {
             LOG.info("Получено handshake сообщение от уже установившего связь клиента");
         }
+    }
+
+    private void handleRegisterDemand(MessageChannel clientChannel, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
+        LOG.info("Сообщение о регистрации клиента: " + clientAddress + ", " + connectOperationMessage);
+        UserDTO userDTO = (UserDTO) connectOperationMessage.getAdditionalObject();
+        LOG.info("Получен запрос на регистрацию: " + connectOperationMessage.getFrom() + ", " + userDTO);
+
+        ConnectStatus registerStatus;
+        String additionalMessage = null;
+
+        // Проверяем введённое имя пользователя и пароль. Они не должны быть пустыми
+        ConnectStatus userCredentialsStatus = checkUserCredentials(userDTO);
+        if (userCredentialsStatus != null) {
+            if (userCredentialsStatus.equals(INCORRECT_USERNAME)) {
+                registerStatus = REGISTER_ERROR;
+                additionalMessage = "Нельзя использовать такое имя пользователя";
+            } else if (userCredentialsStatus.equals(INCORRECT_PASSWORD)) {
+                registerStatus = REGISTER_ERROR;
+                additionalMessage = "Нельзя использовать такой пароль";
+            } else {
+                registerStatus = REGISTER_ERROR;
+                additionalMessage = "Непонятная ошибка";
+            }
+        } else {
+            boolean isUserExistsInDatabase = Database.checkUserExistence(userDTO);
+            if (isUserExistsInDatabase) {
+                registerStatus = ALREADY_REGISTER;
+            } else {
+                boolean isUserInserted = Database.insertUser(userDTO);
+                if (isUserInserted) {
+                    registerStatus = REGISTER_OK;
+                } else {
+                    registerStatus = REGISTER_ERROR;
+                }
+            }
+        }
+
+        ConnectAnswerMessage registerAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), registerStatus, additionalMessage);
+        clientChannel.send(registerAnswerMessage);
+        LOG.info("Направлен ответ о регистрации клиенту: " + clientAddress + ", " + registerAnswerMessage);
+    }
+
+    private ConnectStatus checkUserCredentials(UserDTO user) {
+        String userName = user.getName();
+        String password = user.getPassword();
+
+        if (userName.equals("")) {
+            return INCORRECT_USERNAME;
+        }
+        if (password.equals("")) {
+            return INCORRECT_PASSWORD;
+        }
+        return null;
     }
 
     private void handleAuthDemand(MessageChannel clientChannel, Address clientAddress, ConnectOperationMessage connectOperationMessage) {
@@ -75,12 +132,13 @@ public class ConnectDemandHandlerImpl implements ConnectDemandHandler {
         if (isClientAuth(clientChannel)) {
             authStatus = ConnectStatus.ALREADY_AUTH;
         } else {
-            authStatus = Database.getAuthStatus(userDTO);
+            authStatus = Database.getRegistrationAndAuthStatus(userDTO);
         }
+        LOG.debug("Результат аутентификации: " + authStatus);
         if (authStatus.equals(ConnectStatus.AUTH_OK)) {
             addAuthClient(clientChannel, userDTO.getName());  // сохраняем в карте авторизованного пользователя
         }
-        ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus);
+        ConnectAnswerMessage authAnswerMessage = new ConnectAnswerMessage(SERVER_ADDRESS, clientAddress, connectOperationMessage.getUuid(), authStatus, null);
         clientChannel.send(authAnswerMessage);
         LOG.info("Направлен ответ об аутентификации клиенту: " + clientAddress + ", " + authAnswerMessage);
     }
