@@ -1,16 +1,20 @@
 package ru.geekbrains.client;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.geekbrains.client.controller.ConnectController;
 import ru.geekbrains.client.controller.FileController;
 
 import java.io.IOException;
 
 public class View extends Application {
+    private static final Logger LOG = LoggerFactory.getLogger(View.class);
 
     @Override
     public void start(Stage loginStage) throws IOException {
@@ -35,6 +39,20 @@ public class View extends Application {
         // создаём модель
 
         Model model = new Model(connectController, fileController);
+
+        loginStage.setOnCloseRequest(event -> {
+            LOG.debug("LoginStage close");
+            model.close();
+            clientStage.close();
+            loginStage.close();
+            Platform.exit();
+        });
+        clientStage.setOnCloseRequest(event -> {
+            LOG.debug("ClientStage close");
+            model.close();
+            loginStage.close();
+            Platform.exit();
+        });
 
         connectController.setModel(model);
         fileController.setModel(model);

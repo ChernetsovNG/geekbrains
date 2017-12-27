@@ -83,13 +83,6 @@ public class Model implements Addressee {
         executor.submit(this::serverMessageHandle);
     }
 
-    public void stop() throws InterruptedException, IOException {
-        // disconnectLatch.await();
-
-        client.close();
-        executor.shutdown();
-    }
-
     public void handshakeOnServer() {
         Message handshakeDemandMessage = new ConnectOperationMessage(address, SERVER_ADDRESS, ConnectOperation.HANDSHAKE, null);
         connectAnswerHandler.setHandshakeMessageUuid(handshakeDemandMessage.getUuid());
@@ -203,6 +196,15 @@ public class Model implements Addressee {
             }
         } catch (InterruptedException e) {
             LOG.error(e.getMessage());
+        }
+    }
+
+    public void close() {
+        try {
+            client.close();
+            executor.shutdown();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
