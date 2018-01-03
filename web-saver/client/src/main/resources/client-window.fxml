@@ -21,7 +21,8 @@
       <VBox prefHeight="567.0" prefWidth="177.0" BorderPane.alignment="CENTER">
          <children>
             <Button mnemonicParsing="false" onAction="#addNewFile" prefHeight="50.0" prefWidth="177.0" text="Добавить новый&#10;файл на сервер&#10;&#10;" />
-            <Button mnemonicParsing="false" onAction="#deleteFiles" prefHeight="26.0" prefWidth="191.0" text="Удалить файл" />
+            <Button mnemonicParsing="false" onAction="#createNewFolder" prefHeight="26.0" prefWidth="187.0" text="Создать папку" />
+            <Button mnemonicParsing="false" onAction="#deleteFiles" prefHeight="26.0" prefWidth="191.0" text="Удалить файл/папку" />
             <Button mnemonicParsing="false" onAction="#downloadFiles" prefHeight="26.0" prefWidth="195.0" text="Скачать файл" />
             <Button mnemonicParsing="false" onAction="#renameFile" prefWidth="195.0" text="Переименовать файл" />
             <Button mnemonicParsing="false" onAction="#getFileList" prefHeight="26.0" prefWidth="182.0" text="Список файлов" />

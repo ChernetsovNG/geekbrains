@@ -59,10 +59,11 @@ public class FileUtils {
     public static List<FileInfo> getFileList(String pathToFolder) {
         try (Stream<Path> paths = Files.walk(Paths.get(pathToFolder))) {
             return paths
-                .filter(Files::isRegularFile)
+                // .filter(Files::isRegularFile)
+                .filter(path -> !path.toFile().getAbsolutePath().equals(pathToFolder))
                 .map(path -> {
                     File file = path.toFile();
-                    return new FileInfo(file.getName(), file.length(), Instant.ofEpochMilli(file.lastModified()));
+                    return new FileInfo(file.getName(), file.isDirectory(), file.length(), Instant.ofEpochMilli(file.lastModified()));
                 })
                 .collect(Collectors.toList());
         } catch (IOException e) {

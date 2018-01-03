@@ -102,7 +102,12 @@ public class FileAnswerHandlerImpl implements FileAnswerHandler {
             if (answerStatus.equals(FileStatus.OK)) {
                 switch (demandFileOperation) {
                     case CREATE:
-                        Platform.runLater(() -> fileController.writeLogInTerminal("Создание папки: ОК"));
+                        Platform.runLater(() -> {
+                            fileController.writeLogInTerminal("Создание папки: ОК");
+                            if (updateFileListAfter) {
+                                fileController.getFileList();  // после создания нового файла обновляем таблицу со списком файлов
+                            }
+                        });
                         break;
                 }
             } else if (answerStatus.equals(FileStatus.ALREADY_EXISTS)) {

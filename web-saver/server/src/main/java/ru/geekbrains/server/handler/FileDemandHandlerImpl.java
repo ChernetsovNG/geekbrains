@@ -16,8 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static ru.geekbrains.common.CommonData.CLIENTS_FOLDERS_PATH;
-import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
+import static ru.geekbrains.common.CommonData.*;
 import static ru.geekbrains.common.utils.FileUtils.*;
 
 // Класс для работы с файлами клиентов на сервере
@@ -94,6 +93,17 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         String additionalMessage = null;
 
         String folderPath = getClientFolderPath(clientChannel);
+
+        Object additionalObject = fileMessage.getAdditionalObject();
+
+        String activeFolder;
+        if (additionalObject != null) {
+            FileDTO fileDTO = (FileDTO) additionalObject;
+            activeFolder = fileDTO.getFolder();
+            String newFolderName = fileDTO.getFileName();
+            folderPath += FILE_SEPARATOR + activeFolder + FILE_SEPARATOR + newFolderName;
+        }
+
         if (isFolderExists(folderPath)) {
             fileStatus = FileStatus.ALREADY_EXISTS;
             additionalMessage = "Папка уже существует";
