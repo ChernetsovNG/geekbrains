@@ -169,7 +169,7 @@ public class Model implements Addressee {
 
     public void renameFile(String activeFolder, String fileName, String newFileName) {
         ChangeFileDTO renameFileDTO = new ChangeFileDTO(new FileDTO(activeFolder, fileName, null), new FileDTO(activeFolder, newFileName, null));
-        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO, false);
+        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO, true);
         fileAnswerHandler.addFileDemandMessage(renameFileMessage);
         client.send(renameFileMessage);
         LOG.debug("Отправлен запрос на переименование файла. Файл: {}, новое имя: {}", fileName, newFileName);

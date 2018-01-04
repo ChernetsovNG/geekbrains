@@ -20,8 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.geekbrains.common.CommonData.FILE_SEPARATOR;
+
 public class FileController {
     private static final Logger LOG = LoggerFactory.getLogger(FileController.class);
+    private static final String ROOT_FOLDER = "";  // пустая строка соответствует операциям в корневой директории
 
     @FXML
     private TextArea clientTerminal;
@@ -48,7 +51,7 @@ public class FileController {
     }
 
     public void authClient() {
-        activeFolder = "";  // пустая строка соответствует операциям в корневой директории
+        activeFolder = ROOT_FOLDER;
         prepareFileTable();
         stage.show();
         model.createClientFolder();
@@ -82,7 +85,35 @@ public class FileController {
 
         fileTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // чтобы можно было выбирать несколько строк
 
+        fileTable.setRowFactory(tv -> {
+            TableRow<FileView> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    FileView item = row.getItem();
+                    if (Boolean.valueOf(item.getFolder())) {
+                        stepIntoFolder(item.getName());
+                    }
+                }
+            });
+            return row;
+        });
+
         fileTable.refresh();
+    }
+
+    // перейти внуть папки
+    public void stepIntoFolder(String folderName) {
+        activeFolder += FILE_SEPARATOR + folderName;  // изменяем активную папку
+        getFileList();
+    }
+
+    // перейти в папку на уровень выше
+    public void stepUpFromFolder() {
+        if (activeFolder.equals(ROOT_FOLDER)) {
+            return;  // если мы уже в корневой папке, то ничего не делаем
+        }
+        activeFolder = activeFolder.substring(0, activeFolder.lastIndexOf(FILE_SEPARATOR));
+        getFileList();
     }
 
     public void getFileList() {

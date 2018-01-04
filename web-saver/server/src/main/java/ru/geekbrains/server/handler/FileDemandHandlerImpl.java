@@ -147,9 +147,14 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         FileStatus fileStatus;
         String additionalMessage;
 
-        String folderPath = getClientFolderPath(clientChannel);
+        String clientFolder = getClientFolderPath(clientChannel);
+
         FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
+        String activeFolder = fileDTO.getFolder();
         String fileName = fileDTO.getFileName();
+
+        String folderPath = clientFolder + FILE_SEPARATOR + activeFolder;
+
         if (isFileExists(folderPath, fileName)) {
             fileStatus = FileStatus.ALREADY_EXISTS;
             additionalMessage = "Файл уже существует";
@@ -172,12 +177,16 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         FileStatus fileStatus = FileStatus.ERROR;
         String additionalMessage = null;
 
-        String folderPath = getClientFolderPath(clientChannel);
+        String clientFolder = getClientFolderPath(clientChannel);
 
         ChangeFileDTO changeFileDTO = (ChangeFileDTO) fileMessage.getAdditionalObject();
 
         FileDTO oldFile = changeFileDTO.getOldFile();
         FileDTO newFile = changeFileDTO.getNewFile();
+
+        String activeFolder = oldFile.getFolder();
+
+        String folderPath = clientFolder + FILE_SEPARATOR + activeFolder;
 
         String changeableFileName = oldFile.getFileName();
         String newName = newFile.getFileName();
@@ -235,6 +244,12 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         List<FileInfo> fileInfoList = Collections.emptyList();
 
         String folderPath = getClientFolderPath(clientChannel);
+
+        FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
+        String activeFolder = fileDTO.getFolder();
+
+        folderPath += FILE_SEPARATOR + activeFolder;
+
         List<FileInfo> filesList = FileUtils.getFileList(folderPath);
         if (filesList != null) {
             fileStatus = FileStatus.OK;
@@ -253,9 +268,13 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         FileStatus fileStatus;
         String additionalMessage = null;
 
-        String folderPath = getClientFolderPath(clientChannel);
+        String clientFolder = getClientFolderPath(clientChannel);
+
         FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
+        String activeFolder = fileDTO.getFolder();
         String fileName = fileDTO.getFileName();
+
+        String folderPath = clientFolder + FILE_SEPARATOR + activeFolder;
 
         boolean isFileDeleted = FileUtils.deleteFile(folderPath, fileName);
 
@@ -276,9 +295,14 @@ public class FileDemandHandlerImpl implements FileDemandHandler {
         String additionalMessage = null;
         byte[] filePayload = null;
 
-        String folderPath = getClientFolderPath(clientChannel);
+        String clientFolder = getClientFolderPath(clientChannel);
+
         FileDTO fileDTO = (FileDTO) fileMessage.getAdditionalObject();
+        String activeFolder = fileDTO.getFolder();
         String fileName = fileDTO.getFileName();
+
+        String folderPath = clientFolder + FILE_SEPARATOR + activeFolder;
+
         if (!isFileExists(folderPath, fileName)) {
             fileStatus = FileStatus.ERROR;
             additionalMessage = "Файл не найден";

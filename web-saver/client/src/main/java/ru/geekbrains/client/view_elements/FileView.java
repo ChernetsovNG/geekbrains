@@ -9,7 +9,7 @@ public class FileView {
     private final SimpleStringProperty name;
     private final SimpleStringProperty sizeInKb;  // размер файла в кБ
     private final SimpleStringProperty lastModifyTime;
-    private final SimpleStringProperty folder;
+    private final SimpleStringProperty folder;    // папка (true) или файл (false)?
 
     private FileView(String name, String sizeInKb, String lastModifyTime, String folder) {
         this.name = new SimpleStringProperty(name);

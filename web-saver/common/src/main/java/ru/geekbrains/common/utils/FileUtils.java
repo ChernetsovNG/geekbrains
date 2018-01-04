@@ -11,10 +11,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class FileUtils {
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
@@ -57,19 +56,16 @@ public class FileUtils {
     }
 
     public static List<FileInfo> getFileList(String pathToFolder) {
-        try (Stream<Path> paths = Files.walk(Paths.get(pathToFolder))) {
-            return paths
-                // .filter(Files::isRegularFile)
-                .filter(path -> !path.toFile().getAbsolutePath().equals(pathToFolder))
-                .map(path -> {
-                    File file = path.toFile();
-                    return new FileInfo(file.getName(), file.isDirectory(), file.length(), Instant.ofEpochMilli(file.lastModified()));
-                })
-                .collect(Collectors.toList());
-        } catch (IOException e) {
-            LOG.error(e.getMessage());
+        List<FileInfo> result = new ArrayList<>();
+        File dir = new File(pathToFolder);
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                FileInfo fileInfo = new FileInfo(file.getName(), file.isDirectory(), file.length(), Instant.ofEpochMilli(file.lastModified()));
+                result.add(fileInfo);
+            }
         }
-        return null;
+        return result;
     }
 
     public static boolean deleteDirectory(String pathToFolder) {
