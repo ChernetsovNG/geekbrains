@@ -25,8 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static ru.geekbrains.common.CommonData.SERVER_ADDRESS;
-import static ru.geekbrains.common.CommonData.SERVER_PORT;
+import static ru.geekbrains.common.CommonData.*;
 import static ru.geekbrains.common.message.StringCrypter.stringCrypter;
 
 public class Model implements Addressee {
@@ -104,46 +103,53 @@ public class Model implements Addressee {
         LOG.debug("Отправлено сообщение о регистрации нового клиента");
     }
 
-    public void getFileList() {
-        FileMessage getFileListMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.GET_LIST, null, false);
+    public void getFileList(String activeFolder) {
+        FileMessage getFileListMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.GET_LIST, new FileDTO(activeFolder, null, null), false);
         fileAnswerHandler.addFileDemandMessage(getFileListMessage);
         client.send(getFileListMessage);
         LOG.debug("Отправлен запрос на получение списка файлов");
     }
 
     public void createClientFolder() {
-        FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null, true);
+        FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, null, false);
         fileAnswerHandler.addFileDemandMessage(createFolderMessage);
         client.send(createFolderMessage);
         LOG.debug("Отправлен запрос на создание папки пользователя на сервер");
     }
 
-    public void createNewFiles(List<File> files) {
+    public void createNewFolder(String activeFolder, String folderName) {
+        FileMessage createFolderMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FOLDER, FileOperation.CREATE, new FileDTO(activeFolder, folderName, null), true);
+        fileAnswerHandler.addFileDemandMessage(createFolderMessage);
+        client.send(createFolderMessage);
+        LOG.debug("Отправлен запрос на создание новой папки");
+    }
+
+    public void createNewFiles(String activeFolder, List<File> files) {
         // для всех файлов кроме последнего отправляем сообщение о создании, а для последнего - ещё и обновляем список файлов
         for (int i = 0; i < files.size() - 1; i++) {
             File file = files.get(i);
-            createNewFile(file, false);
+            createNewFile(activeFolder, file, false);
         }
         File file = files.get(files.size() - 1);
-        createNewFile(file, true);
+        createNewFile(activeFolder, file, true);
     }
 
-    public void deleteFiles(List<String> fileNames) {
+    public void deleteFiles(String activeFolder, List<String> fileNames) {
         // для всех файлов кроме последнего отправляем сообщение об удалении, а для последнего - ещё и обновляем список файлов
         for (int i = 0; i < fileNames.size() - 1; i++) {
             String fileName = fileNames.get(i);
-            deleteFile(fileName, false);
+            deleteFile(activeFolder, fileName, false);
         }
         String fileName = fileNames.get(fileNames.size() - 1);
-        deleteFile(fileName, true);
+        deleteFile(activeFolder, fileName, true);
     }
 
-    private void createNewFile(File file, boolean updateFileListAfter) {
+    private void createNewFile(String activeFolder, File file, boolean updateFileListAfter) {
         String fileName = file.getName();
         Path path = file.toPath();
         try {
             byte[] fileContent = Files.readAllBytes(path);
-            FileDTO fileDTO = new FileDTO(fileName, fileContent);
+            FileDTO fileDTO = new FileDTO(activeFolder, fileName, fileContent);
             FileMessage createNewFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.CREATE, fileDTO, updateFileListAfter);
             fileAnswerHandler.addFileDemandMessage(createNewFileMessage);
             client.send(createNewFileMessage);
@@ -153,28 +159,28 @@ public class Model implements Addressee {
         }
     }
 
-    private void deleteFile(String fileName, boolean updateFileListAfter) {
-        FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
+    private void deleteFile(String activeFolder, String fileName, boolean updateFileListAfter) {
+        FileDTO fileDTO = new FileDTO(activeFolder, fileName, null);
         FileMessage deleteFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.DELETE, fileDTO, updateFileListAfter);
         fileAnswerHandler.addFileDemandMessage(deleteFileMessage);
         client.send(deleteFileMessage);
         LOG.debug("Отправлен запрос на удаление файла. Файл: {}", fileName);
     }
 
-    public void renameFile(String fileName, String newFileName) {
-        ChangeFileDTO renameFileDTO = new ChangeFileDTO(new FileDTO(fileName, new byte[0]), new FileDTO(newFileName, new byte[0]));
-        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO, false);
+    public void renameFile(String activeFolder, String fileName, String newFileName) {
+        ChangeFileDTO renameFileDTO = new ChangeFileDTO(new FileDTO(activeFolder, fileName, null), new FileDTO(activeFolder, newFileName, null));
+        FileMessage renameFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.RENAME, renameFileDTO, true);
         fileAnswerHandler.addFileDemandMessage(renameFileMessage);
         client.send(renameFileMessage);
         LOG.debug("Отправлен запрос на переименование файла. Файл: {}, новое имя: {}", fileName, newFileName);
     }
 
-    public void downloadFile(String fileName, File directoryToSave) {
-        FileDTO fileDTO = new FileDTO(fileName, new byte[0]);
+    public void downloadFile(String activeFolder, String fileName, File directoryToSave) {
+        FileDTO fileDTO = new FileDTO(activeFolder, fileName, null);
         FileMessage getFileMessage = new FileMessage(address, SERVER_ADDRESS, FileObjectToOperate.FILE, FileOperation.READ, fileDTO, false);
         fileAnswerHandler.addDownloadFileMessage(getFileMessage, directoryToSave);
         client.send(getFileMessage);
-        LOG.debug("Отправлен запрос на скачивание файла. Файл: {}, папка: {}", fileName, directoryToSave.getPath());
+        LOG.debug("Отправлен запрос на скачивание файла. Файл: {}, папка: {}", activeFolder + FILE_SEPARATOR + fileName, directoryToSave.getPath());
     }
 
     // Обработка ответов от сервера

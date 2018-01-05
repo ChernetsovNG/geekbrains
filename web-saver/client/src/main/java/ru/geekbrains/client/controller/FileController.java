@@ -20,8 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static ru.geekbrains.common.CommonData.FILE_SEPARATOR;
+
 public class FileController {
     private static final Logger LOG = LoggerFactory.getLogger(FileController.class);
+    private static final String ROOT_FOLDER = "";  // пустая строка соответствует операциям в корневой директории
 
     @FXML
     private TextArea clientTerminal;
@@ -34,11 +37,10 @@ public class FileController {
 
     private Stage stage;
 
+    private String activeFolder;  // активная папка, в которой сейчас находится пользователь
+
     private final FileChooser fileChooser = new FileChooser();
     private final DirectoryChooser directoryChooser = new DirectoryChooser();
-
-    private static final int PAUSE_MS = 249;
-    private static final int THREADS_NUMBER = 1;
 
     public void setModel(Model model) {
         this.model = model;
@@ -49,6 +51,7 @@ public class FileController {
     }
 
     public void authClient() {
+        activeFolder = ROOT_FOLDER;
         prepareFileTable();
         stage.show();
         model.createClientFolder();
@@ -58,36 +61,69 @@ public class FileController {
         TableColumn nameCol = new TableColumn("Name");
         TableColumn sizeCol = new TableColumn("Size, kB");
         TableColumn lastModifyTimeCol = new TableColumn("Modify time");
+        TableColumn isFolderCol = new TableColumn("folder?");
 
         fileTable.setEditable(false);
 
         nameCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("name"));
         sizeCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("sizeInKb"));
         lastModifyTimeCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("lastModifyTime"));
+        isFolderCol.setCellValueFactory(new PropertyValueFactory<FileView, String>("folder"));
 
         nameCol.setMinWidth(300);
         nameCol.setMaxWidth(300);
         sizeCol.setMinWidth(200);
+        isFolderCol.setMinWidth(150);
+
         nameCol.setMaxWidth(200);
         lastModifyTimeCol.setMinWidth(200);
         nameCol.setMaxWidth(200);
+        isFolderCol.setMaxWidth(150);
 
         fileTable.setItems(tableData);
-        fileTable.getColumns().addAll(nameCol, sizeCol, lastModifyTimeCol);
+        fileTable.getColumns().addAll(nameCol, sizeCol, lastModifyTimeCol, isFolderCol);
 
         fileTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  // чтобы можно было выбирать несколько строк
+
+        fileTable.setRowFactory(tv -> {
+            TableRow<FileView> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    FileView item = row.getItem();
+                    if (Boolean.valueOf(item.getFolder())) {
+                        stepIntoFolder(item.getName());
+                    }
+                }
+            });
+            return row;
+        });
 
         fileTable.refresh();
     }
 
+    // перейти внуть папки
+    public void stepIntoFolder(String folderName) {
+        activeFolder += FILE_SEPARATOR + folderName;  // изменяем активную папку
+        getFileList();
+    }
+
+    // перейти в папку на уровень выше
+    public void stepUpFromFolder() {
+        if (activeFolder.equals(ROOT_FOLDER)) {
+            return;  // если мы уже в корневой папке, то ничего не делаем
+        }
+        activeFolder = activeFolder.substring(0, activeFolder.lastIndexOf(FILE_SEPARATOR));
+        getFileList();
+    }
+
     public void getFileList() {
-        model.getFileList();
+        model.getFileList(activeFolder);
     }
 
     public void addNewFile() {
         List<File> files = fileChooser.showOpenMultipleDialog(stage);
         if (files != null) {
-            model.createNewFiles(files);
+            model.createNewFiles(activeFolder, files);
         } else {
             LOG.error("Файл не выбран (file == null)");
         }
@@ -97,13 +133,25 @@ public class FileController {
         // Если в таблице выбран какой-то файл, то удаляем его
         List<FileView> selectedFiles = getSelectedFiles();
         List<String> fileNames = selectedFiles.stream().map(FileView::getName).collect(Collectors.toList());
-        model.deleteFiles(fileNames);
+        model.deleteFiles(activeFolder, fileNames);
     }
 
     public void downloadFiles() {
         List<FileView> selectedFiles = getSelectedFiles();
         File directoryToSaveFiles = directoryChooser.showDialog(stage);
-        selectedFiles.forEach(fileView -> model.downloadFile(fileView.getName(), directoryToSaveFiles));
+        selectedFiles.forEach(fileView -> model.downloadFile(activeFolder, fileView.getName(), directoryToSaveFiles));
+    }
+
+    public void createNewFolder() {
+        TextInputDialog createNewFolderDialog = new TextInputDialog();
+
+        createNewFolderDialog.setTitle("Create new folder dialog");
+        createNewFolderDialog.setHeaderText("Введите имя папки");
+        createNewFolderDialog.setContentText("Folder name");
+
+        Optional<String> result = createNewFolderDialog.showAndWait();
+
+        result.ifPresent(folderName -> model.createNewFolder(activeFolder, folderName));
     }
 
     public void renameFile() {
@@ -125,7 +173,7 @@ public class FileController {
 
             result.ifPresent(newName -> {
                 if (!newName.equals(selectedFileName)) {
-                    model.renameFile(selectedFileName, newName);
+                    model.renameFile(activeFolder, selectedFileName, newName);
                 }
             });
         }
@@ -146,6 +194,10 @@ public class FileController {
         fileTable.refresh();
 
         writeLogInTerminal("Вывод списка файлов: ОК");
+    }
+
+    public void setActiveFolder(String activeFolder) {
+        this.activeFolder = activeFolder;
     }
 
     private List<FileView> getSelectedFiles() {

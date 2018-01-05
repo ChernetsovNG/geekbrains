@@ -9,23 +9,26 @@ public class FileView {
     private final SimpleStringProperty name;
     private final SimpleStringProperty sizeInKb;  // размер файла в кБ
     private final SimpleStringProperty lastModifyTime;
+    private final SimpleStringProperty folder;    // папка (true) или файл (false)?
 
-    private FileView(String name, String sizeInKb, String lastModifyTime) {
+    private FileView(String name, String sizeInKb, String lastModifyTime, String folder) {
         this.name = new SimpleStringProperty(name);
         this.sizeInKb = new SimpleStringProperty(sizeInKb);
         this.lastModifyTime = new SimpleStringProperty(lastModifyTime);
+        this.folder = new SimpleStringProperty(folder);
     }
 
     // преобразуем FileInfo для отображения в таблице
     public static FileView fromFileInfo(FileInfo fileInfo) {
         String fileName = fileInfo.getFileName();
+        boolean isDirectory = fileInfo.isDirectory();
         long sizeInBytes = fileInfo.getSizeInBytes();
         Instant lastModifyTime = fileInfo.getLastModifyTime();
 
         String sizeInKbString = String.format("%.2f", sizeInBytes * 1.0 / 1024.0);  // переводим байты в килобайты
         String lastModifyTimeString = lastModifyTime.toString();
 
-        return new FileView(fileName, sizeInKbString, lastModifyTimeString);
+        return new FileView(fileName, sizeInKbString, lastModifyTimeString, String.valueOf(isDirectory));
     }
 
     public String getName() {
@@ -50,5 +53,13 @@ public class FileView {
 
     public void setLastModifyTime(String lastModifyTime) {
         this.lastModifyTime.set(lastModifyTime);
+    }
+
+    public String getFolder() {
+        return this.folder.get();
+    }
+
+    public void setFolder(String folder) {
+        this.name.set(folder);
     }
 }

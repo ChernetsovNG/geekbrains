@@ -3,13 +3,16 @@ package ru.geekbrains.common.dto;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @Getter
 public class FileDTO implements Serializable {
+    private final String folder;
     private final String fileName;
     private final byte[] content;
 
-    public FileDTO(String fileName, byte[] content) {
+    public FileDTO(String folder, String fileName, byte[] content) {
+        this.folder = folder;
         this.fileName = fileName;
         this.content = content;
     }
@@ -17,8 +20,9 @@ public class FileDTO implements Serializable {
     @Override
     public String toString() {
         return "FileDTO{" +
-            "fileName = '" + fileName + '\'' +
-            ", size = " + content.length * 1.0 / 1000 + " kB" +
+            "folder='" + folder + '\'' +
+            ", fileName='" + fileName + '\'' +
+            ", content=" + Arrays.toString(content) +
             '}';
     }
 }
