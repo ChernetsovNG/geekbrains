@@ -5,6 +5,7 @@
 
 # Log file
 *.log
+/*/*.log
 
 # BlueJ files
 *.ctxt
@@ -82,3 +83,4 @@ gradle-app.setting
 
 /.idea/
 /*/build/
+/web-saver.iml
