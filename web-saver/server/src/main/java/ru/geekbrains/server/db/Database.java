@@ -19,8 +19,8 @@ public class Database {
 
     private static Connection connection;
 
-    public static void createServerDB() {
-        openDatabaseConnection();
+    public static void createServerDB(String pathToDB) {
+        openDatabaseConnection(pathToDB);
         createAuthTable();
         // insertUser(new UserDTO("TestUser1", "qwerty"));
     }
@@ -100,11 +100,11 @@ public class Database {
         return authStatus;
     }
 
-    private static void openDatabaseConnection() {
+    private static void openDatabaseConnection(String pathToDB) {
         LOG.info("Start connection with database");
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:server/src/main/java/ru/geekbrains/server/db/data.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + pathToDB);
             // connection.setAutoCommit(false);
         } catch (ClassNotFoundException | SQLException e) {
             LOG.error(e.getMessage());
@@ -124,6 +124,16 @@ public class Database {
             statement.execute("CREATE UNIQUE INDEX IF NOT EXISTS users_id_uindex ON users (id);");  // имя пользователя - уникальное
             // statement.execute("DELETE FROM users");
             // statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='users';");
+            // connection.commit();
+        } catch (SQLException e) {
+            LOG.error(e.getMessage());
+        }
+    }
+
+    public static void clearDatabase() {
+        try (Statement statement = connection.createStatement()) {
+            statement.execute("DELETE FROM users");
+            statement.execute("UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='users';");
             // connection.commit();
         } catch (SQLException e) {
             LOG.error(e.getMessage());
