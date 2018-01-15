@@ -24,6 +24,7 @@ class ConnectionToServerTest {
         lateinit var server: Server
         val clientNumber = AtomicInteger(0)
         val REGISTER_NAME = "test_client"
+        val TEST_SERVER_PORT = SERVER_PORT + 2
 
         @BeforeAll
         @JvmStatic
@@ -31,7 +32,7 @@ class ConnectionToServerTest {
             // запускаем в отдельном потоке, чтобы не было блокировок
             async {
                 server = Server()
-                server.start("src/test/resources/test-data.db")
+                server.start("src/test/resources/test-data.db", TEST_SERVER_PORT)
             }
             TimeUnit.MILLISECONDS.sleep(1000)  // wait server initialization
         }
@@ -40,6 +41,7 @@ class ConnectionToServerTest {
         @JvmStatic
         fun stopServer() {
             clearDatabase()
+            TimeUnit.MILLISECONDS.sleep(500)
             server.stop()
         }
     }
@@ -52,11 +54,11 @@ class ConnectionToServerTest {
     fun startNewClientAndHandshake() {
         clearDatabase()  // очищаем базу данных
 
-        client = SocketClientManagedChannel("localhost", SERVER_PORT)
+        client = SocketClientManagedChannel("localhost", TEST_SERVER_PORT)
         client.init()
 
         // перед каждым тестом делаем handshake нового клиента на сервере
-        clientAddress = Address("test-client-" + clientNumber.addAndGet(1))
+        clientAddress = Address("test-client-connection-" + clientNumber.addAndGet(1))
 
         val handshakeDemandMessage = ConnectOperationMessage(clientAddress, SERVER_ADDRESS, ConnectOperation.HANDSHAKE, null)
         client.send(handshakeDemandMessage)

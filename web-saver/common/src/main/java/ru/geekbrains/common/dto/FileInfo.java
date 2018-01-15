@@ -1,11 +1,13 @@
 package ru.geekbrains.common.dto;
 
 import lombok.Getter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.time.Instant;
 
 @Getter
+@ToString
 public class FileInfo implements Serializable {
     private final String fileName;
     private final boolean isDirectory;
