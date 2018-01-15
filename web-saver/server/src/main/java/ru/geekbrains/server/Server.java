@@ -46,19 +46,20 @@ public class Server implements Addressee {
     public static void main(String[] args) {
         try {
             Server server = new Server();
-            server.start();
+            String pathToDB = "server/src/main/java/ru/geekbrains/server/db/data.db";
+            server.start(pathToDB, SERVER_PORT);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void start() throws Exception {
-        createServerDB();
+    public void start(String pathToDB, int serverPort) throws Exception {
+        createServerDB(pathToDB);
 
         executor.submit(this::clientMessageHandle);
 
         // Ждём подключения клиентов к серверу. Для подключённых клиентов создаём каналы для связи
-        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
+        try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
             LOG.info("Server started on port: " + serverSocket.getLocalPort());
 
             while (!executor.isShutdown()) {
@@ -73,6 +74,10 @@ public class Server implements Addressee {
                 connectDemandHandler.addNewClientChannel(channel);
             }
         }
+    }
+
+    public void stop() {
+        executor.shutdownNow();
     }
 
     // Обработка сообщений о соединении и аутентификации клиентов

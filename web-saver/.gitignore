@@ -84,3 +84,4 @@ gradle-app.setting
 /.idea/
 /*/build/
 /web-saver.iml
+/server/src/test/resources/test-data.db
