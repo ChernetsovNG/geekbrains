@@ -1,4 +1,5 @@
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import ru.geekbrains.client.utils.RandomString;
 
 public class RandomTest {
