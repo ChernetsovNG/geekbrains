@@ -28,6 +28,17 @@ public class FileUtils {
         return Files.exists(path);
     }
 
+    public static boolean createNewDirectory(String pathToFolder, String directoryName) {
+        Path dir = Paths.get(pathToFolder, directoryName);
+        try {
+            Files.createDirectory(dir);
+            return true;
+        } catch (IOException e) {
+            LOG.error(e.getMessage());
+        }
+        return false;
+    }
+
     public static boolean createNewFile(String pathToFolder, String fileName, byte[] filePayload) {
         Path path = Paths.get(pathToFolder, fileName);
         try {

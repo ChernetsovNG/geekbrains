@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.10'
+    ext.kotlin_version = '1.2.20'
 
     repositories {
         mavenCentral()
@@ -30,7 +30,8 @@ allprojects {
         compile group: 'commons-codec', name: 'commons-codec', version: '1.11'  // шифрование и дефишрование строк
 
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-        testCompile group: 'junit', name: 'junit', version: '4.12'
+        testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.0.2'
+        compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version: '0.21.1'
     }
 
     compileKotlin {
