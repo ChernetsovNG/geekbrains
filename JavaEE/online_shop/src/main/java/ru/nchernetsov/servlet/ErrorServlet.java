@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Обработка ошибки 404
+ * Обработка ошибок 403, 404
  */
 @WebServlet(urlPatterns = {"/error403", "/error404"})
 public class ErrorServlet extends HttpServlet {
