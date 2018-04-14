@@ -1,4 +1,5 @@
 JavaEE/online_shop/*.iml
 JavaEE/online_shop/.idea
-design-patterns/home-app/.gradle
 design-patterns/home-app/.idea
+design-patterns/home-app/*.iml
+design-patterns/home-app/out
