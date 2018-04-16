@@ -1,5 +1,5 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix ="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,7 +26,7 @@
 
     <main>
         <div class="padding-site content">
-            <jsp:useBean id="productList" class="ru.nchernetsov.entity.ProductList" scope="request"/>
+            <%--<jsp:useBean id="productList" class="ru.nchernetsov.entity.ProductList" scope="request"/>--%>
             <h1>Каталог</h1>
             <table>
                 <tbody>
@@ -35,7 +35,7 @@
                     <th>Name</th>
                     <th>Price</th>
                 </tr>
-                <c:forEach items="${productList.products}" var="product">
+                <c:forEach items="${requestScope.products}" var="product">
                     <tr>
                         <td><c:out value="${product.id}"/></td>
                         <td><c:out value="${product.name}"/></td>
