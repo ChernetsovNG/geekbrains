@@ -26,6 +26,7 @@
 
     <main>
         <div class="padding-site content">
+            <jsp:useBean id="productList" class="ru.nchernetsov.entity.ProductList" scope="request"/>
             <h1>Каталог</h1>
             <table>
                 <tbody>
@@ -34,7 +35,7 @@
                     <th>Name</th>
                     <th>Price</th>
                 </tr>
-                <c:forEach items="${products}" var="product">
+                <c:forEach items="${productList.products}" var="product">
                     <tr>
                         <td><c:out value="${product.id}"/></td>
                         <td><c:out value="${product.name}"/></td>

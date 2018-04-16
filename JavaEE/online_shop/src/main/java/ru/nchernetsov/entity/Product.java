@@ -2,22 +2,23 @@ package ru.nchernetsov.entity;
 
 import org.javamoney.moneta.Money;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class Product {
-    private final UUID id;
+    private String id;
 
-    private final String name;
+    private String name;
 
-    private final Money price;
+    private String price;
 
     public Product(String name, Money price) {
-        id = UUID.randomUUID();
+        id = UUID.randomUUID().toString();
         this.name = name;
-        this.price = price;
+        this.price = price.toString();
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
@@ -25,36 +26,44 @@ public class Product {
         return name;
     }
 
-    public Money getPrice() {
+    public String getPrice() {
         return price;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
-
-        if (getId() != null ? !getId().equals(product.getId()) : product.getId() != null) return false;
-        if (getName() != null ? !getName().equals(product.getName()) : product.getName() != null) return false;
-        return getPrice() != null ? getPrice().equals(product.getPrice()) : product.getPrice() == null;
+        return Objects.equals(id, product.id) &&
+            Objects.equals(name, product.name) &&
+            Objects.equals(price, product.price);
     }
 
     @Override
     public int hashCode() {
-        int result = getId() != null ? getId().hashCode() : 0;
-        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
-        result = 31 * result + (getPrice() != null ? getPrice().hashCode() : 0);
-        return result;
+
+        return Objects.hash(id, name, price);
     }
 
     @Override
     public String toString() {
         return "Product{" +
-            "id=" + id +
+            "id='" + id + '\'' +
             ", name='" + name + '\'' +
-            ", price=" + price +
+            ", price='" + price + '\'' +
             '}';
     }
 }
