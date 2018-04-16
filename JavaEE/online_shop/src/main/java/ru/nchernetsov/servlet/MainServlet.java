@@ -7,8 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static ru.nchernetsov.utils.HttpUtils.HTML_FOLDER;
-
 /**
  * Сервлет для главной страницы
  */
@@ -16,6 +14,6 @@ import static ru.nchernetsov.utils.HttpUtils.HTML_FOLDER;
 public class MainServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher(HTML_FOLDER + "main.jsp").forward(req, resp);
+        req.getRequestDispatcher("main.jsp").forward(req, resp);
     }
 }

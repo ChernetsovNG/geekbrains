@@ -7,8 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static ru.nchernetsov.utils.HttpUtils.HTML_FOLDER;
-
 /**
  * Обработка ошибок 403, 404
  */
@@ -19,10 +17,10 @@ public class ErrorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         switch (resp.getStatus()) {
             case 403:
-                req.getRequestDispatcher(HTML_FOLDER + "error/error403.html").forward(req, resp);
+                req.getRequestDispatcher("error403.html").forward(req, resp);
                 break;
             case 404:
-                req.getRequestDispatcher(HTML_FOLDER + "error/error404.html").forward(req, resp);
+                req.getRequestDispatcher("error404.html").forward(req, resp);
                 break;
         }
     }

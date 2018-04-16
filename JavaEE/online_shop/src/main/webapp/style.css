@@ -15,7 +15,7 @@ body {
 }
 
 .slider {
-    height: 800px;
+    height: 100px;
     position: relative;
 }
 
@@ -57,9 +57,13 @@ body {
     border-bottom: 3px solid #212121;
 }
 
+.content {
+    min-height: calc(100vh - 200px);
+}
+
 .footer {
     background-color:  #f7f7f7;
-    padding-top: 120px;
+    padding-top: 10px;
     display: flex;
     justify-content: space-between;
 }
@@ -71,5 +75,5 @@ body {
     line-height: 26px;
     text-align: left;
     text-transform: uppercase;
-    margin-top: 69px;
+    margin-top: 15px;
 }
