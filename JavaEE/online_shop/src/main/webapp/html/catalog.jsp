@@ -1,3 +1,5 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="core" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <!DOCTYPE html>
 <html>
@@ -5,9 +7,6 @@
 	<meta charset="UTF-8" lang="en">
 	<title>Каталог</title>
 	<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/html/style.css"/>
-	<script defer src="https://use.fontawesome.com/releases/v5.0.9/js/all.js"
-	        integrity="sha384-8iPTk2s/jMVj81dnzb/iFR2sdA7u06vHJyyLlAd4snFpCl/SnyUjRrbdJsw1pGIl"
-	        crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="container">
@@ -20,6 +19,7 @@
 					<li><a href="cart">Корзина</a></li>
 					<li><a href="order">Оформление заказа</a></li>
 					<li><a href="product">Товар</a></li>
+					<li><a href="about">О компании</a></li>
 				</ul>
 			</nav>
 		</div>
@@ -27,6 +27,22 @@
 	
 	<main>
 		<h1>Каталог</h1>
+		<table>
+			<tbody>
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th>Price</th>
+			</tr>
+			<c:forEach items="${products}" var="product">
+				<tr>
+					<td><c:out value="${product.id}"/></td>
+					<td><c:out value="${product.name}"/></td>
+					<td><c:out value="${product.price}"/></td>
+				</tr>
+			</c:forEach>
+			</tbody>
+		</table>
 	</main>
 	
 	<footer class="footer padding-site">

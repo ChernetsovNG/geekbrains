@@ -20,6 +20,7 @@
 					<li><a href="cart">Корзина</a></li>
 					<li><a href="order">Оформление заказа</a></li>
 					<li><a href="product">Товар</a></li>
+					<li><a href="about">О компании</a></li>
 				</ul>
 			</nav>
 		</div>

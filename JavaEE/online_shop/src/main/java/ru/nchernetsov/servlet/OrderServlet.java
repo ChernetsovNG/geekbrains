@@ -16,6 +16,6 @@ import static ru.nchernetsov.utils.HttpUtils.HTML_FOLDER;
 public class OrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher(HTML_FOLDER + "/order.jsp").forward(req, resp);
+        req.getRequestDispatcher(HTML_FOLDER + "order.jsp").forward(req, resp);
     }
 }
