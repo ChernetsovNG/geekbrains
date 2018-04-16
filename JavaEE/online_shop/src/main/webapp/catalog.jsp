@@ -27,29 +27,24 @@
     <main>
         <div class="padding-site content">
             <h1>Каталог</h1>
-            <%--<table>--%>
-            <%--<tbody>--%>
-            <%--<tr>--%>
-            <%--<th>ID</th>--%>
-            <%--<th>Name</th>--%>
-            <%--<th>Price</th>--%>
-            <%--</tr>--%>
-            <%--<c:forEach items="${products}" var="product">--%>
-            <%--<tr>--%>
-            <%--<td><c:out value="${product.id}"/></td>--%>
-            <%--<td><c:out value="${product.name}"/></td>--%>
-            <%--<td><c:out value="${product.price}"/></td>--%>
-            <%--</tr>--%>
-            <%--</c:forEach>--%>
-            <%--</tbody>--%>
-            <%--</table>--%>
-            <jsp:useBean id="productList" class="ru.nchernetsov.entity.ProductList" scope="request"/>
-            <c:forEach items="${productList.products}" var="product">
-                <p><c:out value="${product.id}"/></p>
-            </c:forEach>
+            <table>
+                <tbody>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Price</th>
+                </tr>
+                <c:forEach items="${products}" var="product">
+                    <tr>
+                        <td><c:out value="${product.id}"/></td>
+                        <td><c:out value="${product.name}"/></td>
+                        <td><c:out value="${product.price}"/></td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
         </div>
     </main>
-
     <footer class="footer padding-site">
         <div class="copyright">
             <p>&copy; Все права защищены</p>

@@ -18,7 +18,7 @@ import java.util.List;
 @WebServlet(urlPatterns = {"/catalog"})
 public class CatalogServlet extends HttpServlet {
 
-    private List<Product> products = new ArrayList<>();
+    private final List<Product> products = new ArrayList<>();
 
     // Список из 9 продуктов (в нашем случае - книг)
     {
@@ -35,7 +35,7 @@ public class CatalogServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // req.setAttribute("products", products);
+        req.setAttribute("products", products);
         req.getRequestDispatcher("catalog.jsp").forward(req, resp);
     }
 }

@@ -5,11 +5,11 @@ import org.javamoney.moneta.Money;
 import java.util.UUID;
 
 public class Product {
-    private UUID id;
+    private final UUID id;
 
-    private String name;
+    private final String name;
 
-    private Money price;
+    private final Money price;
 
     public Product(String name, Money price) {
         id = UUID.randomUUID();
@@ -27,18 +27,6 @@ public class Product {
 
     public Money getPrice() {
         return price;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPrice(Money price) {
-        this.price = price;
     }
 
     @Override
