@@ -17,10 +17,10 @@ public class ErrorServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         switch (resp.getStatus()) {
             case 403:
-                req.getRequestDispatcher("html/error/error403.html").forward(req, resp);
+                req.getRequestDispatcher("error403.html").forward(req, resp);
                 break;
             case 404:
-                req.getRequestDispatcher("html/error/error404.html").forward(req, resp);
+                req.getRequestDispatcher("error404.html").forward(req, resp);
                 break;
         }
     }
