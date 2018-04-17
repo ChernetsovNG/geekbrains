@@ -61,6 +61,10 @@ body {
     min-height: calc(100vh - 200px);
 }
 
+table, th, td {
+    border: 1px solid black;
+}
+
 .footer {
     background-color:  #f7f7f7;
     padding-top: 10px;

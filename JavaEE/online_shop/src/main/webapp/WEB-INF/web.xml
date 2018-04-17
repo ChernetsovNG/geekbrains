@@ -2,7 +2,11 @@
         "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
         "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
-<web-app>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+		 http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
     <display-name>Archetype Created Web Application</display-name>
 
     <welcome-file-list>
@@ -11,11 +15,11 @@
 
     <error-page>
         <error-code>404</error-code>
-        <location>error404</location>
+        <location>/error404</location>
     </error-page>
     <error-page>
         <error-code>403</error-code>
-        <location>error403</location>
+        <location>/error403</location>
     </error-page>
 
 </web-app>

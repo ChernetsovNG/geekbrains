@@ -13,16 +13,7 @@
 <div class="container">
 	<header class="slider padding-site">
 		<div class="header">
-			<nav>
-				<ul class="menu">
-					<li><a href="main">Главная</a></li>
-					<li><a href="catalog">Каталог</a></li>
-					<li><a href="cart">Корзина</a></li>
-					<li><a href="order">Оформление заказа</a></li>
-					<li><a href="product">Товар</a></li>
-					<li><a href="about">О компании</a></li>
-				</ul>
-			</nav>
+			<%@ include file="fragments/menu.jsp" %>
 		</div>
 	</header>
 	
@@ -33,9 +24,7 @@
 	</main>
 	
 	<footer class="footer padding-site">
-		<div class="copyright">
-			<p>&copy; Все права защищены</p>
-		</div>
+		<%@ include file="fragments/copyright.jsp" %>
 	</footer>
 </div>
 </body>
