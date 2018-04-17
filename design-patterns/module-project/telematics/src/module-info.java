@@ -1,0 +1,3 @@
+module telematics {
+    requires junit;
+}

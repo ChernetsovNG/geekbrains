@@ -4,3 +4,7 @@ JavaEE/online_shop/target
 design-patterns/home-app/.idea
 design-patterns/home-app/*.iml
 design-patterns/home-app/out
+design-patterns/module-project/*.iml
+design-patterns/module-project/.idea
+design-patterns/module-project/out
+design-patterns/module-project/*/*.iml
