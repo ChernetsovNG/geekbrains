@@ -109,4 +109,19 @@ public class DeviceState {
     public int hashCode() {
         return Objects.hash(objectKind, utc, point, spd, vld, isConnect, isNewlyCreated, movingStatus, deviceId);
     }
+
+    @Override
+    public String toString() {
+        return "DeviceState{" +
+            "objectKind=" + objectKind +
+            ", deviceId=" + deviceId +
+            ", utc=" + utc +
+            ", point=" + point +
+            ", spd=" + spd +
+            ", vld=" + vld +
+            ", isConnect=" + isConnect +
+            ", isNewlyCreated=" + isNewlyCreated +
+            ", movingStatus=" + movingStatus +
+            '}';
+    }
 }

@@ -1,2 +1,3 @@
 module patterns {
+    requires telematics;
 }
