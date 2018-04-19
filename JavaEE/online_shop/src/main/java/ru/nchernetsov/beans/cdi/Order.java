@@ -1,7 +1,8 @@
-package ru.nchernetsov.beans.managed;
+package ru.nchernetsov.beans.cdi;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.UUID;
@@ -11,9 +12,9 @@ import static ru.nchernetsov.utils.TimeUtils.unixTimeToUTC;
 /**
  * Заказ
  */
-@ManagedBean(name = "orderManaged", eager = true)
+@Named(value = "orderCDI")
 @SessionScoped
-public class Order {
+public class Order implements Serializable {
     /**
      * Идентификатор
      */

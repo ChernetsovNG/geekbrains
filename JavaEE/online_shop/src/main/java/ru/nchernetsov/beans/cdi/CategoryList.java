@@ -1,12 +1,14 @@
-package ru.nchernetsov.beans.managed;
+package ru.nchernetsov.beans.cdi;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import ru.nchernetsov.beans.managed.Category;
+
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@ManagedBean(name = "categoryListManaged", eager = true)
+@Named(value = "categoryListCDI")
 @SessionScoped
 public class CategoryList implements Serializable {
     private final List<Category> categories = new ArrayList<>();

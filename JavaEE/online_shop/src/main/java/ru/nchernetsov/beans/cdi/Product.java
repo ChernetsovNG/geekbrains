@@ -1,17 +1,18 @@
-package ru.nchernetsov.beans.managed;
+package ru.nchernetsov.beans.cdi;
 
 import org.javamoney.moneta.Money;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+import java.io.Serializable;
 import java.util.UUID;
 
 /**
  * Товар
  */
-@ManagedBean(name = "productManaged", eager = true)
+@Named(value = "productCDI")
 @SessionScoped
-public class Product {
+public class Product implements Serializable {
     /**
      * Идентификатор
      */

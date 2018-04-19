@@ -7,18 +7,28 @@
     <title>Product List Facelet</title>
 </h:head>
 <f:view>
-    <h:outputLabel value="Categories List Facelet"/>
+    <h:outputLabel value="Product List Facelet"/>
 </f:view>
 <h:body>
-    <h:dataTable id="categoriesTable" border="1" value="${categoryList.categories}" var="category">
+    <h:dataTable id="productsTable" border="1" value="${productListManaged.products}" var="product">
         <h:column>
             <f:facet name="header">ID</f:facet>
-            ${category.id}
+            ${product.id}
+        </h:column>
+        <h:column id="category">
+            <f:facet name="header">Category</f:facet>
+            ${product.category}
         </h:column>
         <h:column id="name">
             <f:facet name="header">Name</f:facet>
-            ${category.name}
+            ${product.name}
+        </h:column>
+        <h:column id="price">
+            <f:facet name="header">Price</f:facet>
+            ${product.price}
         </h:column>
     </h:dataTable>
+
+
 </h:body>
 </html>

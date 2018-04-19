@@ -1,15 +1,13 @@
-package ru.nchernetsov.beans.managed;
+package ru.nchernetsov.beans.cdi;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.enterprise.context.SessionScoped;
+import javax.inject.Named;
+import java.io.Serializable;
 import java.util.UUID;
 
-/**
- * Категория
- */
-@ManagedBean(name = "categoryManaged", eager = true)
+@Named(value = "categoryCDI")
 @SessionScoped
-public class Category {
+public class Category implements Serializable {
     /**
      * Идентификатор
      */
@@ -38,9 +36,9 @@ public class Category {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Category)) return false;
+        if (!(o instanceof ru.nchernetsov.beans.managed.Category)) return false;
 
-        Category category = (Category) o;
+        ru.nchernetsov.beans.managed.Category category = (ru.nchernetsov.beans.managed.Category) o;
 
         return getName() != null ? getName().equals(category.getName()) : category.getName() == null;
     }
