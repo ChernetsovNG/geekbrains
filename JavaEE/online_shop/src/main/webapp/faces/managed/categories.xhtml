@@ -10,15 +10,24 @@
     <h:outputLabel value="Categories List Facelet"/>
 </f:view>
 <h:body>
-    <h:dataTable id="categoriesTable" border="1" value="${categoryListManaged.categories}" var="category">
-        <h:column>
-            <f:facet name="header">ID</f:facet>
-            ${category.id}
-        </h:column>
-        <h:column id="name">
-            <f:facet name="header">Name</f:facet>
-            ${category.name}
-        </h:column>
-    </h:dataTable>
+    <h:form>
+        <h:dataTable id="categoriesTable" border="1" value="${categoryControllerManaged.categories}" var="category">
+            <h:column>
+                <f:facet name="header">ID</f:facet>
+                ${category.id}
+            </h:column>
+            <h:column id="name">
+                <f:facet name="header">Name</f:facet>
+                ${category.name}
+            </h:column>
+            <h:column>
+                <h:commandLink title="Remove" update="categoriesTable" value="Remove"
+                               actionListener="${categoryControllerManaged.removeCategory(category)}"/>
+            </h:column>
+        </h:dataTable>
+        <h:inputText binding="#{categoryName}"/>
+        <h:commandButton title="Add" action="${categoryControllerManaged.addCategory(categoryName.value)}" value="Add"
+                         update="categoriesTable"/>
+    </h:form>
 </h:body>
 </html>

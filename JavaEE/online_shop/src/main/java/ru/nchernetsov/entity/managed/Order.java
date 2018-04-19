@@ -1,4 +1,4 @@
-package ru.nchernetsov.beans.managed;
+package ru.nchernetsov.entity.managed;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;

@@ -1,16 +1,19 @@
-package ru.nchernetsov.beans.cdi;
+package ru.nchernetsov.dao.managed;
 
 import org.javamoney.moneta.Money;
+import ru.nchernetsov.entity.managed.Category;
+import ru.nchernetsov.entity.managed.Product;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-@Named(value = "productListCDI")
-@SessionScoped
-public class ProductList implements Serializable {
+@ManagedBean(name = "productDAOManaged", eager = true)
+@ApplicationScoped
+public class ProductDAO implements Serializable {
     private final List<Product> products = new ArrayList<>();
 
     {
@@ -27,11 +30,11 @@ public class ProductList implements Serializable {
         products.add(new Product(booksCategory, "Запускаем Ansible", Money.of(999.0, "RUR")));
     }
 
-    public ProductList() {
+    public ProductDAO() {
         System.out.println("Hello");
     }
 
-    public List<Product> getProducts() {
+    public Collection<Product> getProducts() {
         return products;
     }
 

@@ -10,7 +10,7 @@
     <h:outputLabel value="Product List Facelet"/>
 </f:view>
 <h:body>
-    <h:dataTable id="productsTable" border="1" value="${productListManaged.products}" var="product">
+    <h:dataTable id="productsTable" border="1" value="${productControllerManaged.products}" var="product">
         <h:column>
             <f:facet name="header">ID</f:facet>
             ${product.id}

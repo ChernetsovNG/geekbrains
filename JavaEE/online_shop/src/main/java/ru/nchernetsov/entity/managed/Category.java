@@ -1,13 +1,16 @@
-package ru.nchernetsov.beans.cdi;
+package ru.nchernetsov.entity.managed;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
-import java.io.Serializable;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
-@Named(value = "categoryCDI")
+/**
+ * Категория
+ */
+@ManagedBean(name = "categoryManaged", eager = true)
 @SessionScoped
-public class Category implements Serializable {
+public class Category {
     /**
      * Идентификатор
      */
@@ -15,6 +18,7 @@ public class Category implements Serializable {
     /**
      * Название
      */
+    @NotNull(message = "Название не может быть пустым")
     private String name;
 
     public Category() {
@@ -33,19 +37,26 @@ public class Category implements Serializable {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ru.nchernetsov.beans.managed.Category)) return false;
+        if (!(o instanceof Category)) return false;
 
-        ru.nchernetsov.beans.managed.Category category = (ru.nchernetsov.beans.managed.Category) o;
+        Category category = (Category) o;
 
+        if (getId() != null ? !getId().equals(category.getId()) : category.getId() != null) return false;
         return getName() != null ? getName().equals(category.getName()) : category.getName() == null;
     }
 
     @Override
     public int hashCode() {
-        return getName() != null ? getName().hashCode() : 0;
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        return result;
     }
 
     @Override

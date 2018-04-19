@@ -1,4 +1,4 @@
-package ru.nchernetsov.beans.cdi;
+package ru.nchernetsov.entity.cdi;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
