@@ -6,19 +6,19 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Product {
-    private String id;
+    private UUID id;
 
     private String name;
 
-    private String price;
+    private Money price;
 
     public Product(String name, Money price) {
-        id = UUID.randomUUID().toString();
+        id = UUID.randomUUID();
         this.name = name;
-        this.price = price.toString();
+        this.price = price;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -26,11 +26,11 @@ public class Product {
         return name;
     }
 
-    public String getPrice() {
+    public Money getPrice() {
         return price;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -38,7 +38,7 @@ public class Product {
         this.name = name;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(Money price) {
         this.price = price;
     }
 
