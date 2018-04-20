@@ -9,7 +9,7 @@ public class AbstractController {
         return getHttpServletRequest().getParameter(paramName);
     }
 
-    public HttpServletRequest getHttpServletRequest() {
+    private HttpServletRequest getHttpServletRequest() {
         final FacesContext context = FacesContext.getCurrentInstance();
         return (HttpServletRequest) context.getExternalContext().getRequest();
     }

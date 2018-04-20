@@ -1,17 +1,17 @@
-package ru.nchernetsov.controller.cdi;
+package ru.nchernetsov.controller.managed;
 
 import ru.nchernetsov.controller.AbstractController;
-import ru.nchernetsov.dao.cdi.CategoryDAO;
-import ru.nchernetsov.entity.cdi.Category;
+import ru.nchernetsov.dao.managed.CategoryDAO;
+import ru.nchernetsov.entity.managed.Category;
 
 import javax.annotation.PostConstruct;
-import javax.faces.view.ViewScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.Serializable;
 import java.util.Optional;
 
-@Named(value = "categoryEditControllerCDI")
+@ManagedBean(name = "categoryEditControllerManaged")
 @ViewScoped
 public class CategoryEditController extends AbstractController implements Serializable {
 
@@ -38,6 +38,6 @@ public class CategoryEditController extends AbstractController implements Serial
 
     public String save() {
         categoryDAO.addCategory(category);
-        return "/faces/cdi/categories";
+        return "/faces/managed/categories";
     }
 }

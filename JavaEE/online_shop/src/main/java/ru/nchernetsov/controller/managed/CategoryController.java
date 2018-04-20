@@ -3,23 +3,23 @@ package ru.nchernetsov.controller.managed;
 import ru.nchernetsov.dao.managed.CategoryDAO;
 import ru.nchernetsov.entity.managed.Category;
 
+import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
 import javax.inject.Inject;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
 
-@ManagedBean(name = "categoryControllerManaged", eager = true)
-@ViewScoped
+@ManagedBean(name = "categoryControllerManaged")
+@ApplicationScoped
 public class CategoryController implements Serializable {
 
     @Inject
     private CategoryDAO categoryDAO;
 
     public Collection<Category> getCategories() {
-        return new HashSet<>(categoryDAO.getCategories());
+        return new ArrayList<>(categoryDAO.getCategories());
     }
 
     public void addCategory(String categoryName) {

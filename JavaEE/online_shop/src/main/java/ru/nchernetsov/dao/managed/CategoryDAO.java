@@ -2,16 +2,16 @@ package ru.nchernetsov.dao.managed;
 
 import ru.nchernetsov.entity.managed.Category;
 
-import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-@ManagedBean(name = "categoryDAOManaged", eager = true)
-@ApplicationScoped
+@ManagedBean(name = "categoryDAOManaged")
+@Singleton
 public class CategoryDAO implements Serializable {
     private final List<Category> categories = new ArrayList<>();
 

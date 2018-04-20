@@ -4,15 +4,16 @@ import org.javamoney.moneta.Money;
 import ru.nchernetsov.entity.managed.Category;
 import ru.nchernetsov.entity.managed.Product;
 
-import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
+import javax.inject.Singleton;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
-@ManagedBean(name = "productDAOManaged", eager = true)
-@ApplicationScoped
+@ManagedBean(name = "productDAOManaged")
+@Singleton
 public class ProductDAO implements Serializable {
     private final List<Product> products = new ArrayList<>();
 
@@ -31,15 +32,22 @@ public class ProductDAO implements Serializable {
     }
 
     public ProductDAO() {
-        System.out.println("Hello");
     }
 
     public Collection<Product> getProducts() {
         return products;
     }
 
+    public Optional<Product> getProductById(String id) {
+        return products.stream()
+            .filter(product -> product.getId().toString().equals(id))
+            .findFirst();
+    }
+
     public void addProduct(Product product) {
-        products.add(product);
+        if (!products.contains(product)) {
+            products.add(product);
+        }
     }
 
     public void removeProduct(Product product) {

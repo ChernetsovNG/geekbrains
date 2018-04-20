@@ -60,6 +60,21 @@ public class Product implements Serializable {
         return price;
     }
 
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(String price) {
+        String[] currencyCodeAmount = price.split(" ");
+        String currencyCode = currencyCodeAmount[0];
+        Double amount = Double.parseDouble(currencyCodeAmount[1]);
+        this.price = Money.of(amount, currencyCode);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

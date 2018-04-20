@@ -4,12 +4,14 @@ import ru.nchernetsov.entity.cdi.Category;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 @Named(value = "categoryDAOCDI")
 @ApplicationScoped
-public class CategoryDAO implements Serializable {
+public class CategoryDAO {
     private final List<Category> categories = new ArrayList<>();
 
     {

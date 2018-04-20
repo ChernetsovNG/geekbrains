@@ -3,23 +3,22 @@ package ru.nchernetsov.controller.cdi;
 import ru.nchernetsov.dao.cdi.CategoryDAO;
 import ru.nchernetsov.entity.cdi.Category;
 
-import javax.faces.view.ViewScoped;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Named(value = "categoryControllerCDI")
-@ViewScoped
-public class CategoryController implements Serializable {
+@ApplicationScoped
+public class CategoryController {
 
     @Inject
     private CategoryDAO categoryDAO;
 
     public Collection<Category> getCategories() {
-        return new HashSet<>(categoryDAO.getCategories());
+        return new ArrayList<>(categoryDAO.getCategories());
     }
 
     public void addCategory(String categoryName) {
