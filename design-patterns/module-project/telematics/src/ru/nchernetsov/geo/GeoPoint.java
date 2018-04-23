@@ -59,4 +59,13 @@ public class GeoPoint {
     public int hashCode() {
         return Objects.hash(lon, lat, alt);
     }
+
+    @Override
+    public String toString() {
+        return "GeoPoint{" +
+            "lon=" + lon +
+            ", lat=" + lat +
+            ", alt=" + alt +
+            '}';
+    }
 }

@@ -1,3 +1,3 @@
-module patterns {
+module drones {
     requires telematics;
 }
