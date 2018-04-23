@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<f:view>
+    <h:outputLabel value="Category Edit"/>
+</f:view>
+<h:body>
+    <h:form>
+        <h1>Category Edit</h1>
+        <p:outputPanel>
+            <p:outputLabel value="Category ID"/>
+        </p:outputPanel>
+        <p:outputPanel style="margin-bottom: 20px;">
+            <p:outputLabel value="#{categoryEditControllerCDI.category.id}"/>
+        </p:outputPanel>
+
+        <p:outputPanel>
+            <p:outputLabel value="Category Name"/>
+        </p:outputPanel>
+        <p:outputPanel style="margin-bottom: 20px;">
+            <p:inputText value="#{categoryEditControllerCDI.category.name}"/>
+        </p:outputPanel>
+
+        <p:outputPanel>
+            <p:commandButton value="Save" action="#{categoryEditControllerCDI.save}"/>
+        </p:outputPanel>
+    </h:form>
+    <a href="../../main.jsp">Back to main</a>
+</h:body>
+</html>

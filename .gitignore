@@ -1,6 +1,9 @@
 JavaEE/online_shop/*.iml
 JavaEE/online_shop/.idea
 JavaEE/online_shop/target
+JavaEE/cd-book-store/*.iml
+JavaEE/cd-book-store/.idea
+JavaEE/cd-book-store/target
 design-patterns/home-app/.idea
 design-patterns/home-app/*.iml
 design-patterns/home-app/out

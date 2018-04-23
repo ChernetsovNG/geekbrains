@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a="http://xmlns.jcp.org/jsf/passthrough">
+<h:head>
+    <title>Product List Facelet</title>
+</h:head>
+<f:view>
+    <h:outputLabel value="Product List Facelet"/>
+</f:view>
+<h:body>
+    <h:form>
+        <h:dataTable id="productsTable" border="1" value="${productControllerCDI.products}" var="product">
+            <h:column>
+                <f:facet name="header">ID</f:facet>
+                ${product.id}
+            </h:column>
+            <h:column id="category">
+                <f:facet name="header">Category</f:facet>
+                ${product.category}
+            </h:column>
+            <h:column id="name">
+                <f:facet name="header">Name</f:facet>
+                ${product.name}
+            </h:column>
+            <h:column id="price">
+                <f:facet name="header">Price</f:facet>
+                ${product.price}
+            </h:column>
+            <h:column>
+                <h:link value="Edit" outcome="product_edit">
+                    <f:param name="id" value="${product.id}"/>
+                </h:link>
+            </h:column>
+            <h:column>
+                <h:commandLink title="Remove" update="productsTable" value="Remove"
+                               actionListener="${productControllerCDI.removeProduct(product)}"/>
+            </h:column>
+        </h:dataTable>
+        <h:inputText a:placeholder="categoryName" binding="#{categoryName}"/>
+        <h:inputText a:placeholder="productName" binding="#{productName}"/>
+        <h:inputText a:placeholder="price" binding="#{price}"/>
+        <h:inputText a:placeholder="currencyCode" binding="#{currencyCode}"/>
+        <h:commandButton title="Add" action="${productControllerCDI.addProduct(
+        categoryName.value, productName.value, price.value, currencyCode.value)}" value="Add"
+                         update="productsTable"/>
+    </h:form>
+    <a href="../../main.jsp">Back to main</a>
+</h:body>
+</html>
