@@ -4,6 +4,8 @@ import org.javamoney.moneta.Money;
 
 import javax.enterprise.context.SessionScoped;
 import javax.inject.Named;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.UUID;
@@ -13,10 +15,12 @@ import java.util.UUID;
  */
 @Named(value = "productCDI")
 @SessionScoped
+@Entity
 public class Product implements Serializable {
     /**
      * Идентификатор
      */
+    @Id
     private UUID id;
     /**
      * Категория
