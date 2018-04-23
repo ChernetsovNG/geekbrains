@@ -8,7 +8,7 @@ import ru.nchernetsov.sensors.mock.MockSpeedSensor;
 
 import java.util.concurrent.TimeUnit;
 
-public class SensorTest {
+public class SensorsTest {
 
     public static void main(String[] args) {
         MockSpeedSensor speedSensor = new MockSpeedSensor(2);
