@@ -1,5 +1,7 @@
 package entity;
 
+import constraint.ZipCode;
+
 import javax.validation.constraints.NotNull;
 
 public class Address {

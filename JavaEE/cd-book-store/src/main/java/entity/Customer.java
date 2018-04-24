@@ -22,6 +22,17 @@ public class Customer {
 
     private Address deliveryAddress;
 
+    public Customer(@NotNull @Size(min = 2) String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Customer(@NotNull @Size(min = 2) String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
     public Customer(@NotNull @Size(min = 2) String firstName, String lastName, String email, String phoneNumber, @Past Date dateOfBirth, Address deliveryAddress) {
         this.firstName = firstName;
         this.lastName = lastName;

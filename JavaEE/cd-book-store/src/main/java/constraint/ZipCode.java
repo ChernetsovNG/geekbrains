@@ -12,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER})
 @Retention(RUNTIME)
 public @interface ZipCode {
-    String message() default "{ZipCode.message}";
+    String message() default "{constraint.ZipCode.message}";
 
     Class<?>[] groups() default {};
 
