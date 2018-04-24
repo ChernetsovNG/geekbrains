@@ -35,6 +35,18 @@
         <h:commandButton title="Add" action="${categoryController.addCategory(categoryName.value)}" value="Add"
                          update="categoriesTable"/>
     </h:form>
-    <a href="../main.jsp">Back to main</a>
+
+    <ul style="list-style-type: none">
+        <li>
+            <a href="../main.jsp">Back to main</a>
+        </li>
+        <li>
+            <a href="products.xhtml">Products</a>
+        </li>
+        <li>
+            <a href="orders.xhtml">Orders</a>
+        </li>
+    </ul>
+
 </h:body>
 </html>
