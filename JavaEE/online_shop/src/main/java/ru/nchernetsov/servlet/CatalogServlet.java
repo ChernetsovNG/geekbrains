@@ -1,6 +1,7 @@
 package ru.nchernetsov.servlet;
 
 import org.javamoney.moneta.Money;
+import ru.nchernetsov.entity.Category;
 import ru.nchernetsov.entity.Product;
 
 import javax.servlet.ServletException;
@@ -22,15 +23,17 @@ public class CatalogServlet extends HttpServlet {
 
     // Список из 9 продуктов (в нашем случае - книг)
     {
-        products.add(new Product("Библиотека Keras - Инструмент глубокого обучения", Money.of(799.0, "RUR")));
-        products.add(new Product("Конкурентное программирование на Scala", Money.of(849.0, "RUR")));
-        products.add(new Product("Kotlin в действии", Money.of(899.0, "RUR")));
-        products.add(new Product("Java 9. Полный обзор нововведений", Money.of(999.0, "RUR")));
-        products.add(new Product("Основы блокчейна", Money.of(599.0, "RUR")));
-        products.add(new Product("Глубокое обучение. Цветное издание", Money.of(1899.0, "RUR")));
-        products.add(new Product("Изучаем Pandas", Money.of(899.0, "RUR")));
-        products.add(new Product("Потоковая обработка данных", Money.of(599.0, "RUR")));
-        products.add(new Product("Запускаем Ansible", Money.of(999.0, "RUR")));
+        Category category = new Category("books");
+
+        products.add(new Product(category, "Библиотека Keras - Инструмент глубокого обучения", Money.of(799.0, "RUR")));
+        products.add(new Product(category, "Конкурентное программирование на Scala", Money.of(849.0, "RUR")));
+        products.add(new Product(category, "Kotlin в действии", Money.of(899.0, "RUR")));
+        products.add(new Product(category, "Java 9. Полный обзор нововведений", Money.of(999.0, "RUR")));
+        products.add(new Product(category, "Основы блокчейна", Money.of(599.0, "RUR")));
+        products.add(new Product(category, "Глубокое обучение. Цветное издание", Money.of(1899.0, "RUR")));
+        products.add(new Product(category, "Изучаем Pandas", Money.of(899.0, "RUR")));
+        products.add(new Product(category, "Потоковая обработка данных", Money.of(599.0, "RUR")));
+        products.add(new Product(category, "Запускаем Ansible", Money.of(999.0, "RUR")));
     }
 
     @Override

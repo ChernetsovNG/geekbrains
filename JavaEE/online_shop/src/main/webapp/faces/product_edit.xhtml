@@ -14,34 +14,34 @@
             <p:outputLabel value="Product ID"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:outputLabel value="#{productEditControllerManaged.product.id}"/>
+            <p:outputLabel value="#{productEditController.product.id}"/>
         </p:outputPanel>
 
         <p:outputPanel>
             <p:outputLabel value="Category"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:outputLabel value="#{productEditControllerManaged.product.category.name}"/>
+            <p:outputLabel value="#{productEditController.product.category.name}"/>
         </p:outputPanel>
 
         <p:outputPanel>
             <p:outputLabel value="Name"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:inputText value="#{productEditControllerManaged.product.name}"/>
+            <p:inputText value="#{productEditController.product.name}"/>
         </p:outputPanel>
 
         <p:outputPanel>
             <p:outputLabel value="Price"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:outputLabel value="#{productEditControllerManaged.product.price}"/>
+            <p:outputLabel value="#{productEditController.product.price}"/>
         </p:outputPanel>
 
         <p:outputPanel>
-            <p:commandButton value="Save" action="#{productEditControllerManaged.save}"/>
+            <p:commandButton value="Save" action="#{productEditController.save}"/>
         </p:outputPanel>
     </h:form>
-    <a href="../../main.jsp">Back to main</a>
+    <a href="../main.jsp">Back to main</a>
 </h:body>
 </html>

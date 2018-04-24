@@ -5,30 +5,16 @@
     http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
 
     <navigation-rule>
-        <from-view-id>/faces/cdi/categories.xhtml</from-view-id>
+        <from-view-id>/faces/categories.xhtml</from-view-id>
         <navigation-case>
-            <to-view-id>/faces/cdi/category_edit.xhtml</to-view-id>
+            <to-view-id>/faces/category_edit.xhtml</to-view-id>
         </navigation-case>
     </navigation-rule>
 
     <navigation-rule>
-        <from-view-id>/faces/cdi/products.xhtml</from-view-id>
+        <from-view-id>/faces/products.xhtml</from-view-id>
         <navigation-case>
-            <to-view-id>/faces/cdi/product_edit.xhtml</to-view-id>
-        </navigation-case>
-    </navigation-rule>
-
-    <navigation-rule>
-        <from-view-id>/faces/managed/categories.xhtml</from-view-id>
-        <navigation-case>
-            <to-view-id>/faces/managed/category_edit.xhtml</to-view-id>
-        </navigation-case>
-    </navigation-rule>
-
-    <navigation-rule>
-        <from-view-id>/faces/managed/products.xhtml</from-view-id>
-        <navigation-case>
-            <to-view-id>/faces/managed/product_edit.xhtml</to-view-id>
+            <to-view-id>/faces/product_edit.xhtml</to-view-id>
         </navigation-case>
     </navigation-rule>
 

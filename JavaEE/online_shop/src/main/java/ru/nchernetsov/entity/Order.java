@@ -1,7 +1,8 @@
-package ru.nchernetsov.entity.cdi;
+package ru.nchernetsov.entity;
 
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -12,37 +13,50 @@ import static ru.nchernetsov.utils.TimeUtils.unixTimeToUTC;
 /**
  * Заказ
  */
-@Named(value = "orderCDI")
-@SessionScoped
+@Entity
+@Table(name = "orders")
 public class Order implements Serializable {
     /**
      * Идентификатор
      */
+    @Id
+    @Type(type = "org.hibernate.type.PostgresUUIDType")
+    @Column(name = "id", unique = true, nullable = false)
     private UUID id;
     /**
      * UNIX-time создания заказа
      */
-    private long utc;
+    @Column
+    private Long utc;
     /**
      * Список товаров в заказе
      */
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    @JoinTable(name = "order_product",
+        joinColumns = {@JoinColumn(name = "order_id", nullable = false, updatable = false)},
+        inverseJoinColumns = {@JoinColumn(name = "product_id", nullable = false, updatable = false)})
+    @Column
     private Collection<Product> products;
 
     public Order() {
-    }
-
-    public Order(Collection<Product> products) {
         this.id = UUID.randomUUID();
         this.utc = System.currentTimeMillis();
-        this.products = products;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public long getUtc() {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public Long getUtc() {
         return utc;
+    }
+
+    public void setUtc(Long utc) {
+        this.utc = utc;
     }
 
     public LocalDateTime getUtcLocalDateTime() {
@@ -53,6 +67,10 @@ public class Order implements Serializable {
         return products;
     }
 
+    public void setProducts(Collection<Product> products) {
+        this.products = products;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -60,7 +78,7 @@ public class Order implements Serializable {
 
         Order order = (Order) o;
 
-        if (getUtc() != order.getUtc()) return false;
+        if (!getUtc().equals(order.getUtc())) return false;
         if (getId() != null ? !getId().equals(order.getId()) : order.getId() != null) return false;
         return getProducts() != null ? getProducts().equals(order.getProducts()) : order.getProducts() == null;
     }

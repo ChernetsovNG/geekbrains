@@ -1,17 +1,15 @@
-package ru.nchernetsov.controller.managed;
+package ru.nchernetsov.controller;
 
-import ru.nchernetsov.controller.AbstractController;
-import ru.nchernetsov.dao.managed.CategoryDAO;
-import ru.nchernetsov.entity.managed.Category;
+import ru.nchernetsov.dao.CategoryDAO;
+import ru.nchernetsov.entity.Category;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.Serializable;
-import java.util.Optional;
 
-@ManagedBean(name = "categoryEditControllerManaged")
+@Named(value = "categoryEditController")
 @ViewScoped
 public class CategoryEditController extends AbstractController implements Serializable {
 
@@ -24,8 +22,7 @@ public class CategoryEditController extends AbstractController implements Serial
 
     @PostConstruct
     private void init() {
-        Optional<Category> categoryOptional = categoryDAO.getCategoryById(id);
-        category = categoryOptional.orElse(null);
+        category = categoryDAO.getCategoryById(id);
     }
 
     public Category getCategory() {
@@ -37,7 +34,7 @@ public class CategoryEditController extends AbstractController implements Serial
     }
 
     public String save() {
-        categoryDAO.addCategory(category);
-        return "/faces/managed/categories";
+        categoryDAO.merge(category);
+        return "/faces/categories";
     }
 }

@@ -12,7 +12,7 @@
 </f:view>
 <h:body>
     <h:form>
-        <h:dataTable id="categoriesTable" border="1" value="${categoryControllerCDI.categories}" var="category">
+        <h:dataTable id="categoriesTable" border="1" value="${categoryController.categories}" var="category">
             <h:column>
                 <f:facet name="header">ID</f:facet>
                 ${category.id}
@@ -28,13 +28,13 @@
             </h:column>
             <h:column>
                 <h:commandLink title="Remove" update="categoriesTable" value="Remove"
-                               actionListener="${categoryControllerCDI.removeCategory(category)}"/>
+                               actionListener="${categoryController.removeCategory(category)}"/>
             </h:column>
         </h:dataTable>
         <h:inputText a:placeholder="categoryName" binding="#{categoryName}"/>
-        <h:commandButton title="Add" action="${categoryControllerCDI.addCategory(categoryName.value)}" value="Add"
+        <h:commandButton title="Add" action="${categoryController.addCategory(categoryName.value)}" value="Add"
                          update="categoriesTable"/>
     </h:form>
-    <a href="../../main.jsp">Back to main</a>
+    <a href="../main.jsp">Back to main</a>
 </h:body>
 </html>

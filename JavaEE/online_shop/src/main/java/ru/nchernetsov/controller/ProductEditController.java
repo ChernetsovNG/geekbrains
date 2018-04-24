@@ -1,17 +1,15 @@
-package ru.nchernetsov.controller.cdi;
+package ru.nchernetsov.controller;
 
-import ru.nchernetsov.controller.AbstractController;
-import ru.nchernetsov.dao.cdi.ProductDAO;
-import ru.nchernetsov.entity.cdi.Product;
+import ru.nchernetsov.dao.ProductDAO;
+import ru.nchernetsov.entity.Product;
 
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
-import java.util.Optional;
 
-@Named(value = "productEditControllerCDI")
+@Named(value = "productEditController")
 @ViewScoped
 public class ProductEditController extends AbstractController implements Serializable {
 
@@ -24,8 +22,7 @@ public class ProductEditController extends AbstractController implements Seriali
 
     @PostConstruct
     private void init() {
-        Optional<Product> productOptional = productDAO.getProductById(id);
-        product = productOptional.orElse(null);
+        product = productDAO.getProductById(id);
     }
 
     public Product getProduct() {
@@ -37,7 +34,7 @@ public class ProductEditController extends AbstractController implements Seriali
     }
 
     public String save() {
-        productDAO.addProduct(product);
-        return "/faces/cdi/products";
+        productDAO.merge(product);
+        return "/faces/products";
     }
 }

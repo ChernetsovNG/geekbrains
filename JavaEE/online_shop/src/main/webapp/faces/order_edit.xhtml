@@ -5,29 +5,36 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 <f:view>
-    <h:outputLabel value="Category Edit"/>
+    <h:outputLabel value="Order Edit"/>
 </f:view>
 <h:body>
     <h:form>
-        <h1>Category Edit</h1>
+        <h1>Order Edit</h1>
         <p:outputPanel>
-            <p:outputLabel value="Category ID"/>
+            <p:outputLabel value="Order ID"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:outputLabel value="#{categoryEditControllerCDI.category.id}"/>
+            <p:outputLabel value="#{orderEditController.order.id}"/>
         </p:outputPanel>
 
         <p:outputPanel>
-            <p:outputLabel value="Category Name"/>
+            <p:outputLabel value="UTC"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:inputText value="#{categoryEditControllerCDI.category.name}"/>
+            <p:outputLabel value="#{orderEditController.order.utc}"/>
         </p:outputPanel>
 
         <p:outputPanel>
-            <p:commandButton value="Save" action="#{categoryEditControllerCDI.save}"/>
+            <p:outputLabel value="Products"/>
+        </p:outputPanel>
+        <p:outputPanel style="margin-bottom: 20px;">
+            <p:outputLabel value="#{orderEditController.order.products}"/>
+        </p:outputPanel>
+
+        <p:outputPanel>
+            <p:commandButton value="Save" action="#{orderEditController.save}"/>
         </p:outputPanel>
     </h:form>
-    <a href="../../main.jsp">Back to main</a>
+    <a href="../main.jsp">Back to main</a>
 </h:body>
 </html>

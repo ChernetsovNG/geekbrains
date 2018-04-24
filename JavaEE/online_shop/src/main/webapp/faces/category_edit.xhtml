@@ -14,20 +14,20 @@
             <p:outputLabel value="Category ID"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:outputLabel value="#{categoryEditControllerManaged.category.id}"/>
+            <p:outputLabel value="#{categoryEditController.category.id}"/>
         </p:outputPanel>
 
         <p:outputPanel>
             <p:outputLabel value="Category Name"/>
         </p:outputPanel>
         <p:outputPanel style="margin-bottom: 20px;">
-            <p:inputText value="#{categoryEditControllerManaged.category.name}"/>
+            <p:inputText value="#{categoryEditController.category.name}"/>
         </p:outputPanel>
 
         <p:outputPanel>
-            <p:commandButton value="Save" action="#{categoryEditControllerManaged.save}"/>
+            <p:commandButton value="Save" action="#{categoryEditController.save}"/>
         </p:outputPanel>
     </h:form>
-    <a href="../../main.jsp">Back to main</a>
+    <a href="../main.jsp">Back to main</a>
 </h:body>
 </html>

@@ -12,7 +12,7 @@
 </f:view>
 <h:body>
     <h:form>
-        <h:dataTable id="productsTable" border="1" value="${productControllerManaged.products}" var="product">
+        <h:dataTable id="productsTable" border="1" value="${productController.products}" var="product">
             <h:column>
                 <f:facet name="header">ID</f:facet>
                 ${product.id}
@@ -36,17 +36,22 @@
             </h:column>
             <h:column>
                 <h:commandLink title="Remove" update="productsTable" value="Remove"
-                               actionListener="${productControllerManaged.removeProduct(product)}"/>
+                               actionListener="${productController.removeProduct(product)}"/>
+            </h:column>
+            <h:column>
+                <h:inputText a:placeholder="orderId" binding="#{orderId}"/>
+                <h:commandLink title="Add to Order" update="productsTable" value="Add to Order"
+                               actionListener="${productController.addProductToOrder(product, orderId.value)}"/>
             </h:column>
         </h:dataTable>
         <h:inputText a:placeholder="categoryName" binding="#{categoryName}"/>
         <h:inputText a:placeholder="productName" binding="#{productName}"/>
         <h:inputText a:placeholder="price" binding="#{price}"/>
         <h:inputText a:placeholder="currencyCode" binding="#{currencyCode}"/>
-        <h:commandButton title="Add" action="${productControllerManaged.addProduct(
+        <h:commandButton title="Add" action="${productController.addProduct(
         categoryName.value, productName.value, price.value, currencyCode.value)}" value="Add"
                          update="productsTable"/>
     </h:form>
-    <a href="../../main.jsp">Back to main</a>
+    <a href="../main.jsp">Back to main</a>
 </h:body>
 </html>

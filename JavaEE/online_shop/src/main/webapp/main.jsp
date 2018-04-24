@@ -24,16 +24,13 @@
 			<h3>Ссылки на JSF страницы:</h3><br/>
 			<ul style="list-style-type: none">
 				<li>
-					<a href="<c:url value="/faces/cdi/products.xhtml"/>">Products CDI</a>
+					<a href="<c:url value="/faces/categories.xhtml"/>">Categories</a>
 				</li>
 				<li>
-					<a href="<c:url value="/faces/managed/products.xhtml"/>">Products Managed</a>
+					<a href="<c:url value="/faces/products.xhtml"/>">Products</a>
 				</li>
 				<li>
-					<a href="<c:url value="/faces/cdi/categories.xhtml"/>">Categories CDI</a>
-				</li>
-				<li>
-					<a href="<c:url value="/faces/managed/categories.xhtml"/>">Categories Managed</a>
+					<a href="<c:url value="/faces/orders.xhtml"/>">Orders</a>
 				</li>
 			</ul>
 		</div>

@@ -1,25 +1,32 @@
-package ru.nchernetsov.entity.managed;
+package ru.nchernetsov.entity;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import org.hibernate.annotations.Type;
+
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.UUID;
 
-/**
- * Категория
- */
-@ManagedBean(name = "categoryManaged", eager = true)
-@SessionScoped
-public class Category {
+@Entity
+@Table(name = "category")
+public class Category implements Serializable {
     /**
      * Идентификатор
      */
+    @Id
+    @Type(type = "org.hibernate.type.PostgresUUIDType")
+    @Column(name = "id", unique = true, nullable = false)
     private UUID id;
     /**
      * Название
      */
     @NotNull(message = "Название не может быть пустым")
+    @Column(unique = true)
     private String name;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
+    private Collection<Product> products;
 
     public Category() {
     }
@@ -33,12 +40,24 @@ public class Category {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Collection<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Collection<Product> products) {
+        this.products = products;
     }
 
     @Override
