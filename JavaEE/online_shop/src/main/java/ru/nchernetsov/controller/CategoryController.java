@@ -2,15 +2,18 @@ package ru.nchernetsov.controller;
 
 import ru.nchernetsov.dao.CategoryDAO;
 import ru.nchernetsov.entity.Category;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Named(value = "categoryController")
 @ApplicationScoped
+@Interceptors({LoggerInterceptor.class})
 public class CategoryController {
 
     @Inject
@@ -28,8 +31,7 @@ public class CategoryController {
         categoryDAO.removeCategory(category.getId());
     }
 
-    public Category getCategoryByName(String categoryName) {
+    Category getCategoryByName(String categoryName) {
         return categoryDAO.getCategoryByName(categoryName);
     }
-
 }

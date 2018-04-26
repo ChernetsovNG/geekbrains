@@ -1,7 +1,9 @@
 package ru.nchernetsov.entity;
 
 import org.hibernate.annotations.Type;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
+import javax.interceptor.Interceptors;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -10,6 +12,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "category")
+@Interceptors({LoggerInterceptor.class})
 public class Category implements Serializable {
     /**
      * Идентификатор

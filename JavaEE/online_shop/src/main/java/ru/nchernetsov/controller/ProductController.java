@@ -6,15 +6,18 @@ import ru.nchernetsov.dao.ProductDAO;
 import ru.nchernetsov.entity.Category;
 import ru.nchernetsov.entity.Order;
 import ru.nchernetsov.entity.Product;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Named(value = "productController")
 @ApplicationScoped
+@Interceptors({LoggerInterceptor.class})
 public class ProductController {
 
     @Inject

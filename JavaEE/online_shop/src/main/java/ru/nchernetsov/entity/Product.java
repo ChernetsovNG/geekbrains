@@ -2,7 +2,9 @@ package ru.nchernetsov.entity;
 
 import org.hibernate.annotations.Type;
 import org.javamoney.moneta.Money;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
+import javax.interceptor.Interceptors;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -14,6 +16,7 @@ import java.util.UUID;
  */
 @Entity
 @Table(name = "product")
+@Interceptors({LoggerInterceptor.class})
 public class Product implements Serializable {
     /**
      * Идентификатор

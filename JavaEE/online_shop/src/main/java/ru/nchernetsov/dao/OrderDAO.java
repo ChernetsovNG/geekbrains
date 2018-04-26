@@ -1,20 +1,19 @@
 package ru.nchernetsov.dao;
 
 import ru.nchernetsov.entity.Order;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
 import javax.ejb.Stateless;
-import javax.inject.Named;
+import javax.interceptor.Interceptors;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
-@Named(value = "orderDAO")
 @Stateless
+@Interceptors({LoggerInterceptor.class})
 public class OrderDAO extends AbstractDAO {
 
     public Collection<Order> getOrders() {
-        List list = em.createQuery("SELECT o FROM Order o", Order.class).getResultList();
-        return list;
+        return em.createQuery("SELECT o FROM Order o", Order.class).getResultList();
     }
 
     public Order getOrderById(String id) {

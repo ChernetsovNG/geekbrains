@@ -1,13 +1,16 @@
 package ru.nchernetsov.dao;
 
 import ru.nchernetsov.entity.Category;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 @Stateless
+@Interceptors({LoggerInterceptor.class})
 public class CategoryDAO extends AbstractDAO {
 
     public Collection<Category> getCategories() {
