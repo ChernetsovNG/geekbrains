@@ -24,6 +24,14 @@ public class Address {
         this.country = country;
     }
 
+    public Address(@NotNull String street1, @NotNull String city, String state, @NotNull String zipcode, String country) {
+        this.street1 = street1;
+        this.city = city;
+        this.state = state;
+        this.zipcode = zipcode;
+        this.country = country;
+    }
+
     public String getStreet1() {
         return street1;
     }
