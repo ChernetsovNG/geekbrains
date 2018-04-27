@@ -1,7 +1,9 @@
 package ru.nchernetsov.entity;
 
 import org.hibernate.annotations.Type;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
+import javax.interceptor.Interceptors;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import static ru.nchernetsov.utils.TimeUtils.unixTimeToUTC;
  */
 @Entity
 @Table(name = "orders")
+@Interceptors({LoggerInterceptor.class})
 public class Order implements Serializable {
     /**
      * Идентификатор

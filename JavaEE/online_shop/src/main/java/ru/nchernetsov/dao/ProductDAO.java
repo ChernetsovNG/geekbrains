@@ -1,14 +1,15 @@
 package ru.nchernetsov.dao;
 
 import ru.nchernetsov.entity.Product;
+import ru.nchernetsov.interceptor.LoggerInterceptor;
 
 import javax.ejb.Stateless;
-import javax.inject.Named;
+import javax.interceptor.Interceptors;
 import java.util.Collection;
 import java.util.UUID;
 
-@Named(value = "productDAO")
 @Stateless
+@Interceptors({LoggerInterceptor.class})
 public class ProductDAO extends AbstractDAO {
 
     public Collection<Product> getProducts() {

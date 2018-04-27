@@ -1,15 +1,67 @@
 package entity;
 
-public class Book {
-    private String title;
-    private Float price;
-    private String descriptor;
-    private String number;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
-    public Book(String title, Float price, String descriptor) {
+@Entity
+@NamedQueries({
+    @NamedQuery(name = "findAllBooks", query = "SELECT b FROM Book b"),
+    @NamedQuery(name = "findBookH2G2", query = "SELECT b FROM Book b WHERE b.title = 'H2G2'")
+})
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @NotNull
+    private String title;
+
+    private Float price;
+
+    @Size(min = 10, max = 2000)
+    private String description;
+
+    private String isbn;
+
+    private Integer nbOfPage;
+
+    private Boolean illustrations;
+
+    public Book() {
+    }
+
+    public Book(String title, String description, Float price, String isbn, Integer nbOfPage, Boolean illustrations) {
+        this.title = title;
+        this.description = description;
+        this.price = price;
+        this.isbn = isbn;
+        this.nbOfPage = nbOfPage;
+        this.illustrations = illustrations;
+    }
+
+    public Book(String title, Float price, String description) {
         this.title = title;
         this.price = price;
-        this.descriptor = descriptor;
+        this.description = description;
+    }
+
+    public Book(Long id, String title, String description, Boolean illustrations, String isbn, Integer nbOfPage, Float price) {
+        this.id = id;
+        this.title = title;
+        this.price = price;
+        this.description = description;
+        this.isbn = isbn;
+        this.nbOfPage = nbOfPage;
+        this.illustrations = illustrations;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -28,29 +80,35 @@ public class Book {
         this.price = price;
     }
 
-    public String getDescriptor() {
-        return descriptor;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescriptor(String descriptor) {
-        this.descriptor = descriptor;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getNumber() {
-        return number;
+    public String getIsbn() {
+        return isbn;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 
-    @Override
-    public String toString() {
-        return "entity.Book{" +
-            "title='" + title + '\'' +
-            ", price=" + price +
-            ", descriptor='" + descriptor + '\'' +
-            ", number='" + number + '\'' +
-            '}';
+    public Integer getNbOfPage() {
+        return nbOfPage;
+    }
+
+    public void setNbOfPage(Integer nbOfPage) {
+        this.nbOfPage = nbOfPage;
+    }
+
+    public Boolean getIllustrations() {
+        return illustrations;
+    }
+
+    public void setIllustrations(Boolean illustrations) {
+        this.illustrations = illustrations;
     }
 }
