@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Cart Facelet</title>
+</h:head>
+<f:view>
+    <h:outputLabel value="Cart Facelet"/>
+</f:view>
+<h:body>
+    <h:form>
+        <h:dataTable id="cartTable" border="1" value="${productController.cartProducts}" var="product">
+            <h:column>
+                <f:facet name="header">ID</f:facet>
+                ${product.id}
+            </h:column>
+            <h:column id="category">
+                <f:facet name="header">Category</f:facet>
+                ${product.category}
+            </h:column>
+            <h:column id="name">
+                <f:facet name="header">Name</f:facet>
+                ${product.name}
+            </h:column>
+            <h:column id="price">
+                <f:facet name="header">Price</f:facet>
+                ${product.price}
+            </h:column>
+            <h:column>
+                <h:commandLink title="Remove" update="cartTable" value="Remove"
+                               actionListener="${productController.removeProductFromCart(product)}"/>
+            </h:column>
+        </h:dataTable>
+    </h:form>
+
+    <ul style="list-style-type: none">
+        <li>
+            <a href="../main.jsp">Back to main</a>
+        </li>
+        <li>
+            <a href="categories.xhtml">Categories</a>
+        </li>
+        <li>
+            <a href="products.xhtml">Products</a>
+        </li>
+        <li>
+            <a href="orders.xhtml">Orders</a>
+        </li>
+    </ul>
+
+</h:body>
+</html>

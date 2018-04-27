@@ -3,6 +3,7 @@ package ru.nchernetsov.controller;
 import org.javamoney.moneta.Money;
 import ru.nchernetsov.dao.OrderDAO;
 import ru.nchernetsov.dao.ProductDAO;
+import ru.nchernetsov.entity.ShoppingCart;
 import ru.nchernetsov.entity.Category;
 import ru.nchernetsov.entity.Order;
 import ru.nchernetsov.entity.Product;
@@ -29,6 +30,9 @@ public class ProductController {
     @Inject
     private CategoryController categoryController;
 
+    @Inject
+    private ShoppingCart shoppingCart;
+
     public Collection<Product> getProducts() {
         return new ArrayList<>(productDAO.getProducts());
     }
@@ -49,6 +53,18 @@ public class ProductController {
 
         productDAO.merge(product);
         orderDAO.merge(order);
+    }
+
+    public void addProductToCart(Product product) {
+        shoppingCart.addProduct(product);
+    }
+
+    public Collection<Product> getCartProducts() {
+        return shoppingCart.getContents();
+    }
+
+    public void removeProductFromCart(Product product) {
+        shoppingCart.removeProduct(product);
     }
 
     public void removeProduct(Product product) {

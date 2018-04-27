@@ -43,6 +43,10 @@
                 <h:commandLink title="Add to Order" update="productsTable" value="Add to Order"
                                actionListener="${productController.addProductToOrder(product, orderId.value)}"/>
             </h:column>
+            <h:column>
+                <h:commandLink title="Add to Cart" value="Add to Cart"
+                               actionListener="${productController.addProductToCart(product)}"/>
+            </h:column>
         </h:dataTable>
         <h:inputText a:placeholder="categoryName" binding="#{categoryName}"/>
         <h:inputText a:placeholder="productName" binding="#{productName}"/>
@@ -62,6 +66,9 @@
         </li>
         <li>
             <a href="orders.xhtml">Orders</a>
+        </li>
+        <li>
+            <a href="cart.xhtml">Cart</a>
         </li>
     </ul>
 
