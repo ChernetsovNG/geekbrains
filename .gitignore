@@ -8,6 +8,7 @@ JavaEE/cd-book-store/*.log
 JavaEE/jpa-and-hibernate/.gradle
 JavaEE/jpa-and-hibernate/.idea
 JavaEE/jpa-and-hibernate/gradle
+JavaEE/jpa-and-hibernate/out
 design-patterns/home-app/.idea
 design-patterns/home-app/*.iml
 design-patterns/home-app/out
