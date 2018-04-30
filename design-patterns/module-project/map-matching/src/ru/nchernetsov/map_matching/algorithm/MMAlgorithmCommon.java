@@ -22,7 +22,8 @@ import static ru.nchernetsov.geometry.GeometryOperation.distanceBetweenTwo3Dpoin
 import static ru.nchernetsov.map_matching.algorithm.MMAlgorithmConfig.*;
 
 /**
- * Общие методы для разных реализаций алгоритма Map Matching'а
+ * Общие методы для разных реализаций алгоритма Map Matching'а.
+ * Фактически используется паттерн "Шаблонный метод"
  */
 public abstract class MMAlgorithmCommon {
     final CacheFilesHandler cacheFilesHandler;
