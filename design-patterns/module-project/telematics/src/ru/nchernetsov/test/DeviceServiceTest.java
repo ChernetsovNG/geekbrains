@@ -2,7 +2,6 @@ package ru.nchernetsov.test;
 
 import ru.nchernetsov.device.DeviceService;
 import ru.nchernetsov.device.DeviceState;
-import ru.nchernetsov.message.ObjectKind;
 
 import static org.junit.Assert.assertEquals;
 import static ru.nchernetsov.message.ObjectKind.VEHICLE;

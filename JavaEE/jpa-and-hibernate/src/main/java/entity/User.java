@@ -1,31 +1,30 @@
 package entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import converter.ZipcodeConverter;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.*;
 import java.io.Serializable;
-import java.util.StringTokenizer;
+import java.util.UUID;
 
 @Entity
+@Table(name = "USERS")
 public class User implements Serializable {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 
-    protected String firstname;
-    protected String lastname;
+    @Convert(converter = ZipcodeConverter.class, attributeName = "zipcode")
+    protected Address homeAddress;
 
-    public Long getId() {
-        return id;
+    public Address getHomeAddress() {
+        return homeAddress;
     }
 
-    public String getName() {
-        return firstname + " " + lastname;
-    }
-
-    public void setName(String name) {
-        StringTokenizer t = new StringTokenizer(name);
-        firstname = t.nextToken();
-        lastname = t.nextToken();
+    public void setHomeAddress(Address homeAddress) {
+        this.homeAddress = homeAddress;
     }
 }

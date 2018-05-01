@@ -2,25 +2,31 @@ package entity;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.sql.Blob;
+import java.sql.Clob;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Item {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+        name = "UUID",
+        strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
 
+    @OneToMany
     protected Set<Bid> bids = new HashSet<>();
 
     @NotNull
@@ -33,6 +39,32 @@ public class Item {
 
     @Future
     protected ZonedDateTime auctionEnd;
+
+    @Lob
+    protected Blob imageBlob;
+
+    @Lob
+    protected Clob description;
+
+    @NotNull
+    @org.hibernate.annotations.Type(
+        type = "monetary_amount_usd"
+    )
+    @org.hibernate.annotations.Columns(columns = {
+        @Column(name = "BUYNOWPRICE_AMOUNT"),
+        @Column(name = "BUYNOWPRICE_CURRENCY", length = 3)
+    })
+    protected MonetaryAmount buyNowPrice;
+
+    @NotNull
+    @org.hibernate.annotations.Type(
+        type = "monetary_amount_eur"
+    )
+    @org.hibernate.annotations.Columns(columns = {
+        @Column(name = "INITIALPRICE_AMOUNT"),
+        @Column(name = "INITIALPRICE_CURRENCY", length = 3)
+    })
+    protected MonetaryAmount initialPrice;
 
     public void addBid(Bid bid) {
         if (bid == null) {
@@ -53,10 +85,6 @@ public class Item {
         this.bids = bids;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
     }
@@ -71,5 +99,33 @@ public class Item {
 
     public void setAuctionEnd(ZonedDateTime auctionEnd) {
         this.auctionEnd = auctionEnd;
+    }
+
+    public MonetaryAmount getBuyNowPrice() {
+        return buyNowPrice;
+    }
+
+    public void setBuyNowPrice(MonetaryAmount buyNowPrice) {
+        this.buyNowPrice = buyNowPrice;
+    }
+
+    public MonetaryAmount getInitialPrice() {
+        return initialPrice;
+    }
+
+    public void setInitialPrice(MonetaryAmount initialPrice) {
+        this.initialPrice = initialPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+            "id=" + id +
+            ", bids=" + bids +
+            ", name='" + name + '\'' +
+            ", auctionEnd=" + auctionEnd +
+            ", buyNowPrice=" + buyNowPrice +
+            ", initialPrice=" + initialPrice +
+            '}';
     }
 }
