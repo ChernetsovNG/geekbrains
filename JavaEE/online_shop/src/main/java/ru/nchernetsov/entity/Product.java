@@ -7,6 +7,7 @@ import ru.nchernetsov.interceptor.LoggerInterceptor;
 import javax.interceptor.Interceptors;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.UUID;
@@ -24,12 +25,15 @@ public class Product implements Serializable {
     @Id
     @Type(type = "org.hibernate.type.PostgresUUIDType")
     @Column(name = "id", unique = true, nullable = false)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private UUID id;
     /**
      * Категория
      */
     @NotNull(message = "Категория должна быть задана")
-    @ManyToOne(cascade = CascadeType.DETACH)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", nullable = false)
+    @XmlTransient
     private Category category;
     /**
      * Заказы

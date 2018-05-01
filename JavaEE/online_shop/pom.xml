@@ -101,6 +101,25 @@
                     <artifactId>wildfly-maven-plugin</artifactId>
                     <version>1.2.1.Final</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.codehouse.mojo</groupId>
+                    <artifactId>jaxws-maven-plugin</artifactId>
+                    <version>RELEASE</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>wsimport</goal>
+                            </goals>
+                            <configuration>
+                                <wsdlUrls>
+                                    <wsdlUrl>
+                                        http://localhost:8080/online_shop/ProductWS?wsdl
+                                    </wsdlUrl>
+                                </wsdlUrls>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>

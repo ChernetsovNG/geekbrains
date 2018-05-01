@@ -35,5 +35,10 @@ public class ModelOperations {
         if (Locale.getDefault().getLanguage().equals("en")) {
             assertEquals(violation.getMessage(), "must be in the future");
         }
+
+        Class<? extends Item> itemClass = item.getClass();
+        ClassLoader itemClassLoader = itemClass.getClassLoader();
+
+        System.out.println(itemClass);
     }
 }
