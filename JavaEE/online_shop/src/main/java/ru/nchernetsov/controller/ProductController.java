@@ -3,10 +3,10 @@ package ru.nchernetsov.controller;
 import org.javamoney.moneta.Money;
 import ru.nchernetsov.dao.OrderDAO;
 import ru.nchernetsov.dao.ProductDAO;
-import ru.nchernetsov.entity.ShoppingCart;
 import ru.nchernetsov.entity.Category;
 import ru.nchernetsov.entity.Order;
 import ru.nchernetsov.entity.Product;
+import ru.nchernetsov.entity.ShoppingCart;
 import ru.nchernetsov.interceptor.LoggerInterceptor;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -45,6 +45,22 @@ public class ProductController {
         }
     }
 
+    public void addProduct(Product product) {
+        productDAO.persist(product);
+    }
+
+    public Product getProductById(String id) {
+        return productDAO.getProductById(id);
+    }
+
+    public Product getProductByName(String name) {
+        return productDAO.getProductByName(name);
+    }
+
+    public Collection<Product> getProductsByCategoryId(String categoryId) {
+        return productDAO.getProductsByCategoryId(categoryId);
+    }
+
     public void addProductToOrder(Product product, String orderId) {
         Order order = orderDAO.getOrderById(orderId);
 
@@ -69,5 +85,9 @@ public class ProductController {
 
     public void removeProduct(Product product) {
         productDAO.removeProduct(product.getId());
+    }
+
+    public void removeProduct(String id) {
+        productDAO.removeProduct(id);
     }
 }

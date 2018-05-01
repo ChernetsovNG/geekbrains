@@ -6,6 +6,7 @@ import ru.nchernetsov.interceptor.LoggerInterceptor;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Stateless
@@ -21,6 +22,20 @@ public class ProductDAO extends AbstractDAO {
             return null;
         }
         return em.find(Product.class, UUID.fromString(id));
+    }
+
+    public Product getProductByName(String name) {
+        if (name == null) {
+            return null;
+        }
+        List<Product> products = em.createQuery("SELECT p FROM Product p WHERE p.name LIKE :name", Product.class)
+            .setParameter("name", name)
+            .getResultList();
+        if (products.size() > 0) {
+            return products.get(0);
+        } else {
+            return null;
+        }
     }
 
     public void persist(Product product) {
@@ -50,5 +65,19 @@ public class ProductDAO extends AbstractDAO {
         }
         Product product = em.find(Product.class, productId);
         em.remove(product);
+    }
+
+    public void removeProduct(String productId) {
+        if (productId == null) {
+            return;
+        }
+        Product product = em.find(Product.class, UUID.fromString(productId));
+        em.remove(product);
+    }
+
+    public Collection<Product> getProductsByCategoryId(String categoryId) {
+        return em.createQuery("SELECT p FROM Product p WHERE p.category.id = :categoryId", Product.class)
+            .setParameter("categoryId", UUID.fromString(categoryId))
+            .getResultList();
     }
 }
