@@ -1,16 +1,13 @@
 package inheritance;
 
-import entity.Address;
-import entity.CreditCard;
-import entity.User;
+import entity.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Currency;
 
 public class PolymorphicManyToOne {
 
@@ -43,6 +40,21 @@ public class PolymorphicManyToOne {
         tx.begin();
         em.persist(cc);
         em.persist(johnDoe);
+        tx.commit();
+    }
+
+    @Test
+    public void test2() {
+        Item someItem = new Item("Some item");
+        someItem.setInitialPrice(new MonetaryAmount(new BigDecimal(10.0), Currency.getInstance("USD")));
+        someItem.setBuyNowPrice(new MonetaryAmount(new BigDecimal(15.0), Currency.getInstance("USD")));
+
+        Bid someBid = new Bid(new BigDecimal("123.00"), someItem);
+        someItem.getBids().add(someBid);
+
+        tx.begin();
+        em.persist(someItem);
+        em.persist(someBid);
         tx.commit();
     }
 }
