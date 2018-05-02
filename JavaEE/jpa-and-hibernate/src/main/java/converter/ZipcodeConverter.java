@@ -10,7 +10,9 @@ public class ZipcodeConverter implements AttributeConverter<Zipcode, String> {
 
     @Override
     public Zipcode convertToEntityAttribute(String s) {
-        if (s.length() == 5) {
+        if (s.length() == 6) {
+            return new RussianZipcode(s);
+        } else if (s.length() == 5) {
             return new GermanZipcode(s);
         } else if (s.length() == 4) {
             return new SwissZipcode(s);

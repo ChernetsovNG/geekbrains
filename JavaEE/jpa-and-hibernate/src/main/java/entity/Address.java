@@ -11,7 +11,7 @@ public class Address {
     protected String street;
 
     @NotNull
-    @Column(nullable = false, length = 5)
+    @Column(nullable = false, length = 6)
     protected String zipCode;
 
     @NotNull

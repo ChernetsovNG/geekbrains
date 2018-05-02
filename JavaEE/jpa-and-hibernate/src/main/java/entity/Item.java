@@ -26,6 +26,10 @@ public class Item {
         strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
+    protected Dimension dimension;
+
+    protected Weight weight;
+
     @OneToMany
     protected Set<Bid> bids = new HashSet<>();
 
@@ -115,6 +119,22 @@ public class Item {
 
     public void setInitialPrice(MonetaryAmount initialPrice) {
         this.initialPrice = initialPrice;
+    }
+
+    public Dimension getDimension() {
+        return dimension;
+    }
+
+    public void setDimension(Dimension dimension) {
+        this.dimension = dimension;
+    }
+
+    public Weight getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Weight weight) {
+        this.weight = weight;
     }
 
     @Override
