@@ -5,6 +5,8 @@ import ru.nchernetsov.entity.Category;
 import ru.nchernetsov.entity.Product;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +19,10 @@ import java.util.List;
  * Сервлет для каталога товаров
  */
 @WebServlet(urlPatterns = {"/catalog"})
+@ServletSecurity(
+    @HttpConstraint(rolesAllowed = {"admin", "user"},
+        transportGuarantee = ServletSecurity.TransportGuarantee.NONE)
+)
 public class CatalogServlet extends HttpServlet {
 
     private final List<Product> products = new ArrayList<>();

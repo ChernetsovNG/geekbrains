@@ -31,4 +31,9 @@
         <location>/error403</location>
     </error-page>
 
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>ManagementRealm</realm-name>
+    </login-config>
+
 </web-app>
