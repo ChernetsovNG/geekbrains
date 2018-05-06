@@ -64,33 +64,17 @@ public class ORM implements Executor {
 
     @Override
     public void save(User user) {
-        long id = user.getId();
-        String name = user.getName();
-        int age = user.getAge();
-
         // Имя таблицы в БД, соответствующей сущности User
         String tableName = tableNames.get(User.class);
         // Находим имена столбцов в таблице БД, соответствующие полям класса User
         DataSetDescriptor userDescriptor = matchClassFieldsAndTablesColumnMap.get(User.class);
 
-        String idColumnName = userDescriptor.get("id");
-        String nameColumnName = userDescriptor.get("name");
-        String ageColumnName = userDescriptor.get("age");
-
-        String query = "INSERT INTO " + tableName + " (" +
-            idColumnName + ", " +
-            nameColumnName + ", " +
-            ageColumnName + ") " +
-            "VALUES (" +
-            id + ", " +
-            "'" + name + "'" +
-            ", " + age +
-            ");";
+        String query = insertUserQuery(tableName, user, userDescriptor);
 
         try {
             execQuery(query);
             // После вставки объекта в БД сохраняем его также в identityMap
-            identityMap.get(User.class).put(id, user);
+            identityMap.get(User.class).put(user.getId(), user);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -143,20 +127,6 @@ public class ORM implements Executor {
         return null;
     }
 
-    private String selectEntityQuery(String tableName, Object[] columns, long id) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("SELECT ");
-        for (int i = 0; i < columns.length-1; i++) {
-            sb.append((String) columns[i]).append(", ");
-        }
-        sb.append((String) columns[columns.length-1]).append(" ");
-        sb.append("FROM ").append(tableName).append(" ")
-            .append("WHERE id = ").append(id).append(";");
-
-        return sb.toString();
-    }
-
     public void execQuery(String query) throws SQLException {
         Statement stmt = connection.createStatement();
         stmt.execute(query);
@@ -173,7 +143,45 @@ public class ORM implements Executor {
         return value;
     }
 
+    private String insertUserQuery(String tableName, User user, DataSetDescriptor userDescriptor) {
+        long id = user.getId();
+        String name = user.getName();
+        int age = user.getAge();
+
+        String idColumnName = userDescriptor.get("id");
+        String nameColumnName = userDescriptor.get("name");
+        String ageColumnName = userDescriptor.get("age");
+
+        return "INSERT INTO " + tableName + " (" +
+            idColumnName + ", " +
+            nameColumnName + ", " +
+            ageColumnName + ") " +
+            "VALUES (" +
+            id + ", " +
+            "'" + name + "'" +
+            ", " + age +
+            ");";
+    }
+
+    private String selectEntityQuery(String tableName, Object[] columns, long id) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT ");
+        for (int i = 0; i < columns.length-1; i++) {
+            sb.append((String) columns[i]).append(", ");
+        }
+        sb.append((String) columns[columns.length-1]).append(" ");
+        sb.append("FROM ").append(tableName).append(" ")
+            .append("WHERE id = ").append(id).append(";");
+
+        return sb.toString();
+    }
+
     public Map<Class<?>, Map<Long, Object>> getIdentityMap() {
         return Collections.unmodifiableMap(identityMap);
+    }
+
+    public void clearIdentityMapForClass(Class<?> clazz) {
+        identityMap.get(clazz).clear();
     }
 }

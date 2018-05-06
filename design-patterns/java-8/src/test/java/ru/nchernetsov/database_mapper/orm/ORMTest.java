@@ -1,5 +1,6 @@
 package ru.nchernetsov.database_mapper.orm;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.nchernetsov.database_mapper.entity.User;
@@ -15,7 +16,12 @@ public class ORMTest {
     @BeforeClass
     public static void setup() throws SQLException {
         orm = new ORM();
+    }
+
+    @Before
+    public void clearTable() throws SQLException {
         orm.execQuery("TRUNCATE TABLE users;");
+        orm.clearIdentityMapForClass(User.class);
     }
 
     @Test
