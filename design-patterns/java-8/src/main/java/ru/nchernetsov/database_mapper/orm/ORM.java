@@ -133,7 +133,10 @@ public class ORM implements Executor {
                 setFieldValue(newObject, fieldName, queryResultMap.get(columnName));
             }
 
-            return (User) newObject;
+            User loadUser = (User) newObject;
+            identityMap.get(clazz).put(id, loadUser);
+
+            return loadUser;
         } catch (SQLException e) {
             e.printStackTrace();
         }
