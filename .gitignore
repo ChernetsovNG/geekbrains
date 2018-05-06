@@ -17,3 +17,8 @@ design-patterns/module-project/*.iml
 design-patterns/module-project/.idea
 design-patterns/module-project/out
 design-patterns/module-project/*/*.iml
+design-patterns/java-8/.idea
+design-patterns/java-8/*.iml
+design-patterns/java-8/out
+design-patterns/java-8/.gradle
+design-patterns/java-8/gradle
