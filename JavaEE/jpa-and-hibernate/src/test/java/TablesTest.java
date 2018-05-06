@@ -1,3 +1,4 @@
+import entity.BillingDetails;
 import entity.Item;
 import entity.MonetaryAmount;
 import org.junit.Test;
@@ -37,6 +38,9 @@ public class TablesTest {
             .getResultList();
 
         System.out.println(items);
+
+        List<BillingDetails> allBillingDetails =
+            em.createQuery("SELECT bd FROM BillingDetails bd", BillingDetails.class).getResultList();
 
         tx.commit();
 

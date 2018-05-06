@@ -8,10 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -26,7 +23,12 @@ public class Item {
         strategy = "org.hibernate.id.UUIDGenerator")
     private UUID id;
 
-    @OneToMany
+    protected Dimension dimension;
+
+    protected Weight weight;
+
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY,
+        cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     protected Set<Bid> bids = new HashSet<>();
 
     @NotNull
@@ -40,11 +42,12 @@ public class Item {
     @Future
     protected ZonedDateTime auctionEnd;
 
-    @Lob
-    protected Blob imageBlob;
-
-    @Lob
-    protected Clob description;
+    @ElementCollection
+    @CollectionTable(name = "IMAGE")
+    @AttributeOverride(
+        name = "filename",
+        column = @Column(name = "FNAME", nullable = false))
+    protected Set<Image> images = new HashSet<>();
 
     @NotNull
     @org.hibernate.annotations.Type(
@@ -58,13 +61,20 @@ public class Item {
 
     @NotNull
     @org.hibernate.annotations.Type(
-        type = "monetary_amount_eur"
+        type = "monetary_amount_usd"
     )
     @org.hibernate.annotations.Columns(columns = {
         @Column(name = "INITIALPRICE_AMOUNT"),
         @Column(name = "INITIALPRICE_CURRENCY", length = 3)
     })
     protected MonetaryAmount initialPrice;
+
+    public Item() {
+    }
+
+    public Item(String name) {
+        this.name = name;
+    }
 
     public void addBid(Bid bid) {
         if (bid == null) {
@@ -78,7 +88,7 @@ public class Item {
     }
 
     public Set<Bid> getBids() {
-        return Collections.unmodifiableSet(bids);
+        return bids;
     }
 
     public void setBids(Set<Bid> bids) {
@@ -115,6 +125,22 @@ public class Item {
 
     public void setInitialPrice(MonetaryAmount initialPrice) {
         this.initialPrice = initialPrice;
+    }
+
+    public Dimension getDimension() {
+        return dimension;
+    }
+
+    public void setDimension(Dimension dimension) {
+        this.dimension = dimension;
+    }
+
+    public Weight getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Weight weight) {
+        this.weight = weight;
     }
 
     @Override
