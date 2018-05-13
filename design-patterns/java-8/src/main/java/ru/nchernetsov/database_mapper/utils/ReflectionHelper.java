@@ -7,7 +7,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Вспомогательный класс для работы с классами через механизм Reflection
@@ -19,9 +18,10 @@ public class ReflectionHelper {
 
     /**
      * Создать объект класса
+     *
      * @param type - класс объекта
      * @param args - аргументы конструктора
-     * @param <T> - generic-параметр
+     * @param <T>  - generic-параметр
      * @return - созданный объект класса
      */
     public static <T> T instantiate(Class<T> type, Object... args) {
@@ -39,8 +39,9 @@ public class ReflectionHelper {
 
     /**
      * Получить значение поля класса
+     *
      * @param object - объект
-     * @param name - название поля
+     * @param name   - название поля
      * @return - значение поля класса
      */
     static Object getFieldValue(Object object, String name) {
@@ -63,9 +64,10 @@ public class ReflectionHelper {
 
     /**
      * Установить в поле класса заданное значение
+     *
      * @param object - объект
-     * @param name - название поля класса
-     * @param value - устанавливаемое значение
+     * @param name   - название поля класса
+     * @param value  - устанавливаемое значение
      */
     public static void setFieldValue(Object object, String name, Object value) {
         Field field = null;
@@ -86,9 +88,10 @@ public class ReflectionHelper {
 
     /**
      * Вызвать метод объекта
+     *
      * @param object - объект
-     * @param name - название метода
-     * @param args - аргументы метода
+     * @param name   - название метода
+     * @param args   - аргументы метода
      * @return - результат выполнения метода
      * @throws InvocationTargetException
      */
@@ -112,7 +115,8 @@ public class ReflectionHelper {
 
     /**
      * Получить список методов с указанной аннотацией
-     * @param type - класс
+     *
+     * @param type       - класс
      * @param annotation - аннотация
      * @return - список аннотированных методов
      */
@@ -134,8 +138,7 @@ public class ReflectionHelper {
     }
 
     private static Class<?>[] toClasses(Object[] args) {
-        List<Class<?>> classes = Arrays.stream(args).map(Object::getClass).collect(Collectors.toList());
-        return classes.toArray(new Class<?>[classes.size()]);
+        return Arrays.stream(args).map(Object::getClass).toArray(Class<?>[]::new);
     }
 
 }
