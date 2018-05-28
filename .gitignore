@@ -28,3 +28,6 @@ design-patterns/java-8/out
 design-patterns/java-8/.gradle
 design-patterns/java-8/gradle
 design-patterns/java-8/build
+
+Spring-1/*/.idea
+Spring-1/*/*.iml
