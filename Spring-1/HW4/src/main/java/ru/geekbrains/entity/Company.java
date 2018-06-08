@@ -1,8 +1,6 @@
 package ru.geekbrains.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,8 +14,9 @@ public class Company extends AbstractEntity {
 
     private String address;
 
-    @OneToMany
-    private List<Advertisement> advertisements = new ArrayList<>();
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST},
+            orphanRemoval = true)
+    private final List<Advertisement> advertisements = new ArrayList<>();
 
     public Company() {
     }
@@ -29,15 +28,15 @@ public class Company extends AbstractEntity {
     }
 
     public void addAdvertisement(Advertisement advertisement) {
-        advertisements.add(advertisement);
+        getAdvertisements().add(advertisement);
     }
 
     public void addAdvertisements(Collection<Advertisement> advertisements) {
-        this.advertisements.addAll(advertisements);
+        getAdvertisements().addAll(advertisements);
     }
 
     public void removeAdvertisement(Advertisement advertisement) {
-        advertisements.remove(advertisement);
+        getAdvertisements().remove(advertisement);
     }
 
     public String getName() {

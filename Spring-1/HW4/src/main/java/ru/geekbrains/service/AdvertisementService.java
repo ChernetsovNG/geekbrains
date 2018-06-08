@@ -1,25 +1,53 @@
 package ru.geekbrains.service;
 
-import org.springframework.stereotype.Service;
 import ru.geekbrains.entity.Advertisement;
-import ru.geekbrains.repository.AdvertisementRepository;
+import ru.geekbrains.entity.Category;
 
-@Service
-public class AdvertisementService {
+import java.util.List;
+import java.util.Optional;
 
-    private final AdvertisementRepository advertisementRepository;
+public interface AdvertisementService {
+    /**
+     * Добавление объявления
+     *
+     * @param advertisement - объявление
+     */
+    void addAdvertisement(Advertisement advertisement);
 
-    public AdvertisementService(AdvertisementRepository advertisementRepository) {
-        this.advertisementRepository = advertisementRepository;
-    }
+    /**
+     * Удаление объявления
+     *
+     * @param advertisement - объявление
+     */
+    void removeAdvertisement(Advertisement advertisement);
 
-    void addAdvertisement(Advertisement advertisement) {
-        advertisementRepository.save(advertisement);
-    }
+    /**
+     * Получение объявления по id
+     *
+     * @param id - id объявления
+     * @return - объявление
+     */
+    Optional<Advertisement> getAdvertisementById(String id);
 
-    void removeAdvertisement(Advertisement advertisement) {
-        advertisementRepository.delete(advertisement);
-    }
+    /**
+     * Обновление атрибутов объявления
+     *
+     * @param advertisement - обновлённое объявление
+     */
+    void updateAdvertisement(Advertisement advertisement);
 
+    /**
+     * Получение всех объявлений
+     *
+     * @return - список объявлений
+     */
+    List<Advertisement> getAllAdvertisements();
 
+    /**
+     * Получение всех объявлений из данной категории
+     *
+     * @param category - категория
+     * @return - объявления из данной категории
+     */
+    List<Advertisement> getAdvertisementsByCategory(Category category);
 }

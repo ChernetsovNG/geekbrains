@@ -1,16 +1,14 @@
 package ru.geekbrains.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "advertisement")
 public class Advertisement extends AbstractEntity {
-    @OneToMany
-    private List<Category> categories = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
+    private final List<Category> categories = new ArrayList<>();
 
     private String name;
 
@@ -21,30 +19,24 @@ public class Advertisement extends AbstractEntity {
     public Advertisement() {
     }
 
-    public Advertisement(List<Category> categories, String name, String text, String phone) {
-        this.categories = categories;
+    public Advertisement(String name, String text, String phone) {
         this.name = name;
         this.text = text;
         this.phone = phone;
-        for (Category category : categories) {
-            category.addAdvertisement(this);
-        }
     }
 
     public void addCategory(Category category) {
-        categories.add(category);
+        getCategories().add(category);
+        category.addAdvertisement(this);
     }
 
     public void removeCategory(Category category) {
-        categories.remove(category);
+        category.getAdvertisements().remove(this);
+        getCategories().remove(category);
     }
 
     public List<Category> getCategories() {
         return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
     }
 
     public String getName() {
@@ -74,10 +66,10 @@ public class Advertisement extends AbstractEntity {
     @Override
     public String toString() {
         return "Advertisement{" +
-                "id=" + getId() +
+                "categories=" + categories +
                 ", name='" + name + '\'' +
                 ", text='" + text + '\'' +
                 ", phone='" + phone + '\'' +
-                "}";
+                '}';
     }
 }
