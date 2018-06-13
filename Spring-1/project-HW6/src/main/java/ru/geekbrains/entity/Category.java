@@ -1,14 +1,16 @@
 package ru.geekbrains.entity;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "category")
 public class Category extends AbstractEntity {
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
-    private final List<Advertisement> advertisements = new ArrayList<>();
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
+    private final List<Article> articles = new ArrayList<>();
 
     private String name;
 
@@ -19,16 +21,16 @@ public class Category extends AbstractEntity {
         this.name = name;
     }
 
-    void addAdvertisement(Advertisement advertisement) {
-        getAdvertisements().add(advertisement);
+    void addArticle(Article article) {
+        getArticles().add(article);
     }
 
-    public void removeAdvertisement(Advertisement advertisement) {
-        getAdvertisements().remove(advertisement);
+    public void removeArticle(Article article) {
+        getArticles().remove(article);
     }
 
-    public List<Advertisement> getAdvertisements() {
-        return advertisements;
+    public List<Article> getArticles() {
+        return articles;
     }
 
     public String getName() {

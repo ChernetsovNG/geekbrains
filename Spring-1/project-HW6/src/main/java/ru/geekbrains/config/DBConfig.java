@@ -1,4 +1,4 @@
-package ru.geekbrains;
+package ru.geekbrains.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -17,8 +17,8 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories("ru.geekbrains.repository")
-@ComponentScan("ru.geekbrains")
-public class AppConfig {
+@ComponentScan(value = "ru.geekbrains")
+public class DBConfig {
 
     @Bean(name = "dataSource")
     public DataSource dataSource() {
@@ -55,7 +55,7 @@ public class AppConfig {
         // Включает логирование
         properties.put("hibernate.show_sql", true);
         properties.put("hibernate.format_sql", true);
-        properties.put("hibernate.hbm2ddl.auto", "create-drop");
+        properties.put("hibernate.hbm2ddl.auto", "update");
         factory.setJpaProperties(properties);
         return factory;
     }

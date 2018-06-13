@@ -17,5 +17,5 @@ public interface CategoryService {
      *
      * @return - список категорий
      */
-    List<Category> getAllCategories();
+    List<Category> getAll();
 }
