@@ -18,4 +18,6 @@ public interface CategoryService {
      * @return - список категорий
      */
     List<Category> getAll();
+
+    Category get(String id);
 }
