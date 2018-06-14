@@ -10,8 +10,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>IT SITE</title>
-
+    <title>Geekbrains Spring-1 Demo</title>
     <link href="${resPath}/style.css" rel="stylesheet" type="text/css"/>
     <script src="${resPath}/assets/ckeditor/ckeditor.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -20,40 +19,30 @@
 <body>
 <div id="templatemo_header_wrapper">
     <div id="templatemo_header">
-
         <div id="site_title">
-
         </div>
 
         <div id="templatemo_rss">
             <a href="" target="_parent">SUBSCRIBE<br/><span>OUR FEED</span></a>
         </div>
-
-    </div> <!-- end of header -->
+    </div>
 
     <div id="templatemo_menu">
-
         <ul>
-            <li><a href="${contextPath}">Главная</a></li>
-            <li><a href="${contextPath}/articles/add">Написать статью</a></li>
+            <li><a href="${contextPath}/">Главная</a></li>
+            <li><a href="${contextPath}/advertisements/add">Добавить объявление</a></li>
         </ul>
-
-    </div> <!-- end of templatemo_menu -->
-
-</div> <!-- end of header wrapper -->
+    </div>
+</div>
 
 <div id="templatemo_main_wrapper">
     <div id="templatemo_add_content_wrapper">
 
         <div id="templatemo_content">
-
-
             <div class="post_section">
-
-
-                <form:form modelAttribute="article" class="add_article_form" method="POST"
-                           action="${contextPath}/articles">
-                    <h2 class="message">Создание статьи</h2>
+                <form:form modelAttribute="advertisement" class="add_advertisement_form" method="POST"
+                           action="${contextPath}/advertisements">
+                    <h2 class="message">Создание объявления</h2>
 
                     <strong class="add_category">Категория*</strong>
                     <select id="categoryId" name="categoryId" class="cd-select">
@@ -70,28 +59,22 @@
                     <p style="padding-top:50px;">
                             <form:textarea path="content" id="content" class="contentarea"/>
 
-                    <div class="author_add">
-                        <span class="author_info_title">Данные автора*</span>
-                        <form:input path="author.firstName" type="text" placeholder="Имя" class="add_author_firstname"/>
-                        <form:input path="author.lastName" type="text" placeholder="Фамилия"
-                                    name="add_author_lastname"/>
+                    <div class="company_add">
+                        <span class="company_info_title">Данные компании*</span>
+                        <form:input path="company.name" type="text" placeholder="Название" class="add_company_name"/>
+                        <form:input path="company.description" type="text" placeholder="Описание"
+                                    name="add_company_description"/>
+                        <form:input path="company.address" type="text" placeholder="Адрес" name="add_company_address"/>
                     </div>
-
                     <input type="submit" class="button_sub" value="Опубликовать"/>
                 </form:form>
-
             </div>
-
             <div class="cleaner_h40"><!-- a spacing between 2 posts --></div>
-
         </div>
-
         <div class="cleaner_h40"></div>
-
     </div>
-
     <div class="cleaner"></div>
-</div> <!-- end of content wrapper -->
+</div>
 
 <jsp:include page="../elements/footer.jsp"/>
 

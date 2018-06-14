@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 public class Category extends AbstractEntity {
     @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
-    private final List<Article> articles = new ArrayList<>();
+    private final List<Advertisement> advertisements = new ArrayList<>();
 
     private String name;
 
@@ -21,16 +21,12 @@ public class Category extends AbstractEntity {
         this.name = name;
     }
 
-    void addArticle(Article article) {
-        getArticles().add(article);
+    public List<Advertisement> getAdvertisements() {
+        return advertisements;
     }
 
-    public void removeArticle(Article article) {
-        getArticles().remove(article);
-    }
-
-    public List<Article> getArticles() {
-        return articles;
+    public void addAdvertisement(Advertisement advertisement) {
+        advertisements.add(advertisement);
     }
 
     public String getName() {

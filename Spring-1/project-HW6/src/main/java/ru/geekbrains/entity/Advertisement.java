@@ -6,30 +6,30 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class Article extends AbstractEntity {
-    @ManyToOne
+public class Advertisement extends AbstractEntity {
+    @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
     private String title;
 
     private String content;
 
-    @OneToOne
-    private Author author;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Company company;
 
-    @Column(name="published_date", insertable=false)
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date publishedDate;
 
-    public Article() {
+    public Advertisement() {
+        publishedDate = new Date();
     }
 
-    public Article(Category category, String title, String content, Author author) {
+    public Advertisement(Category category, String title, String content, Company company) {
         this.category = category;
         this.title = title;
         this.content = content;
-        this.author = author;
+        this.company = company;
     }
 
     public Category getCategory() {
@@ -38,6 +38,7 @@ public class Article extends AbstractEntity {
 
     public void setCategory(Category category) {
         this.category = category;
+        category.addAdvertisement(this);
     }
 
     public String getTitle() {
@@ -56,12 +57,13 @@ public class Article extends AbstractEntity {
         this.content = text;
     }
 
-    public Author getAuthor() {
-        return author;
+    public Company getCompany() {
+        return company;
     }
 
-    public void setAuthor(Author author) {
-        this.author = author;
+    public void setCompany(Company company) {
+        this.company = company;
+        company.addAdvertisement(this);
     }
 
     public Date getPublishedDate() {
@@ -74,11 +76,12 @@ public class Article extends AbstractEntity {
 
     @Override
     public String toString() {
-        return "Article{" +
+        return "Advertisement{" +
                 "category=" + category +
                 ", title='" + title + '\'' +
-                ", text='" + content + '\'' +
-                ", author='" + author + '\'' +
+                ", content='" + content + '\'' +
+                ", company=" + company +
+                ", publishedDate=" + publishedDate +
                 '}';
     }
 }

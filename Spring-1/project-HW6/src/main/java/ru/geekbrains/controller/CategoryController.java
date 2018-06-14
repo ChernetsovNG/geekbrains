@@ -6,9 +6,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.geekbrains.entity.Article;
+import ru.geekbrains.entity.Advertisement;
 import ru.geekbrains.entity.Category;
-import ru.geekbrains.service.ArticleService;
+import ru.geekbrains.service.AdvertisementService;
 import ru.geekbrains.service.CategoryService;
 
 import java.util.List;
@@ -19,11 +19,11 @@ import static ru.geekbrains.utils.Utils.iteratorToList;
 @RequestMapping("/categories")
 public class CategoryController {
 
-    private final ArticleService articleService;
+    private final AdvertisementService advertisementService;
     private final CategoryService categoryService;
 
-    public CategoryController(ArticleService articleService, CategoryService categoryService) {
-        this.articleService = articleService;
+    public CategoryController(AdvertisementService advertisementService, CategoryService categoryService) {
+        this.advertisementService = advertisementService;
         this.categoryService = categoryService;
     }
 
@@ -33,16 +33,18 @@ public class CategoryController {
         model.addAttribute("category", category);
         List<Category> categories = categoryService.getAll();
         model.addAttribute("categories", categories);
+        List<Advertisement> advertisements = advertisementService.getByCategoryId(id);
+        model.addAttribute("advertisements", advertisements);
         return "category/view";
     }
 
-    @GetMapping(value = "/{id}/articles_ajax", produces = "application/json")
+    @GetMapping(value = "/{id}/advertisements_ajax", produces = "application/json")
     @ResponseBody
-    public ArticlesAjax viewAjax(@PathVariable("id") String id,
-                                 @RequestParam("pageCounter") Integer pageCounter,
-                                 @RequestParam("number") Integer number,
-                                 @RequestParam("order") String order,
-                                 @RequestParam("orderBy") String orderBy) {
+    public AdvertisementsAjax viewAjax(@PathVariable("id") String id,
+                                       @RequestParam("pageCounter") Integer pageCounter,
+                                       @RequestParam("number") Integer number,
+                                       @RequestParam("order") String order,
+                                       @RequestParam("orderBy") String orderBy) {
         Sort sort;
         if (order.equalsIgnoreCase("DESC")) {
             sort = new Sort(Sort.Direction.DESC, orderBy);
@@ -50,9 +52,9 @@ public class CategoryController {
             sort = new Sort(Sort.Direction.ASC, orderBy);
         }
         PageRequest pageable = PageRequest.of(pageCounter, number, sort);
-        Page<Article> articlePage = articleService.getByCategoryId(id, pageable);
-        ArticlesAjax responsive = new ArticlesAjax();
-        responsive.setArticles(iteratorToList(articlePage.iterator()));
+        Page<Advertisement> advertisementsPage = advertisementService.getByCategoryId(id, pageable);
+        AdvertisementsAjax responsive = new AdvertisementsAjax();
+        responsive.setAdvertisements(iteratorToList(advertisementsPage.iterator()));
 
         return responsive;
     }

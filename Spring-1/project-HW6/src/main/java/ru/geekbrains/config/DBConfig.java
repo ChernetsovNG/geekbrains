@@ -11,7 +11,10 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import javax.persistence.AttributeConverter;
 import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.Properties;
 
 @Configuration
@@ -55,7 +58,10 @@ public class DBConfig {
         // Включает логирование
         properties.put("hibernate.show_sql", true);
         properties.put("hibernate.format_sql", true);
-        properties.put("hibernate.hbm2ddl.auto", "update");
+        properties.put("hibernate.hbm2ddl.auto", "create-drop");
+
+        // properties.put("javax.persistence.sql-load-script-source", "data.sql");
+
         factory.setJpaProperties(properties);
         return factory;
     }
@@ -65,6 +71,11 @@ public class DBConfig {
         final JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactoryBean().getObject());
         return transactionManager;
+    }
+
+    // @Bean
+    public AttributeConverter<LocalDateTime, Timestamp> localDateTimeConverter() {
+        return new LocalDateTimeAttributeConverter();
     }
 
 }

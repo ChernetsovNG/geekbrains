@@ -7,10 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.geekbrains.entity.Article;
-import ru.geekbrains.entity.Author;
+import ru.geekbrains.entity.Advertisement;
 import ru.geekbrains.entity.Category;
-import ru.geekbrains.service.ArticleService;
+import ru.geekbrains.entity.Company;
+import ru.geekbrains.service.AdvertisementService;
 import ru.geekbrains.service.CategoryService;
 
 import java.util.List;
@@ -18,13 +18,13 @@ import java.util.List;
 import static ru.geekbrains.utils.Utils.iteratorToList;
 
 @Controller
-@RequestMapping("/articles")
-public class ArticleController {
-    private final ArticleService articleService;
+@RequestMapping("/advertisements")
+public class AdvertisementController {
+    private final AdvertisementService advertisementService;
     private final CategoryService categoryService;
 
-    public ArticleController(ArticleService articleService, CategoryService categoryService) {
-        this.articleService = articleService;
+    public AdvertisementController(AdvertisementService advertisementService, CategoryService categoryService) {
+        this.advertisementService = advertisementService;
         this.categoryService = categoryService;
     }
 
@@ -40,35 +40,34 @@ public class ArticleController {
      */
     @GetMapping(value = "/{id}")
     public String view(@PathVariable("id") String id, Model model) {
-        Article article = articleService.get(id);
-        model.addAttribute("article", article);
-        return "article/view";
+        Advertisement advertisement = advertisementService.get(id);
+        model.addAttribute("advertisement", advertisement);
+        return "advertisement/view";
     }
 
     @GetMapping(value = "/add")
     public String addForm(Model model) {
         // создание пустого объекта
-        Article article = new Article();
-        article.setAuthor(new Author());
-        //получение списка всех категорий для возможности выбора категории, к которой будет принадлежать создаваемая статья
+        Advertisement advertisement = new Advertisement();
+        advertisement.setCompany(new Company());
+        // получение списка всех категорий для возможности выбора категории, к которой будет принадлежать объявление
         List<Category> categories = categoryService.getAll();
         // связывание объекта статьи с формой и добавление списка категорий на страницу
-        model
-                .addAttribute("article", article)
+        model.addAttribute("advertisement", advertisement)
                 .addAttribute("categories", categories);
-        return "article/add";
+        return "advertisement/add";
     }
 
     @PostMapping
-    public String add(@ModelAttribute("article") Article article,
+    public String add(@ModelAttribute("advertisement") Advertisement advertisement,
                       BindingResult bindingResult,
                       @RequestParam("categoryId") String categoryId) {
         Category category = categoryService.get(categoryId);
         if (bindingResult.hasErrors() || category == null) {
-            return "redirect:/articles/add";
+            return "redirect:/advertisements/add";
         }
-        article.setCategory(category);
-        articleService.save(article);
+        advertisement.setCategory(category);
+        advertisementService.save(advertisement);
         return "redirect:/";
     }
 
@@ -79,15 +78,15 @@ public class ArticleController {
      * @param number              - количество статей в одном блоке
      * @param order               - порядок сортировки(ASC-прямая, DESC-обратная)
      * @param orderBy             - поле по которому происходит сортировка
-     * @return объект класса ArticlesAjax, который содержит список статей,
+     * @return объект класса AdvertisementsAjax, который содержит список статей,
      * данный объект преобразовывается в JSON-формат
      */
-    @GetMapping(value = "/articles_ajax", produces = "application/json")
+    @GetMapping(value = "/advertisements_ajax", produces = "application/json")
     @ResponseBody
-    public ArticlesAjax listAjax(@RequestParam("pageCounter") Integer pageCounter,
-                                 @RequestParam("number") Integer number,
-                                 @RequestParam("order") String order,
-                                 @RequestParam("orderBy") String orderBy) {
+    public AdvertisementsAjax listAjax(@RequestParam("pageCounter") Integer pageCounter,
+                                       @RequestParam("number") Integer number,
+                                       @RequestParam("order") String order,
+                                       @RequestParam("orderBy") String orderBy) {
         // объект, который будет содержать информацию о сортировке
         Sort sort;
         if (order.equalsIgnoreCase("DESC")) {
@@ -100,11 +99,11 @@ public class ArticleController {
         // конструктор принимает полную информацию о текущем блоке, количестве статей и сортировке
         PageRequest pageable = PageRequest.of(pageCounter, number, sort);
 
-        Page<Article> articlePage = articleService.getAll(pageable);
+        Page<Advertisement> advertisementPage = advertisementService.getAll(pageable);
 
-        ArticlesAjax responsive = new ArticlesAjax();
+        AdvertisementsAjax responsive = new AdvertisementsAjax();
         // из объекта Page возвращаем итератор и преобразуем его в список
-        responsive.setArticles(iteratorToList(articlePage.iterator()));
+        responsive.setAdvertisements(iteratorToList(advertisementPage.iterator()));
         return responsive;
     }
 

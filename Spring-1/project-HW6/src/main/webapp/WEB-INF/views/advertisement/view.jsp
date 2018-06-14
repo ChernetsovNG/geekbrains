@@ -11,7 +11,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>IT SITE</title>
+    <title>Geekbrains Spring-1 Demo</title>
 
     <link href="${resPath}/style.css" rel="stylesheet" type="text/css"/>
     <script src="${resPath}/assets/ckeditor/ckeditor.js"></script>
@@ -22,52 +22,55 @@
 <body>
 <div id="templatemo_header_wrapper">
     <div id="templatemo_header">
-
-        <div id="site_title">
-
-        </div>
-
+        <div id="site_title"></div>
         <div id="templatemo_rss">
             <a href="" target="_parent">SUBSCRIBE<br/><span>OUR FEED</span></a>
         </div>
-
-    </div> <!-- end of header -->
+    </div>
 
     <div id="templatemo_menu">
-
         <ul>
-            <li><a href="${contextPath}">Главная</a></li>
-            <li><a href="${contextPath}/articles/add">Написать статью</a></li>
+            <li><a href="${contextPath}/">Главная</a></li>
+            <li><a href="${contextPath}/advertisements/add">Добавить объявление</a></li>
         </ul>
-
-    </div> <!-- end of templatemo_menu -->
-
-</div> <!-- end of header wrapper -->
+    </div>
+</div>
 
 <div id="templatemo_main_wrapper">
     <div id="templatemo_add_content_wrapper">
 
         <div id="templatemo_content">
 
-            <c:if test="${not empty article}">
+            <c:if test="${not empty advertisement}">
 
                 <div class='post_section view'>
-                    <h2><a class='article__title' href=''></a>${article.title}</h2>
-                    <strong>Дата: <span></span></strong><span class='article__date'><fmt:formatDate pattern="yyyy-MM-dd"
-                                                                                                    value="${article.publishedDate}"/></span>
-                    | <strong>Автор: </strong> <span class='article__author'>${article.author.firstName}</span>
+                    <h2><a class='advertisement__title' href=''></a>${advertisement.title}</h2>
+                    <strong>Дата: <span></span></strong>
+                    <span class='advertisement__date'>
+                        <fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${advertisement.publishedDate}"/>
+                    </span>
+                    <br/>
+                    <strong>Компания: </strong>
+                    <span class='advertisement__company'>
+                        Название: <span>${advertisement.company.name}</span>
+                        Описание: <span>${advertisement.company.description}</span>
+                        Адрес: <span>${advertisement.company.address}</span>
+                    </span>
                     <div class="cleaner"></div>
                     <p>
-                    <div class='article__content view'>${article.content}</div>
+                        <strong>Содержание объявления: </strong>
+                    <div class='advertisement__content view'>${advertisement.content}</div>
                     <div class='cleaner'></div>
                     <p>
-                    <div class='category view'>Категория: <span>${article.category.name}</span></div>
+                    <div class='category view'>
+                        <strong>Категория: </strong>
+                        <span>${advertisement.category.name}</span>
+                    </div>
                 </div>
-
             </c:if>
         </div>
         <div class="cleaner"></div>
-    </div> <!-- end of content wrapper -->
+    </div>
 </div>
 
 <jsp:include page="../elements/footer.jsp"/>

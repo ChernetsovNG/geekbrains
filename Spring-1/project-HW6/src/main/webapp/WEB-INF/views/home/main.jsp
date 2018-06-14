@@ -8,7 +8,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>IT SITE</title>
+    <title>Geekbrains Spring-1 Demo</title>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
             integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <link href="${resPath}/style.css" rel="stylesheet" type="text/css"/>
@@ -16,37 +16,42 @@
 <body>
 <div id="templatemo_header_wrapper">
     <div id="templatemo_header">
-
         <div id="site_title">
-
         </div>
 
         <div id="templatemo_rss">
             <a href="" target="_parent">SUBSCRIBE<br/><span>OUR FEED</span></a>
         </div>
-
-    </div> <!-- end of header -->
+    </div>
 
     <div id="templatemo_menu">
         <ul>
-            <li><a href="${contextPath}">Главная</a></li>
-            <li><a href="${contextPath}/articles/add">Написать статью</a></li>
+            <li><a href="${contextPath}/">Главная</a></li>
+            <li><a href="${contextPath}/advertisements/add">Добавить объявление</a></li>
         </ul>
     </div>
-
 </div>
 
 <div id="templatemo_main_wrapper">
     <div id="templatemo_content_wrapper">
 
         <div id="templatemo_content">
+            <h4>Объявления</h4>
+            <ul class="templatemo_list">
+                <c:if test="${not empty advertisements}">
+                    <c:forEach items="${advertisements}" var="advertisement">
+                        <li><a class="advertisement_ref"
+                               href="./advertisements/${advertisement.id}">${advertisement.title}</a></li>
+                    </c:forEach>
+                </c:if>
+            </ul>
         </div>
 
         <div id="templatemo_sidebar_one">
             <h4>Категории</h4>
             <ul class="templatemo_list">
-                <c:if test="${not empty categories }">
-                    <c:forEach items="${categories }" var="category">
+                <c:if test="${not empty categories}">
+                    <c:forEach items="${categories}" var="category">
                         <li><a class="category_ref" href="./categories/${category.id}">${category.name}</a></li>
                     </c:forEach>
                 </c:if>
@@ -79,9 +84,10 @@
 <jsp:include page="../elements/footer.jsp"/>
 
 <script>
-    var url = "./articles/articles_ajax";
+    var url = "./advertisements/advertisements_ajax";
     var contextPath = "${contextPath}";
 </script>
 <script src="${resPath}/assets/getData.js"></script>
+
 </body>
 </html>
