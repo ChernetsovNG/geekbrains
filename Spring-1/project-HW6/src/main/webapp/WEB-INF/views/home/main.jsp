@@ -28,26 +28,21 @@
     </div> <!-- end of header -->
 
     <div id="templatemo_menu">
-
         <ul>
             <li><a href="${contextPath}">Главная</a></li>
             <li><a href="${contextPath}/articles/add">Написать статью</a></li>
         </ul>
+    </div>
 
-    </div> <!-- end of templatemo_menu -->
-
-</div> <!-- end of header wrapper -->
+</div>
 
 <div id="templatemo_main_wrapper">
     <div id="templatemo_content_wrapper">
 
         <div id="templatemo_content">
-
-
         </div>
 
         <div id="templatemo_sidebar_one">
-
             <h4>Категории</h4>
             <ul class="templatemo_list">
                 <c:if test="${not empty categories }">
@@ -56,7 +51,6 @@
                     </c:forEach>
                 </c:if>
             </ul>
-
             <div class="cleaner_h40"></div>
         </div>
 
@@ -81,11 +75,8 @@
     </div>
 </div>
 <button class="btn_load">Загрузить еще</button>
-<div id="templatemo_footer_wrapper">
-    <div id="templatemo_footer">
-        Copyright © 2016 <a href="#">IT SITE</a> |
-    </div>
-</div>
+
+<jsp:include page="../elements/footer.jsp"/>
 
 <script>
     var url = "./articles/articles_ajax";

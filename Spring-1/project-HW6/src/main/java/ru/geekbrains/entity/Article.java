@@ -1,8 +1,9 @@
 package ru.geekbrains.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Article extends AbstractEntity {
@@ -11,18 +12,23 @@ public class Article extends AbstractEntity {
 
     private String title;
 
-    private String text;
+    private String content;
 
     @OneToOne
     private Author author;
 
+    @Column(name="published_date", insertable=false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+    private Date publishedDate;
+
     public Article() {
     }
 
-    public Article(Category category, String title, String text, Author author) {
+    public Article(Category category, String title, String content, Author author) {
         this.category = category;
         this.title = title;
-        this.text = text;
+        this.content = content;
         this.author = author;
     }
 
@@ -42,12 +48,12 @@ public class Article extends AbstractEntity {
         this.title = title;
     }
 
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String text) {
+        this.content = text;
     }
 
     public Author getAuthor() {
@@ -58,12 +64,20 @@ public class Article extends AbstractEntity {
         this.author = author;
     }
 
+    public Date getPublishedDate() {
+        return publishedDate;
+    }
+
+    public void setPublishedDate(Date publishedDate) {
+        this.publishedDate = publishedDate;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
                 "category=" + category +
                 ", title='" + title + '\'' +
-                ", text='" + text + '\'' +
+                ", text='" + content + '\'' +
                 ", author='" + author + '\'' +
                 '}';
     }

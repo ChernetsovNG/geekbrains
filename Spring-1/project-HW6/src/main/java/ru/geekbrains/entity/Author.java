@@ -6,7 +6,7 @@ import javax.persistence.Entity;
 public class Author extends AbstractEntity {
     private String firstName;
 
-    private String secondName;
+    private String lastName;
 
     public String getFirstName() {
         return firstName;
@@ -16,19 +16,19 @@ public class Author extends AbstractEntity {
         this.firstName = firstName;
     }
 
-    public String getSecondName() {
-        return secondName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSecondName(String secondName) {
-        this.secondName = secondName;
+    public void setLastName(String secondName) {
+        this.lastName = secondName;
     }
 
     @Override
     public String toString() {
         return "Author{" +
                 "firstName='" + firstName + '\'' +
-                ", secondName='" + secondName + '\'' +
+                ", secondName='" + lastName + '\'' +
                 '}';
     }
 }

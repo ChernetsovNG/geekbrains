@@ -5,19 +5,11 @@ import ru.geekbrains.entity.Category;
 import java.util.List;
 
 public interface CategoryService {
-    /**
-     * Добавить новую категорию
-     *
-     * @param category - категория
-     */
-    void addCategory(Category category);
+    Category get(String id);
 
-    /**
-     * Получение всех категорий
-     *
-     * @return - список категорий
-     */
     List<Category> getAll();
 
-    Category get(String id);
+    void save(Category category);
+
+    void remove(Category category);
 }

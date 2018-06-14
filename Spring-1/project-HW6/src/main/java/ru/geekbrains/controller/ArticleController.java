@@ -13,9 +13,9 @@ import ru.geekbrains.entity.Category;
 import ru.geekbrains.service.ArticleService;
 import ru.geekbrains.service.CategoryService;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import static ru.geekbrains.utils.Utils.iteratorToList;
 
 @Controller
 @RequestMapping("/articles")
@@ -90,7 +90,6 @@ public class ArticleController {
                                  @RequestParam("orderBy") String orderBy) {
         // объект, который будет содержать информацию о сортировке
         Sort sort;
-
         if (order.equalsIgnoreCase("DESC")) {
             // конструктор Sort принимает в качестве параметров тип сортировки и поле,
             // по которому будет происходить соритровка
@@ -104,14 +103,10 @@ public class ArticleController {
         Page<Article> articlePage = articleService.getAll(pageable);
 
         ArticlesAjax responsive = new ArticlesAjax();
-        // из объекта Page возвращаем итератор и с помощью библиотеки google guava создаем списочный массив
-        Iterator<Article> articleIterator = articlePage.iterator();
-        List<Article> articles = new ArrayList<>();
-        while (articleIterator.hasNext()) {
-            articles.add(articleIterator.next());
-        }
-        responsive.setArticles(articles);
+        // из объекта Page возвращаем итератор и преобразуем его в список
+        responsive.setArticles(iteratorToList(articlePage.iterator()));
         return responsive;
     }
+
 
 }

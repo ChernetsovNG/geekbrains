@@ -24,12 +24,21 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Article get(String id) {
         return articleRepository.getById(id);
     }
 
     @Override
+    @Transactional
     public void save(Article article) {
         articleRepository.save(article);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Article> getByCategoryId(String id, Pageable pageable) {
+        return articleRepository.findByCategoryId(id, pageable);
+    }
+
 }

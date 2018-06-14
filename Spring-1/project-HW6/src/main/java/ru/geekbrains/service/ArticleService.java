@@ -11,4 +11,6 @@ public interface ArticleService {
     Article get(String id);
 
     void save(Article article);
+
+    Page<Article> getByCategoryId(String id, Pageable pageable);
 }

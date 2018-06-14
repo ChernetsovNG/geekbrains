@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 public class Category extends AbstractEntity {
-    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
+    @OneToMany(fetch = FetchType.EAGER, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
     private final List<Article> articles = new ArrayList<>();
 
     private String name;
