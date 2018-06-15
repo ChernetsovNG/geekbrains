@@ -8,9 +8,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Geekbrains Spring-1 Demo</title>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
     <link href="${resPath}/style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -37,7 +35,7 @@
 
         <div id="templatemo_content">
             <h2 class="category_name">${category.name}</h2>
-            <h4>Объявления</h4>
+            <%--<h4>Объявления</h4>
             <ul class="templatemo_list">
                 <c:if test="${not empty advertisements}">
                     <c:forEach items="${advertisements}" var="advertisement">
@@ -45,7 +43,7 @@
                                href="../advertisements/${advertisement.id}">${advertisement.title}</a></li>
                     </c:forEach>
                 </c:if>
-            </ul>
+            </ul>--%>
         </div>
         <div id="templatemo_sidebar_one">
 

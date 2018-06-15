@@ -13,8 +13,7 @@
     <title>Geekbrains Spring-1 Demo</title>
     <link href="${resPath}/style.css" rel="stylesheet" type="text/css"/>
     <script src="${resPath}/assets/ckeditor/ckeditor.js"></script>
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div id="templatemo_header_wrapper">

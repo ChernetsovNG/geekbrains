@@ -33,8 +33,6 @@ public class CategoryController {
         model.addAttribute("category", category);
         List<Category> categories = categoryService.getAll();
         model.addAttribute("categories", categories);
-        List<Advertisement> advertisements = advertisementService.getByCategoryId(id);
-        model.addAttribute("advertisements", advertisements);
         return "category/view";
     }
 
