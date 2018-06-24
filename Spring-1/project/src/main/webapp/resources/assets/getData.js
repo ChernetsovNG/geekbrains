@@ -1,4 +1,4 @@
-//Шаблон для размещения описания статьи в списке
+//Шаблон для размещения описания объявления в списке
 var advertisementBody = "<div class='post_section'>" + "<h2><a class='advertisement__title' href=''></a></h2>" +
     "<strong>Дата: </span></strong><span class='advertisement__date'></span>" +
     "<strong>Компания: </strong><span class='advertisement__company'></span>"
