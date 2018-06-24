@@ -10,3 +10,7 @@
     var contextPath = "${contextPath}";
 </script>
 <script src="${resPath}/assets/getData.js"></script>
+
+<c:if test="${not empty message}">
+    <span class="error">${message}</span>
+</c:if>

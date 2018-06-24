@@ -3,6 +3,8 @@ package ru.geekbrains.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
@@ -10,11 +12,14 @@ public class Advertisement extends AbstractEntity {
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
+    @Size(min = 2, max = 150, message = "{validation.title.size}")
     private String title;
 
+    @Size(min = 10, message = "{validation.content.min}")
     private String content;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @Valid
     private Company company;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -77,11 +82,11 @@ public class Advertisement extends AbstractEntity {
     @Override
     public String toString() {
         return "Advertisement{" +
-                "category=" + category +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", company=" + company +
-                ", publishedDate=" + publishedDate +
-                '}';
+            "category=" + category +
+            ", title='" + title + '\'' +
+            ", content='" + content + '\'' +
+            ", company=" + company +
+            ", publishedDate=" + publishedDate +
+            '}';
     }
 }

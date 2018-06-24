@@ -1,5 +1,7 @@
 package ru.geekbrains.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -7,13 +9,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.geekbrains.entity.Advertisement;
 import ru.geekbrains.entity.Category;
 import ru.geekbrains.entity.Company;
 import ru.geekbrains.service.AdvertisementService;
 import ru.geekbrains.service.CategoryService;
 
+import javax.validation.Valid;
 import java.util.List;
+import java.util.Locale;
 
 import static ru.geekbrains.utils.Utils.iteratorToList;
 
@@ -22,10 +27,13 @@ import static ru.geekbrains.utils.Utils.iteratorToList;
 public class AdvertisementController {
     private final AdvertisementService advertisementService;
     private final CategoryService categoryService;
+    private final MessageSource messageSource;
 
-    public AdvertisementController(AdvertisementService advertisementService, CategoryService categoryService) {
+    @Autowired
+    public AdvertisementController(AdvertisementService advertisementService, CategoryService categoryService, MessageSource messageSource) {
         this.advertisementService = advertisementService;
         this.categoryService = categoryService;
+        this.messageSource = messageSource;
     }
 
     @GetMapping
@@ -54,20 +62,26 @@ public class AdvertisementController {
         List<Category> categories = categoryService.getAll();
         // связывание объекта статьи с формой и добавление списка категорий на страницу
         model.addAttribute("advertisement", advertisement)
-                .addAttribute("categories", categories);
+            .addAttribute("categories", categories);
         return "advertisement/add";
     }
 
     @PostMapping
-    public String add(@ModelAttribute("advertisement") Advertisement advertisement,
+    public String add(Model model,
+                      @ModelAttribute("advertisement") @Valid Advertisement advertisement,
                       BindingResult bindingResult,
-                      @RequestParam("categoryId") String categoryId) {
+                      @RequestParam("categoryId") String categoryId,
+                      Locale locale, RedirectAttributes redirectAttributes) {
         Category category = categoryService.get(categoryId);
         if (bindingResult.hasErrors() || category == null) {
+            model.addAttribute("advertisement", advertisement)
+                .addAttribute("categories", categoryService.getAll())
+                .addAttribute("message", messageSource.getMessage("article_create_fail", new Object[]{}, locale));
             return "redirect:/advertisements/add";
         }
         advertisement.setCategory(category);
         advertisementService.save(advertisement);
+        redirectAttributes.addFlashAttribute("message", messageSource.getMessage("article_create_sucess", new Object[]{}, locale));
         return "redirect:/";
     }
 
