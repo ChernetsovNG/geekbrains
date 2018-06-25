@@ -76,12 +76,12 @@ public class AdvertisementController {
         if (bindingResult.hasErrors() || category == null) {
             model.addAttribute("advertisement", advertisement)
                 .addAttribute("categories", categoryService.getAll())
-                .addAttribute("message", messageSource.getMessage("article_create_fail", new Object[]{}, locale));
+                .addAttribute("message", messageSource.getMessage("advertisement_create_fail", new Object[]{}, locale));
             return "redirect:/advertisements/add";
         }
         advertisement.setCategory(category);
         advertisementService.save(advertisement);
-        redirectAttributes.addFlashAttribute("message", messageSource.getMessage("article_create_sucess", new Object[]{}, locale));
+        redirectAttributes.addFlashAttribute("message", messageSource.getMessage("advertisement_create_success", new Object[]{}, locale));
         return "redirect:/";
     }
 
