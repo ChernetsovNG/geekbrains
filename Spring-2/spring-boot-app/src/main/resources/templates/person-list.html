@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+
+    <link rel="stylesheet" type="text/css"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"/>
+
+    <style>
+        .even {
+            background-color: lightgrey;
+        }
+    </style>
+</head>
+
+<body>
+
+<table border="1" width="100%" cellpadding="10" cellspacing="10" style="border-collapse: collapse;">
+    <tr>
+        <th>№</th>
+        <th>First Name</th>
+        <th>Second Name</th>
+        <th>Middle Name</th>
+        <th></th>
+        <th></th>
+    </tr>
+    <tr th:each="person,iter : ${persons}" th:class="${iter.even ? 'even' : 'odd'}">
+        <td width="50" align="center" nowrap="nowrap" th:utext="${iter.index +1} + '.'">...</td>
+        <td width="33%" th:utext="${person.firstName}">...</td>
+        <td width="33%" th:utext="${person.secondName}">...</td>
+        <td width="33%" th:utext="${person.middleName}">...</td>
+        <td width="50" nowrap="nowrap" align="center">
+            <a th:href="@{'/person-edit?id=' + ${person.id}}">EDIT</a>
+        </td>
+        <td width="50" nowrap="nowrap" align="center">
+            <a th:href="@{'/person-remove?id=' + ${person.id}}">REMOVE</a>
+        </td>
+    </tr>
+</table>
+
+<br/>
+
+<form method="get" action="/person-create">
+    <button style="font-size: 2em;" type="submit">CREATE</button>
+</form>
+
+</body>
+</html>
