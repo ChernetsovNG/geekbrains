@@ -1,2 +1,6 @@
 welcome:
   message: Hello Mkyong
+
+logging:
+  level:
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
